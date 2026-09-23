@@ -1,0 +1,6 @@
+.page {
+    margin: 0;
+    font-family: 'Onest', sans-serif;
+    color: var(--color-text);
+    background: var(--color-surface);
+}
