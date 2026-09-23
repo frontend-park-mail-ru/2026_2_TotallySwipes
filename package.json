@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:templates": "handlebars src/blocks -e hbs -f src/templates.js",
+    "prestart": "npm run build:templates",
     "start": "node server/server.js",
+    "predev": "npm run build:templates",
     "dev": "node --watch server/server.js",
     "lint": "eslint ."
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "handlebars": "^4.7.9"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

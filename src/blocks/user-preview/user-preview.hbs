@@ -1,0 +1,11 @@
+<div class="user-preview {{mix}}">
+    {{#if avatar}}
+        <img class="user-preview__avatar" src="{{avatar}}" alt="">
+    {{else}}
+        <span class="user-preview__avatar">{{initial}}</span>
+    {{/if}}
+    <div class="user-preview__info">
+        <span class="user-preview__name">{{name}}, {{age}}</span>
+        <span class="user-preview__city">{{city}}</span>
+    </div>
+</div>

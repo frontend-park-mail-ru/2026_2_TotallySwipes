@@ -1,0 +1,13 @@
+<ul class="menu {{mix}}">
+    {{#each items}}
+        <li class="menu__item">
+            <a class="menu__link" href="{{href}}" data-link>
+                <span class="menu__icon">{{{icon}}}</span>
+                <span class="menu__text">{{text}}</span>
+                {{#if counter}}
+                    <span class="counter menu__counter">{{counter}}</span>
+                {{/if}}
+            </a>
+        </li>
+    {{/each}}
+</ul>

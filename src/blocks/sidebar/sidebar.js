@@ -15,13 +15,8 @@ const MENU_ITEMS = [
 
 
 export function sidebarTemplate(mix = '') {
-    return `
-        <nav class="sidebar ${mix}">
-            <a class="logo sidebar__logo" href="/" data-link>swipes.</a>
-            ${menuTemplate(MENU_ITEMS, 'sidebar__menu')}
-            <div class="sidebar__user"></div>
-        </nav>
-    `;
+    const menu = menuTemplate(MENU_ITEMS, 'sidebar__menu')
+    return Handlebars.templates['sidebar/sidebar']({ mix, menu });
 }
 
 export async function loadSidebarUser(sidebar) {
