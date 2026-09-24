@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "build:templates": "handlebars src/blocks -e hbs -f src/templates.js",
+    "watch:templates": "chokidar \"src/blocks/**/*.hbs\" -c \"npm run build:templates\"",
     "prestart": "npm run build:templates",
     "start": "node server/server.js",
     "predev": "npm run build:templates",
-    "dev": "node --watch server/server.js",
+    "dev": "concurrently -n templates,server -c magenta,cyan \"npm:watch:templates\" \"node --watch server/server.js\"",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -17,6 +18,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^10.0.5",
     "eslint": "^10.11.0",
     "globals": "^17.12.0"
   }

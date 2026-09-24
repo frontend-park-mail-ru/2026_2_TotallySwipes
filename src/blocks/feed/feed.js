@@ -1,5 +1,5 @@
 export function renderFeedPage(root) {
-    const page = document.createElement('main');
+    const page = document.createElement('section');
     page.className = 'feed';
 
     page.innerHTML = `

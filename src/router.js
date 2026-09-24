@@ -25,6 +25,11 @@ export class Router {
             if (!link) {
                 return;
             }
+
+            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
             event.preventDefault();
             this.go(link.getAttribute('href'));
         });
