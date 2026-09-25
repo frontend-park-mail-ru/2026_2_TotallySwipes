@@ -1,0 +1,19 @@
+.feed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    box-sizing: border-box;
+    padding: 24px 16px;
+}
+
+.feed__title {
+    margin: 0;
+    font-size: 28px;
+}
+
+.feed__cards {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}

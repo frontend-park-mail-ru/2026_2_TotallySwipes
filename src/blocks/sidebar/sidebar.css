@@ -1,0 +1,13 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar__logo {
+    align-self: flex-start;
+    margin: 0 0 40px 12px;
+}
+
+.sidebar__user {
+    margin-top: auto;
+}
