@@ -4,7 +4,7 @@
     <circle cx="60" cy="60" r="58" fill="#fff"/>
     <circle cx="60" cy="60" r="53" fill="#CDF3AE"/>
     <g class="spin">
-      <text font-family="Onest, sans-serif" font-weight="800" font-size="10.5" fill="#1F5C24" letter-spacing=".5">
+      <text font-family="Onest, sans-serif" font-weight="800" font-size="10.5" fill="#1F5C24" letter-spacing="2.87">
         <textPath href="#rb1" textLength="266" lengthAdjust="spacing">СВАЙП ВПРАВО · СВАЙП ВПРАВО · </textPath>
       </text>
     </g>
