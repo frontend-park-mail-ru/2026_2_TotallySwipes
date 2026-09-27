@@ -1,5 +1,5 @@
 :root {
-    --color-text: #1a1a1a;
+    --color-text: #141414;
     --color-sub-text: #55554F;
     --color-surface: #FFFFFF;
     --color-background: #F3F3F0;
@@ -8,5 +8,16 @@
     --color-accent: #AD1480;
     --color-accent-light: #FFC6EE;
 
+    --color-mint: #CDF3AE;
+    --color-mint-ink: #1F5C24;
+    --color-sky: #C9E4F8;
+    --color-sky-ink: #1C3F82;
+    --color-lilac: #DDD2FF;
+    --color-lilac-ink: #4A2BA5;
+
+    --color-error-ring: #FFE3F6;
+
     --color-avatar-bg: #CFE6FB;
+
+    --shadow-sticker: 0 1px 2px rgba(20, 20, 20, .08), 0 10px 22px -10px rgba(20, 20, 20, .35);
 }

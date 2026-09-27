@@ -1,0 +1,36 @@
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px 7px 11px;
+    border: 4px solid var(--color-surface);
+    border-radius: 12px;
+    background: var(--pill-bg);
+    box-shadow: var(--shadow-sticker);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+    color: var(--pill-ink);
+}
+
+.pill__icon {
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+}
+
+.pill--sky {
+    --pill-bg: var(--color-sky);
+    --pill-ink: var(--color-sky-ink);
+}
+
+.pill--lilac {
+    --pill-bg: var(--color-lilac);
+    --pill-ink: var(--color-lilac-ink);
+}
+
+.pill--pink {
+    --pill-bg: var(--color-accent-light);
+    --pill-ink: var(--color-accent);
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="136" height="136">
+    <style>.spin{animation:spin 28s linear infinite;transform-origin:50% 50%}@keyframes spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.spin{animation:none}}</style>
+    <defs><path id="rb1" d="M60 60 m-43 0 a43 43 0 1 1 86 0 a43 43 0 1 1 -86 0"/></defs>
+    <circle cx="60" cy="60" r="58" fill="#fff"/>
+    <circle cx="60" cy="60" r="53" fill="#CDF3AE"/>
+    <g class="spin">
+      <text font-family="Onest, sans-serif" font-weight="800" font-size="10.5" fill="#1F5C24" letter-spacing=".5">
+        <textPath href="#rb1" textLength="266" lengthAdjust="spacing">СВАЙП ВПРАВО · СВАЙП ВПРАВО · </textPath>
+      </text>
+    </g>
+    <path transform="translate(40 40) scale(1.66)" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" fill="none" stroke="#1F5C24" stroke-width="2.2" stroke-linejoin="round"/>
+  </svg>
