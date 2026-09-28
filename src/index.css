@@ -9,3 +9,15 @@
 @import url('./blocks/counter/counter.css');
 @import url('./blocks/user-preview/user-preview.css');
 @import url('./blocks/feed/feed.css');
+@import url('./blocks/profile-details/profile-details.css');
+@import url('./blocks/compatibility/compatibility.css');
+@import url('./blocks/facts/facts.css');
+@import url('./blocks/pill/pill.css');
+@import url('./blocks/button/button.css');
+@import url('./blocks/profile-card/profile-card.css');
+@import url('./blocks/match-stamp/match-stamp.css');
+@import url('./blocks/pager/pager.css');
+@import url('./blocks/location/location.css');
+@import url('./blocks/round-button/round-button.css');
+@import url('./blocks/empty-state/empty-state.css');
+

@@ -6,13 +6,17 @@ export async function mockFetch(url, options = {}) {
 
     const mock = MOCK_ROUTES[`${method} ${pathname}`];
     if (!mock) {
-        return jsonResponse({ error: 'Not found' }, 404);
+        return jsonResponse({ error: { code: 'NOT_FOUND', message: 'Not found' } }, 404);
     }
 
     return jsonResponse(mock.body, mock.status);
 }
 
 function jsonResponse(body, status) {
+    if (status === 204) {
+        return new Response(null, { status });
+    }
+
     return new Response(JSON.stringify(body), {
         status,
         headers: { 'Content-Type': 'application/json' },

@@ -1,6 +1,11 @@
 .page {
     margin: 0;
-    font-family: 'Onest', sans-serif;
+    font: 400 16px/24px 'Onest', sans-serif;
     color: var(--color-text);
     background: var(--color-surface);
+}
+
+.page ::selection {
+    background-color: var(--color-selection-bg);
+    color: var(--color-selection-text);
 }

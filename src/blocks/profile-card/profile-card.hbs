@@ -1,0 +1,24 @@
+<article class="profile-card {{mix}}">
+    <div class="profile-card__gallery">
+        <img class="profile-card__photo" src="{{imgPath}}" alt="{{name}}" draggable="false">
+        <img class="profile-card__swipe-stamp profile-card__swipe-stamp_type_like" src="/public/icons/stamp-yes.svg" alt="" draggable="false">
+        <img class="profile-card__swipe-stamp profile-card__swipe-stamp_type_dislike" src="/public/icons/stamp-no.svg" alt="" draggable="false">
+        <img class="profile-card__swipe-stamp profile-card__swipe-stamp_type_super" src="/public/icons/stamp-super.svg" alt="" draggable="false">
+
+        {{#if hasCompatibility}}
+            <div class="match-stamp match-stamp_color_{{matchColor}} profile-card__stamp">
+                <img class="match-stamp__image" src="/public/icons/badge-compat-{{matchColor}}.svg" alt="" draggable="false">
+                <span class="match-stamp__value">{{compatibility}}%</span>
+            </div>
+        {{/if}}
+
+    </div>
+
+    <div class="profile-card__info">
+        <div class="profile-card__title">
+            {{name}}, <span class="profile-card__age">{{age}}</span>
+        </div>
+
+        {{{location}}}
+    </div>
+</article>

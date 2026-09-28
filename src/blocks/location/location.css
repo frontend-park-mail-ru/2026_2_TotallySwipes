@@ -1,0 +1,15 @@
+.location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--color-text-secondary);
+}
+
+
+.location__icon {
+    display: block;
+    flex-shrink: 0;
+
+}

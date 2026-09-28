@@ -1,12 +1,43 @@
 :root {
-    --color-text: #1a1a1a;
-    --color-sub-text: #55554F;
-    --color-surface: #FFFFFF;
+    --color-text: #141414;
+    --color-text-secondary: #55554F;
+    --color-text-muted: #8C8C85;
+    --color-text-inverse: #FFFFFF;
+
     --color-background: #F3F3F0;
-    --color-line-main-area: #D6D5CF;
+    --color-surface: #FFFFFF;
+    --color-surface-muted: #F3F3F0;
+    --color-surface-inverse: #141414;
 
-    --color-accent: #AD1480;
-    --color-accent-light: #FFC6EE;
+    --color-border: #E6E5E0;
+    --color-border-strong: #D6D5CF;
+    --color-focus: #4A2BA5;
 
-    --color-avatar-bg: #CFE6FB;
+    --color-like: #AD1480;
+    --color-like-bg: #FFC6EE;
+    --color-super: #4A2BA5;
+    --color-super-bg: #DDD2FF;
+    --color-dislike-hover: #1C3F82;
+    --color-dislike-hover-bg: #C9E4F8;
+
+    --color-counter: #AD1480;
+    --color-counter-bg: #FFC6EE;
+    --color-avatar-bg: #C9E4F8;
+
+    --color-selection-bg: #DDD2FF;
+    --color-selection-text: #4A2BA5;
+
+    --color-mint-bg: #CDF3AE;
+    --color-mint-text: #1F5C24;
+    --color-sun-bg: #FFE48F;
+    --color-sun-text: #8A5100;
+    --color-pink-bg: #FFC6EE;
+    --color-pink-text: #AD1480;
+    --color-sky-bg: #C9E4F8;
+    --color-sky-text: #1C3F82;
+    --color-lilac-bg: #DDD2FF;
+    --color-lilac-text: #4A2BA5;
+
+    --shadow-sticker: 0 10px 22px -10px rgba(20, 20, 20, 0.35);
+    --shadow-card: 0 24px 48px -24px rgba(20, 20, 20, 0.35);
 }

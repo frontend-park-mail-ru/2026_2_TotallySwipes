@@ -22,19 +22,19 @@
     border-radius: 14px;
     font-size: 16px;
     font-weight: 600;
-    color: var(--color-sub-text);
+    color: var(--color-text-secondary);
     text-decoration: none;
     transition: background-color .15s;
 }
 
 .menu__link:hover {
-    background: var(--color-background);
+    background: var(--color-surface-muted);
 }
 
 .menu__link_active,
 .menu__link_active:hover {
-    background: var(--color-text);
-    color: var(--color-surface);
+    background: var(--color-surface-inverse);
+    color: var(--color-text-inverse);
 }
 
 .menu__icon {

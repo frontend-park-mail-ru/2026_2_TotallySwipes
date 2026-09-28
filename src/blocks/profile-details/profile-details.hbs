@@ -1,0 +1,46 @@
+<div class="profile-details {{mix}}">
+    <div class="profile-details__header">
+        <h2 class="profile-details__name">{{name}}, <span class="profile-details__age">{{age}}</span></h2>
+        {{{location}}}
+    </div>
+
+    {{#if about}}
+        <section class="profile-details__section">
+            <h3 class="profile-details__section-title">О себе</h3>
+            <p class="profile-details__about">{{about}}</p>
+        </section>
+    {{/if}}
+
+    {{#if hasCompatibility}}
+        <section class="profile-details__section">
+            <h3 class="profile-details__section-title">Совместимость</h3>
+            <div class="compatibility">
+                <span class="compatibility__percent">{{compatibility}}%</span>
+                <span class="compatibility__verdict">{{compatibilityVerdict}}</span>
+            </div>
+        </section>
+    {{/if}}
+
+    {{#if tags}}
+        <section class="profile-details__section">
+            <h3 class="profile-details__section-title">Интересы</h3>
+            <div class="profile-details__tags">
+                {{{tags}}}
+            </div>
+        </section>
+    {{/if}}
+
+    {{#if facts.length}}
+        <section class="profile-details__section">
+            <h3 class="profile-details__section-title">Основное</h3>
+            <dl class="facts">
+                {{#each facts}}
+                    <div class="facts__row">
+                        <dt class="facts__label">{{label}}</dt>
+                        <dd class="facts__value">{{value}}</dd>
+                    </div>
+                {{/each}}
+            </dl>
+        </section>
+    {{/if}}
+</div>
