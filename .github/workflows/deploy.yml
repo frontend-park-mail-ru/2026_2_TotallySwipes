@@ -10,12 +10,24 @@ concurrency:
 permissions:
   contents: read
   packages: write
+  actions: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check CI passed for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          passed=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+            --commit "$GITHUB_SHA" --status success --limit 1 --json databaseId --jq length)
+          if [ "$passed" -eq 0 ]; then
+            echo "Для коммита $GITHUB_SHA нет успешного прогона CI — деплой отменён" >&2
+            exit 1
+          fi
 
       - name: Set image name
         id: image
@@ -70,15 +82,35 @@ jobs:
           docker pull "$IMAGE"
           docker logout ghcr.io
 
-          docker rm -f front 2>/dev/null || true
-          docker run -d --name front --restart unless-stopped -p 80:8000 "$IMAGE"
-          docker image prune -f
+          rollback() {
+            docker logs --tail 50 front 2>/dev/null || true
+            docker rm -f front 2>/dev/null || true
+            if docker container inspect front_prev >/dev/null 2>&1; then
+              echo "Возвращаем предыдущую версию" >&2
+              docker rename front_prev front
+              docker start front
+            fi
+            exit 1
+          }
+
+          if docker container inspect front >/dev/null 2>&1; then
+            docker rm -f front_prev 2>/dev/null || true
+            docker stop front
+            docker rename front front_prev
+          fi
+
+          docker run -d --name front --restart unless-stopped -p 80:8000 "$IMAGE" || rollback
 
           for i in $(seq 1 15); do
-            curl -fsS -o /dev/null http://127.0.0.1/ && echo "front is up" && exit 0
+            if curl -fsS -o /dev/null http://127.0.0.1/; then
+              echo "front is up"
+              docker rm -f front_prev 2>/dev/null || true
+              docker image prune -f
+              exit 0
+            fi
             sleep 2
           done
+
           echo "Фронт не ответил на /" >&2
-          docker logs --tail 50 front
-          exit 1
+          rollback
           EOF
