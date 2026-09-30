@@ -5,6 +5,6 @@ export function menuTemplate(items, mix = '') {
 
 export function setActiveMenuLink(pathname) {
     document.querySelectorAll('.menu__link').forEach((link) => {
-        link.classList.toggle('menu__link--active', link.getAttribute('href') === pathname);
+        link.classList.toggle('menu__link_active', link.getAttribute('href') === pathname);
     });
 }

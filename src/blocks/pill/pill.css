@@ -20,17 +20,17 @@
     height: 17px;
 }
 
-.pill--sky {
+.pill_sky {
     --pill-bg: var(--color-sky);
     --pill-ink: var(--color-sky-ink);
 }
 
-.pill--lilac {
+.pill_lilac {
     --pill-bg: var(--color-lilac);
     --pill-ink: var(--color-lilac-ink);
 }
 
-.pill--pink {
+.pill_pink {
     --pill-bg: var(--color-accent-light);
     --pill-ink: var(--color-accent);
 }

@@ -12,7 +12,7 @@ export function setFormFieldError(input, message) {
     const field = input.closest('.form-field');
     const error = field.querySelector('.form-field__error');
 
-    field.classList.toggle('form-field--invalid', Boolean(message));
+    field.classList.toggle('form-field_invalid', Boolean(message));
     input.setAttribute('aria-invalid', message ? 'true' : 'false');
     error.textContent = message ?? '';
     error.hidden = !message;

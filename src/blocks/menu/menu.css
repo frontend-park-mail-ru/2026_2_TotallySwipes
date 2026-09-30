@@ -31,8 +31,8 @@
     background: var(--color-background);
 }
 
-.menu__link--active,
-.menu__link--active:hover {
+.menu__link_active,
+.menu__link_active:hover {
     background: var(--color-text);
     color: var(--color-surface);
 }

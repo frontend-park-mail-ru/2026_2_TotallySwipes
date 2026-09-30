@@ -38,8 +38,8 @@
     box-shadow: 0 0 0 4px var(--color-lilac);
 }
 
-.form-field--invalid .form-field__input,
-.form-field--invalid .form-field__input:focus {
+.form-field_invalid .form-field__input,
+.form-field_invalid .form-field__input:focus {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 4px var(--color-error-ring);
 }

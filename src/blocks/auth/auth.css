@@ -54,37 +54,37 @@
     filter: drop-shadow(0 1px 1px rgba(20, 20, 20, .08)) drop-shadow(0 8px 10px rgba(20, 20, 20, .16));
 }
 
-.auth__sticker--mascot {
+.auth__sticker_mascot {
     top: 30px;
     left: 0;
     transform: rotate(-6deg);
 }
 
-.auth__sticker--badge {
+.auth__sticker_badge {
     top: 0;
     left: 222px;
     transform: rotate(8deg);
 }
 
-.auth__sticker--star {
+.auth__sticker_star {
     top: 58px;
     left: 420px;
     transform: rotate(12deg);
 }
 
-.auth__pill--test {
+.auth__pill_test {
     top: 182px;
     left: 196px;
     transform: rotate(-3deg);
 }
 
-.auth__pill--nearby {
+.auth__pill_nearby {
     top: 238px;
     left: 12px;
     transform: rotate(2deg);
 }
 
-.auth__pill--matches {
+.auth__pill_matches {
     top: 236px;
     left: 380px;
     transform: rotate(4deg);
@@ -131,7 +131,7 @@
     transition: background-color .15s;
 }
 
-.auth__tab--active {
+.auth__tab_active {
     background: var(--color-surface);
     color: var(--color-text);
     box-shadow: 0 2px 6px rgba(26, 26, 26, .12);
