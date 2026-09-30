@@ -9,3 +9,9 @@
 @import url('./blocks/counter/counter.css');
 @import url('./blocks/user-preview/user-preview.css');
 @import url('./blocks/feed/feed.css');
+@import url('./blocks/button/button.css');
+@import url('./blocks/checkbox/checkbox.css');
+@import url('./blocks/form-field/form-field.css');
+@import url('./blocks/pill/pill.css');
+@import url('./blocks/login-form/login-form.css');
+@import url('./blocks/auth/auth.css');
