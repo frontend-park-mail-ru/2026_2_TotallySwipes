@@ -96,6 +96,13 @@ const SWIPE_ERROR_MODAL = {
     text: 'Свайп не отправился, похоже, что пропала связь. Анкета осталась на месте, попробуйте свайпнуть снова.',
 };
 
+const LOAD_ERROR_MODAL = {
+    image: '/public/icons/mascot-error.svg',
+    title: 'Произошла ошибка',
+    text: 'Не удалось загрузить анкеты, похоже, что пропала связь. Попробуйте ещё раз.',
+    buttonText: 'Повторить',
+};
+
 function fillStack(stackElement, state) {
     while (stackElement.children.length < 3) {
         const nextIndex = state.index + stackElement.children.length;
@@ -218,6 +225,11 @@ export function renderFeedPage(root) {
             })
             .catch((error) => {
                 console.error('Не удалось загрузить ленту:', error);
+                if (!page.isConnected) return;
+
+                if (state.index >= state.profiles.length) {
+                    showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
+                }
             })
             .finally(() => {
                 state.isLoading = false;
