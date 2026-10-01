@@ -7,7 +7,12 @@
         <p class="modal__text">{{text}}</p>
     </div>
     <form class="modal__actions" method="dialog">
-        <button class="button button_view_primary modal__button">
+        {{#if cancelText}}
+            <button class="button button_view_ghost modal__button" value="cancel">
+                <span class="button__text">{{cancelText}}</span>
+            </button>
+        {{/if}}
+        <button class="button button_view_primary modal__button" value="confirm">
             <span class="button__text">{{buttonText}}</span>
         </button>
     </form>

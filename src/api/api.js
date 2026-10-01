@@ -59,6 +59,10 @@ async function request(path, { method = 'GET', query, body } = {}) {
     return data;
 }
 
+export function logout() {
+    return request('/auth/logout', { method: 'POST' });
+}
+
 export function getCurrentUser() {
     return request('/user/me');
 }
