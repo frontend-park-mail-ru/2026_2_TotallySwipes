@@ -19,21 +19,20 @@
     height: 48px;
     padding: 0px 18px;
     border-radius: 14px;
-    font-size: 16px;
-    font-weight: 600;
+    font: var(--font-body-16-semibold);
     color: var(--color-text-secondary);
     text-decoration: none;
     transition: background-color 0.15s;
 }
 
 .menu__link:hover {
-    background: var(--color-surface-muted);
+    background: var(--color-bg-page);
 }
 
 .menu__link_active,
 .menu__link_active:hover {
-    background: var(--color-surface-inverse);
-    color: var(--color-text-inverse);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
 }
 
 .menu__icon {

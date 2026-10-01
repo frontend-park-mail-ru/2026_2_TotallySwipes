@@ -64,8 +64,8 @@
 }
 
 .profile-card__title {
-    font-size: 30px;
-    font-weight: 800;
+    font: var(--font-heading-30-extrabold);
+    letter-spacing: var(--letter-spacing-heading-30);
 }
 
 .profile-card__age {

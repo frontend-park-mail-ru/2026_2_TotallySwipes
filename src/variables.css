@@ -1,44 +1,55 @@
 :root {
-    --color-text: #141414;
-    --color-text-secondary: #55554F;
-    --color-text-muted: #8C8C85;
-    --color-text-inverse: #FFFFFF;
-
-    --color-background: #F3F3F0;
+    --color-bg-page: #F3F3F0;
+    --color-bg-subtle: #FBFBFA;
+    --color-bg-disabled: #C9C8C2;
     --color-surface: #FFFFFF;
-    --color-surface-muted: #F3F3F0;
-    --color-surface-inverse: #141414;
 
-    --color-border: #E6E5E0;
+    --color-text-primary: #141414;
+    --color-text-secondary: #55554F;
+    --color-text-disabled: #8C8C85;
+    --color-text-placeholder: #7A7A73;
+
+    --color-border-default: #E6E5E0;
     --color-border-strong: #D6D5CF;
-    --color-focus: #4A2BA5;
+    --color-border-hover: #B9B8B1;
 
-    --color-like: #AD1480;
-    --color-like-bg: #FFC6EE;
-    --color-super: #4A2BA5;
-    --color-super-bg: #DDD2FF;
-    --color-dislike-hover: #1C3F82;
-    --color-dislike-hover-bg: #C9E4F8;
+    --color-primary: #141414;
+    --color-on-primary: #FFFFFF;
+    --color-secondary: #DDD2FF;
+    --color-on-secondary: #4A2BA5;
 
-    --color-counter: #AD1480;
-    --color-counter-bg: #FFC6EE;
-    --color-avatar-bg: #C9E4F8;
+    --color-accent-mint: #CDF3AE;
+    --color-accent-mint-ink: #1F5C24;
+    --color-accent-sun: #FFE48F;
+    --color-accent-sun-ink: #8A5100;
+    --color-accent-pink: #FFC6EE;
+    --color-accent-pink-ink: #AD1480;
+    --color-accent-sky: #C9E4F8;
+    --color-accent-sky-ink: #1C3F82;
+    --color-accent-lilac: #DDD2FF;
+    --color-accent-lilac-ink: #4A2BA5;
+
+    --color-success-default: #1F5C24;
+    --color-success-bg: #CDF3AE;
+    --color-warning-default: #8A5100;
+    --color-warning-bg: #FFE48F;
+    --color-error-default: #AD1480;
+    --color-error-bg: #FFE3F6;
+    --color-error-ring: #FFE3F6;
+
+    --color-online: #3EA84A;
 
     --color-backdrop: rgba(20, 20, 20, 0.48);
 
-    --color-selection-bg: #DDD2FF;
-    --color-selection-text: #4A2BA5;
+    --font-display-48-extrabold: 800 48px/50px 'Onest', sans-serif;
+    --font-heading-30-extrabold: 800 30px/33px 'Onest', sans-serif;
+    --font-body-16-regular: 400 16px/24px 'Onest', sans-serif;
+    --font-body-16-semibold: 600 16px/24px 'Onest', sans-serif;
+    --font-caption-13-regular: 400 13px/18px 'Onest', sans-serif;
+    --font-caption-13-bold: 700 13px/18px 'Onest', sans-serif;
 
-    --color-mint-bg: #CDF3AE;
-    --color-mint-text: #1F5C24;
-    --color-sun-bg: #FFE48F;
-    --color-sun-text: #8A5100;
-    --color-pink-bg: #FFC6EE;
-    --color-pink-text: #AD1480;
-    --color-sky-bg: #C9E4F8;
-    --color-sky-text: #1C3F82;
-    --color-lilac-bg: #DDD2FF;
-    --color-lilac-text: #4A2BA5;
+    --letter-spacing-display-48: -0.04em;
+    --letter-spacing-heading-30: -0.03em;
 
     --shadow-sticker: 0 10px 22px -10px rgba(20, 20, 20, 0.35);
     --shadow-card: 0 24px 48px -24px rgba(20, 20, 20, 0.35);

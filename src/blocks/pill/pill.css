@@ -8,9 +8,7 @@
     background: var(--pill-bg);
     box-shadow: var(--shadow-sticker);
     color: var(--pill-ink);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
+    font: var(--font-body-16-semibold);
     white-space: nowrap;
 }
 
@@ -23,26 +21,26 @@
 }
 
 .pill_color_pink {
-    --pill-bg: var(--color-pink-bg);
-    --pill-ink: var(--color-pink-text);
+    --pill-bg: var(--color-accent-pink);
+    --pill-ink: var(--color-accent-pink-ink);
 }
 
 .pill_color_sky {
-    --pill-bg: var(--color-sky-bg);
-    --pill-ink: var(--color-sky-text);
+    --pill-bg: var(--color-accent-sky);
+    --pill-ink: var(--color-accent-sky-ink);
 }
 
 .pill_color_lilac {
-    --pill-bg: var(--color-lilac-bg);
-    --pill-ink: var(--color-lilac-text);
+    --pill-bg: var(--color-accent-lilac);
+    --pill-ink: var(--color-accent-lilac-ink);
 }
 
 .pill_color_mint {
-    --pill-bg: var(--color-mint-bg);
-    --pill-ink: var(--color-mint-text);
+    --pill-bg: var(--color-accent-mint);
+    --pill-ink: var(--color-accent-mint-ink);
 }
 
 .pill_color_sun {
-    --pill-bg: var(--color-sun-bg);
-    --pill-ink: var(--color-sun-text);
+    --pill-bg: var(--color-accent-sun);
+    --pill-ink: var(--color-accent-sun-ink);
 }

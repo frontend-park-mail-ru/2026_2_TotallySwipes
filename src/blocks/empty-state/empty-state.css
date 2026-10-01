@@ -13,17 +13,15 @@
 }
 
 .empty-state__title {
-    font-size: 30px;
-    font-weight: 800;
+    font: var(--font-heading-30-extrabold);
+    letter-spacing: var(--letter-spacing-heading-30);
 }
 
 .empty-state__text {
     margin: 0;
-    font-size: 16px;
-    font-weight: 400;
+    font: var(--font-body-16-regular);
     color: var(--color-text-secondary);
     width: 300px;
-    line-height: 1.5;
 }
 
 .empty-state__actions {
