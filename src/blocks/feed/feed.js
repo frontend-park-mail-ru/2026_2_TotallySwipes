@@ -4,6 +4,7 @@ import { initStack } from './__stack/feed__stack.js';
 import { roundButtonTemplate } from '../round-button/round-button.js';
 import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
+import { showModal } from '../modal/modal.js';
 
 const TAGS = {
     coffee: { text: 'Кофе', icon: 'coffee' },
@@ -89,6 +90,12 @@ const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];
 
 const PREFETCH_THRESHOLD = 4;
 
+const SWIPE_ERROR_MODAL = {
+    image: '/public/icons/mascot-error.svg',
+    title: 'Произошла ошибка',
+    text: 'Свайп не отправился, похоже, что пропала связь. Анкета осталась на месте, попробуйте свайпнуть снова.',
+};
+
 function fillStack(stackElement, state) {
     while (stackElement.children.length < 3) {
         const nextIndex = state.index + stackElement.children.length;
@@ -151,14 +158,20 @@ export function renderFeedPage(root) {
     const stack = initStack(stackElement, {
         onSwipe(direction) {
             const swiped = state.profiles[state.index];
-            sendSwipe(swiped.id, direction).catch(() => {
+            sendSwipe(swiped.id, direction).catch((error) => {
+                console.error('Не удалось отправить свайп:', error);
+                if (!page.isConnected) return;
+
                 state.profiles.splice(state.index, 0, swiped);
-                const html = cardHtml(0, state);
+                const html = cardHtml(state.index, state);
                 stackElement.insertAdjacentHTML('beforeend', html);
                 if (stackElement.children.length > 3) {
                     stackElement.firstElementChild.remove();
                 }
                 updateLayers(stackElement);
+                updateEmpty();
+                page.querySelector('.feed__details').innerHTML = detailsHtml(state);
+                showModal(SWIPE_ERROR_MODAL);
             });
 
             state.index++;

@@ -1,0 +1,14 @@
+<dialog class="modal">
+    {{#if image}}
+        <img class="modal__image" src="{{image}}" width="164" height="124" alt="">
+    {{/if}}
+    <div class="modal__content">
+        <h2 class="modal__title">{{title}}</h2>
+        <p class="modal__text">{{text}}</p>
+    </div>
+    <form class="modal__actions" method="dialog">
+        <button class="button button_view_primary modal__button">
+            <span class="button__text">{{buttonText}}</span>
+        </button>
+    </form>
+</dialog>

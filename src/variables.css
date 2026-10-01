@@ -24,6 +24,8 @@
     --color-counter-bg: #FFC6EE;
     --color-avatar-bg: #C9E4F8;
 
+    --color-backdrop: rgba(20, 20, 20, 0.48);
+
     --color-selection-bg: #DDD2FF;
     --color-selection-text: #4A2BA5;
 
@@ -40,4 +42,7 @@
 
     --shadow-sticker: 0 10px 22px -10px rgba(20, 20, 20, 0.35);
     --shadow-card: 0 24px 48px -24px rgba(20, 20, 20, 0.35);
+    --shadow-dialog:
+        0 32px 64px -24px rgba(20, 20, 20, 0.45),
+        0 2px 4px rgba(20, 20, 20, 0.06);
 }
