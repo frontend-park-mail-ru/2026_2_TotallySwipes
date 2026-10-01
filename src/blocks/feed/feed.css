@@ -2,7 +2,7 @@
     --stack-height: clamp(360px, calc(100vh - 230px), 572px);
 
     display: grid;
-    grid-template-columns: 1fr 400px    ;
+    grid-template-columns: 1fr 400px;
     box-sizing: border-box;
     min-height: 100vh;
     overflow: hidden;
@@ -29,7 +29,7 @@
     font-weight: 800;
 }
 
-.feed__stack{
+.feed__stack {
     position: relative;
     height: var(--stack-height);
     aspect-ratio: 400 / 572;
@@ -39,14 +39,16 @@
 .feed__card {
     position: absolute;
     inset: 0;
-    transition: transform 0.5s, opacity 0.5s;
+    transition:
+        transform 0.5s,
+        opacity 0.5s;
     transform-origin: bottom center;
-    box-shadow: var(--shadow-card); 
+    box-shadow: var(--shadow-card);
     user-select: none;
 }
 
 .feed__card_layer_1 {
-    transform: translateY(-5px); 
+    transform: translateY(-5px);
     cursor: grab;
 }
 
@@ -59,7 +61,7 @@
 .feed__card_layer_3 {
     --match-stamp-visible: 0;
     transform: rotate(3deg);
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 .feed__card_leaving_like {
@@ -81,7 +83,6 @@
     transition: none;
     cursor: grabbing;
 }
-
 
 .feed__actions {
     display: flex;

@@ -1,9 +1,8 @@
-import { locationTemplate } from "../location/location.js";
+import { locationTemplate } from '../location/location.js';
 
-// export function profileCardTemplate(mix, name, age, imgPath) {
 export function profileCardTemplate(mix, profile) {
-    const {location, ...rest} = profile;
-    // const location = locationTemplate('profile-card__location', userLocation)
+    const { location, ...rest } = profile;
+
     return Handlebars.templates['profile-card/profile-card']({
         mix: mix,
         ...rest,

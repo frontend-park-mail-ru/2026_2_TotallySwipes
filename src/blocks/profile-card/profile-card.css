@@ -4,7 +4,6 @@
     background-color: var(--color-surface);
     border-radius: 30px;
     padding: 10px;
-
 }
 
 .profile-card__gallery {
@@ -22,7 +21,6 @@
 }
 
 .profile-card__pager {
-
 }
 
 .profile-card__stamp {
@@ -52,7 +50,6 @@
     top: 24px;
     right: 24px;
     opacity: var(--swipe-dislike, 0);
-    
 }
 
 .profile-card__swipe-stamp_type_super {
@@ -61,7 +58,6 @@
     bottom: 24px;
     opacity: var(--swipe-super, 0);
 }
-
 
 .profile-card__info {
     padding: 14px 12px 6px;
@@ -77,5 +73,4 @@
 }
 
 .profile-card__location {
-
 }

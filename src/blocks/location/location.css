@@ -7,9 +7,7 @@
     color: var(--color-text-secondary);
 }
 
-
 .location__icon {
     display: block;
     flex-shrink: 0;
-
 }

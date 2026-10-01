@@ -17,7 +17,6 @@
 .button__icon {
     display: block;
     flex-shrink: 0;
-
 }
 .button__text {
     font-size: 16px;
