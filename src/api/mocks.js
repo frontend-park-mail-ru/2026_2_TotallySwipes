@@ -2,32 +2,33 @@ const FEED_ITEMS = [
     {
         user_id: 42,
         name: 'Алина',
-        about_me: 'Работаю в книжном издательстве, по выходным катаюсь на велосипеде вдоль реки. Ищу человека, с которым можно молчать и не скучать.',
+        about_me:
+            'Работаю в книжном издательстве, по выходным катаюсь на велосипеде вдоль реки. Ищу человека, с которым можно молчать и не скучать.',
         dating_intent: 'Ищу половинку',
         compatibility: 0.87,
         age: 24,
         tags: ['books', 'bicycle', 'coffee', 'music', 'hiking'],
-        photos: [{ id: 1, url: '/public/img/bob2.jpg' }],
+        photos: [{ id: 1, url: '/public/img/1.jpg' }],
     },
     {
         user_id: 43,
-        name: 'Бебрина',
+        name: 'Марфа',
         about_me: 'Пеку хлеб на закваске и хожу на все концерты, до которых могу доехать.',
         dating_intent: 'Ищу половинку',
         compatibility: 0.82,
         age: 25,
         tags: ['cooking', 'concerts', 'animals'],
-        photos: [{ id: 2, url: '/public/img/bob3.jpg' }],
+        photos: [{ id: 2, url: '/public/img/2.jpg' }],
     },
     {
         user_id: 44,
-        name: 'Шиш',
+        name: 'Мадина',
         about_me: 'Бегаю по утрам, по вечерам играю в настолки.',
         dating_intent: 'Ищу общение',
         compatibility: 0.91,
         age: 26,
         tags: ['running', 'board_games', 'sport'],
-        photos: [{ id: 3, url: '/public/img/bob2.jpg' }],
+        photos: [{ id: 3, url: '/public/img/3.jpg' }],
     },
     {
         user_id: 45,
@@ -37,39 +38,51 @@ const FEED_ITEMS = [
         compatibility: 0.76,
         age: 27,
         tags: ['photo', 'painting', 'travel'],
-        photos: [{ id: 4, url: '/public/img/bob3.jpg' }],
+        photos: [{ id: 4, url: '/public/img/1.jpg' }],
     },
     {
         user_id: 46,
-        name: 'Бебрина',
+        name: 'Марфа',
         about_me: null,
         dating_intent: 'Ищу половинку',
         compatibility: 0.64,
         age: 28,
         tags: ['movies'],
-        photos: [{ id: 5, url: '/public/img/bob2.jpg' }],
+        photos: [{ id: 5, url: '/public/img/2.jpg' }],
     },
     {
         user_id: 47,
-        name: 'Шиш',
+        name: 'Мадина',
         about_me: 'Путешествую при любой возможности.',
         dating_intent: 'Ищу общение',
         compatibility: null,
         age: 29,
         tags: [],
-        photos: [{ id: 6, url: '/public/img/bob2.jpg' }],
+        photos: [{ id: 6, url: '/public/img/3.jpg' }],
     },
 ];
+
+function feedPage(url) {
+    const limit = Number(url.searchParams.get('limit') ?? 10);
+    const cursor = url.searchParams.get('cursor');
+
+    const start =
+        cursor === null ? 0 : FEED_ITEMS.findIndex((item) => item.user_id === Number(cursor)) + 1;
+    const items = FEED_ITEMS.slice(start, start + limit);
+    const hasMore = start + limit < FEED_ITEMS.length;
+
+    return {
+        status: 200,
+        body: { items, next_cursor: hasMore ? items[items.length - 1].user_id : null },
+    };
+}
 
 export const MOCK_ROUTES = {
     'GET /api/v1/user/me': {
         status: 200,
         body: { id: 1, name: 'User', age: 25, city: 'Москва', avatar: null },
     },
-    'GET /api/v1/feed': {
-        status: 200,
-        body: { items: FEED_ITEMS, next_cursor: null },
-    },
+    'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
     },

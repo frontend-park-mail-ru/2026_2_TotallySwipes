@@ -20,11 +20,10 @@ export function initStack(stackElement, { onSwipe }) {
     let isAnimating = false;
     let drag = null;
 
-    stackElement.addEventListener('pointerdown',(event) => {
+    stackElement.addEventListener('pointerdown', (event) => {
         if (isAnimating || event.button !== 0) return;
 
-        if (event.target.closest('.feed__card') !== stackElement.lastElementChild)
-            return
+        if (event.target.closest('.feed__card') !== stackElement.lastElementChild) return;
 
         if (!stackElement.lastElementChild) return;
 
@@ -32,13 +31,13 @@ export function initStack(stackElement, { onSwipe }) {
             startX: event.clientX,
             startY: event.clientY,
             card: stackElement.lastElementChild,
-        }
+        };
 
         drag.card.setPointerCapture(event.pointerId);
-        drag.card.classList.add('feed__card_dragging')
+        drag.card.classList.add('feed__card_dragging');
     });
 
-    stackElement.addEventListener('pointermove',(event) => {
+    stackElement.addEventListener('pointermove', (event) => {
         if (!drag) return;
         const dx = event.clientX - drag.startX;
         const dy = event.clientY - drag.startY;
@@ -48,13 +47,13 @@ export function initStack(stackElement, { onSwipe }) {
 
         drag.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * ROTATION_COEF}deg)`;
 
-        setStamps(drag.card, drag.dx, drag.dy)
+        setStamps(drag.card, drag.dx, drag.dy);
     });
 
-    stackElement.addEventListener('pointerup',(event) => {
+    stackElement.addEventListener('pointerup', () => {
         if (!drag) return;
 
-        drag.card.classList.remove('feed__card_dragging')
+        drag.card.classList.remove('feed__card_dragging');
 
         let direction = '';
 
@@ -79,12 +78,11 @@ export function initStack(stackElement, { onSwipe }) {
         drag = null;
     });
 
-    stackElement.addEventListener('pointercancel',(event) => {
+    stackElement.addEventListener('pointercancel', () => {
         if (!drag) return;
         resetCard(drag.card);
         drag.card.classList.remove('feed__card_dragging');
         drag = null;
-
     });
 
     function swipe(direction) {
@@ -100,24 +98,18 @@ export function initStack(stackElement, { onSwipe }) {
 
         top.style.transform = '';
         top.style.setProperty(`--swipe-${direction}`, 1);
-        top.classList.add(`feed__card_leaving_${direction}`)
+        top.classList.add(`feed__card_leaving_${direction}`);
 
-        top.addEventListener('transitionend', () => {
+        top.addEventListener('transitionend', (event) => {
+            if (event.target !== top || event.propertyName !== 'transform') return;
+
             top.remove();
 
-            stackElement.querySelector('.feed__card_layer_2')?.classList
-                .replace('feed__card_layer_2', 'feed__card_layer_1');
-
-            stackElement.querySelector('.feed__card_layer_3')?.classList
-                .replace('feed__card_layer_3', 'feed__card_layer_2');
-
-            const html = onSwipe(direction);
-
-            stackElement.insertAdjacentHTML('afterbegin', html)
+            onSwipe(direction);
 
             isAnimating = false;
-        }, { once: true });
+        });
     }
 
-    return { swipe }
+    return { swipe };
 }

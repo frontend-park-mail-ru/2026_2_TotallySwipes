@@ -1,9 +1,9 @@
-import { profileCardTemplate } from "../profile-card/profile-card.js";
-import { profileDetailsTemplate } from "../profile-details/profile-details.js";
-import { initStack } from "./__stack/feed__stack.js";
-import { roundButtonTemplate } from "../round-button/round-button.js";
-import { emptyStateLayout } from "../empty-state/empty-state.js";
-import { getFeed, sendSwipe } from "../../api/api.js";
+import { profileCardTemplate } from '../profile-card/profile-card.js';
+import { profileDetailsTemplate } from '../profile-details/profile-details.js';
+import { initStack } from './__stack/feed__stack.js';
+import { roundButtonTemplate } from '../round-button/round-button.js';
+import { emptyStateLayout } from '../empty-state/empty-state.js';
+import { getFeed, sendSwipe } from '../../api/api.js';
 
 const TAGS = {
     coffee: { text: 'Кофе', icon: 'coffee' },
@@ -54,7 +54,11 @@ function toInterest(tag, index) {
 }
 
 function toProfileView(item) {
-    const hasCompatibility = item.compatibility !== null;
+    const hasCompatibility =
+        typeof item.compatibility === 'number' &&
+        Number.isFinite(item.compatibility) &&
+        item.compatibility >= 0 &&
+        item.compatibility <= 1;
     const compatibility = hasCompatibility ? Math.round(item.compatibility * 100) : null;
 
     return {
@@ -68,7 +72,9 @@ function toProfileView(item) {
         compatibility,
         compatibilityVerdict: hasCompatibility ? compatibilityVerdict(compatibility) : null,
         interests: item.tags.map(toInterest),
-        facts: [{ label: 'Цель', value: item.dating_intent }, ...STATIC_FACTS].filter((fact) => fact.value),
+        facts: [{ label: 'Цель', value: item.dating_intent }, ...STATIC_FACTS].filter(
+            (fact) => fact.value,
+        ),
     };
 }
 
@@ -81,26 +87,38 @@ const ACTIONS = [
 
 const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];
 
-const state = {
-    profiles: [],
-    index: 0,
+const PREFETCH_THRESHOLD = 4;
+
+function fillStack(stackElement, state) {
+    while (stackElement.children.length < 3) {
+        const nextIndex = state.index + stackElement.children.length;
+        if (!state.profiles[nextIndex]) break;
+
+        const html = cardHtml(nextIndex, state);
+        stackElement.insertAdjacentHTML('afterbegin', html);
+    }
 }
 
-function cardHtml(index, layer) {
+function updateLayers(stackElement) {
+    const cards = [...stackElement.children].reverse();
+
+    cards.forEach((card, index) => {
+        card.classList.remove('feed__card_layer_1', 'feed__card_layer_2', 'feed__card_layer_3');
+        card.classList.add(`feed__card_layer_${index + 1}`);
+    });
+}
+
+function cardHtml(index, state) {
     const profile = state.profiles[index];
     if (!profile) return '';
 
-    return profileCardTemplate(`feed__card feed__card_layer_${layer}`, {
+    return profileCardTemplate('feed__card', {
         ...profile,
         matchColor: MATCH_COLORS[index % MATCH_COLORS.length],
     });
 }
 
-function stackCardsHtml(state) {
-    return [3, 2, 1].map((layer) => cardHtml(state.index + layer - 1, layer)).join('');
-}
-
-function detailsHtml() {
+function detailsHtml(state) {
     const profile = state.profiles[state.index];
     if (!profile) return '';
 
@@ -108,18 +126,20 @@ function detailsHtml() {
 }
 
 export function renderFeedPage(root) {
+    const state = {
+        profiles: [],
+        index: 0,
+        nextCursor: undefined,
+        hasMore: true,
+        isLoading: false,
+    };
+
     const page = document.createElement('section');
     page.className = 'feed';
 
-    state.profiles = [];
-    state.index = 0;
+    const details = detailsHtml(state);
 
-    const cards = stackCardsHtml(state);
-    const details = detailsHtml()
-
-    
     page.innerHTML = Handlebars.templates['feed/feed']({
-        cards: cards,
         details: details,
         actions: ACTIONS.map((action) => roundButtonTemplate(action)).join(''),
         emptyState: emptyStateLayout(),
@@ -127,18 +147,29 @@ export function renderFeedPage(root) {
 
     root.append(page);
 
-    const stack = initStack(page.querySelector('.feed__stack'), {
+    const stackElement = page.querySelector('.feed__stack');
+    const stack = initStack(stackElement, {
         onSwipe(direction) {
             const swiped = state.profiles[state.index];
-            sendSwipe(swiped.id, direction).catch((error) => {
-                console.error('Не удалось отправить свайп:', error);
+            sendSwipe(swiped.id, direction).catch(() => {
+                state.profiles.splice(state.index, 0, swiped);
+                const html = cardHtml(0, state);
+                stackElement.insertAdjacentHTML('beforeend', html);
+                if (stackElement.children.length > 3) {
+                    stackElement.firstElementChild.remove();
+                }
+                updateLayers(stackElement);
             });
 
             state.index++;
-            updateEmpty();
-            page.querySelector('.feed__details').innerHTML = detailsHtml();
+            if (state.profiles.length - state.index <= PREFETCH_THRESHOLD) {
+                loadMore();
+            }
 
-            return cardHtml(state.index + 2, 3);
+            fillStack(stackElement, state);
+            updateLayers(stackElement);
+            updateEmpty();
+            page.querySelector('.feed__details').innerHTML = detailsHtml(state);
         },
     });
 
@@ -149,21 +180,39 @@ export function renderFeedPage(root) {
         stack.swipe(button.dataset.action);
     });
 
-    getFeed()
-        .then(({ items }) => {
-            state.profiles = items.map(toProfileView);
-            state.index = 0;
-            page.querySelector('.feed__stack').innerHTML = stackCardsHtml(state);
-            page.querySelector('.feed__details').innerHTML = detailsHtml();
-            updateEmpty();
-        })
-        .catch((error) => {
-            console.error('Не удалось загрузить ленту:', error);
-        });
+    loadMore();
 
-    function updateEmpty() {
-        page.classList.toggle('feed_empty', state.index >= state.profiles.length);
+    function loadMore() {
+        if (state.isLoading || !state.hasMore) return;
+        state.isLoading = true;
+
+        getFeed({ cursor: state.nextCursor })
+            .then(({ items, next_cursor: nextCursor }) => {
+                if (!page.isConnected) return;
+
+                const wasExhausted = state.index >= state.profiles.length;
+
+                state.profiles.push(...items.map(toProfileView));
+                state.nextCursor = nextCursor;
+                state.hasMore = nextCursor !== null;
+
+                fillStack(stackElement, state);
+                updateLayers(stackElement);
+                if (wasExhausted) {
+                    page.querySelector('.feed__details').innerHTML = detailsHtml(state);
+                }
+                updateEmpty();
+            })
+            .catch((error) => {
+                console.error('Не удалось загрузить ленту:', error);
+            })
+            .finally(() => {
+                state.isLoading = false;
+            });
     }
 
-
+    function updateEmpty() {
+        const isExhausted = state.index >= state.profiles.length;
+        page.classList.toggle('feed_empty', isExhausted && !state.hasMore);
+    }
 }

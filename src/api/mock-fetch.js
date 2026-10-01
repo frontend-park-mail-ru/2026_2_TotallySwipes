@@ -2,12 +2,14 @@ import { MOCK_ROUTES } from './mocks.js';
 
 export async function mockFetch(url, options = {}) {
     const method = (options.method ?? 'GET').toUpperCase();
-    const { pathname } = new URL(url, location.origin);
+    const parsedUrl = new URL(url, location.origin);
 
-    const mock = MOCK_ROUTES[`${method} ${pathname}`];
-    if (!mock) {
+    const route = MOCK_ROUTES[`${method} ${parsedUrl.pathname}`];
+    if (!route) {
         return jsonResponse({ error: { code: 'NOT_FOUND', message: 'Not found' } }, 404);
     }
+
+    const mock = typeof route === 'function' ? route(parsedUrl, options) : route;
 
     return jsonResponse(mock.body, mock.status);
 }
