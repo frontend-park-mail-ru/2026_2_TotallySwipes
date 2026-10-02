@@ -19,20 +19,12 @@
     margin-top: 32px;
 }
 
-.login-form__options {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.login-form__forgot,
 .login-form__link {
     font-weight: 700;
     color: var(--color-text);
     text-decoration: none;
 }
 
-.login-form__forgot:hover,
 .login-form__link:hover {
     text-decoration: underline;
 }
