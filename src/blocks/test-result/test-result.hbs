@@ -1,0 +1,53 @@
+<div class="test-result__card">
+    <a class="test-result__back" href="/test" data-link>
+        <span class="test-result__icon" style="--icon: url('/public/icons/arrow-left.svg')"></span>
+        К тесту
+    </a>
+
+    <div class="test-result__header">
+        <img class="test-result__sticker" src="/public/icons/mascot-big-five.svg" width="112" height="112" alt="">
+        <div class="test-result__summary">
+            <h1 class="test-result__title">
+                <span class="test-result__title-lead">Ваш тип —</span>
+                {{title}}
+            </h1>
+            <p class="test-result__description">{{description}}</p>
+        </div>
+    </div>
+
+    <div class="test-result__traits">
+        {{{traits}}}
+    </div>
+
+    <div class="test-result__actions">
+        <a class="button button_view_primary test-result__button" href="/" data-link>
+            <span class="button__text">Смотреть анкеты по совместимости</span>
+            <span class="button__icon test-result__icon" style="--icon: url('/public/icons/arrow-right.svg')"></span>
+        </a>
+        <a class="button button_view_outline test-result__button test-result__button_restart" href="/test" data-link>
+            <span class="button__text">Пройти заново</span>
+        </a>
+    </div>
+</div>
+
+<aside class="note test-result__note">
+    <div class="note__header">
+        <img class="note__header-icon" src="/public/icons/info.svg" width="16" height="16" alt="">
+        <h2 class="note__title">Кто видит результат</h2>
+    </div>
+    <ul class="note__list">
+        <li class="note__item">
+            <span class="note__badge">
+                <span class="note__icon" style="--icon: url('/public/icons/users.svg')"></span>
+            </span>
+            Процент совместимости видят оба человека, только если оба прошли тест.
+        </li>
+        <li class="note__item">
+            <span class="note__badge">
+                <span class="note__icon" style="--icon: url('/public/icons/lock.svg')"></span>
+            </span>
+            Ваши ответы никто не видит.
+        </li>
+    </ul>
+    <p class="note__footer">Основан на опроснике «Большая пятёрка».</p>
+</aside>

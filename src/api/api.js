@@ -71,6 +71,10 @@ export function getFeed({ limit = 10, cursor } = {}) {
     return request('/feed', { query: { limit, cursor } });
 }
 
+export function getTestResult() {
+    return request('/test/result');
+}
+
 export function sendSwipe(targetUserId, direction) {
     return request('/feed/swipe', {
         method: 'POST',

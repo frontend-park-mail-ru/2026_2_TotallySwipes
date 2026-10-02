@@ -86,6 +86,23 @@ export const MOCK_ROUTES = {
     'POST /api/v1/feed/swipe': {
         status: 204,
     },
+    'GET /api/v1/test/result': {
+        status: 200,
+        body: {
+            type: {
+                title: 'открытый и собранный',
+                description:
+                    'Вы тянетесь к новому — идеям, местам, людям — и при этом держите слово и доводите начатое до конца. С вами спокойно: вы редко теряете равновесие и внимательны к собеседнику.',
+            },
+            scores: {
+                extraversion: 5,
+                agreeableness: 5.5,
+                conscientiousness: 6,
+                emotional_stability: 5.5,
+                openness: 6,
+            },
+        },
+    },
     'POST /api/v1/auth/logout': {
         status: 204,
     },

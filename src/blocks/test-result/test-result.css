@@ -1,0 +1,103 @@
+.test-result {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding: 152px 32px 24px;
+}
+
+.test-result__card {
+    grid-column: 1 / span 8;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 32px;
+    border-radius: 20px;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-panel);
+}
+
+.test-result__back {
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 8px;
+    font: var(--font-body-16-semibold);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+.test-result__icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
+    mask: var(--icon) center / auto no-repeat;
+}
+
+.test-result__header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.test-result__sticker {
+    display: block;
+    flex-shrink: 0;
+    filter: drop-shadow(0 8px 5px rgba(20, 20, 20, 0.16))
+        drop-shadow(0 1px 0.5px rgba(20, 20, 20, 0.08));
+}
+
+.test-result__summary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.test-result__title {
+    margin: 0;
+    font: var(--font-heading-30-extrabold);
+    letter-spacing: var(--letter-spacing-heading-30);
+}
+
+.test-result__title-lead {
+    display: block;
+    color: var(--color-text-secondary);
+}
+
+.test-result__description {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.test-result__traits {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 32px;
+}
+
+.test-result__actions {
+    display: flex;
+    gap: 12px;
+}
+
+.test-result__button {
+    box-sizing: border-box;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 14px;
+    text-decoration: none;
+}
+
+.test-result__button_restart {
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
+}
+
+.test-result__note {
+    grid-column: 9 / span 4;
+}
