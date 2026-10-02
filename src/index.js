@@ -5,49 +5,68 @@ import { withLayout } from './blocks/layout/layout.js';
 import { setActiveMenuLink } from './blocks/menu/menu.js';
 import { renderFeedPage } from './blocks/feed/feed.js';
 import { renderAuthPage } from './blocks/auth/auth.js';
+import { showToast } from './blocks/toast/toast.js';
 
 const GUEST_PATHS = ['/login'];
+const SERVER_ERROR_MESSAGE = 'Ошибка на сервере. Обновите страницу или повторите попытку позднее.';
 
-await restoreSession();
+let sessionChecked = true;
 
-const router = new Router(document.getElementById('root'));
+function startApp() {
+    const router = new Router(document.getElementById('root'));
 
-function handleLogin() {
-    setAuthenticated(true);
-    router.go('/');
-}
-
-async function handleLogout() {
-    try {
-        await logout();
-    } catch (error) {
-        console.error('Не удалось завершить сессию на сервере:', error);
+    function handleLogin() {
+        setAuthenticated(true);
+        router.go('/');
     }
 
-    setAuthenticated(false);
-    router.go('/login', { replace: true });
+    async function handleLogout() {
+        try {
+            await logout();
+        } catch (error) {
+            console.error('Не удалось завершить сессию на сервере:', error);
+            showToast(SERVER_ERROR_MESSAGE);
+            router.go('/', { replace: true });
+            return;
+        }
+
+        setAuthenticated(false);
+        router.go('/login', { replace: true });
+    }
+
+    router
+        .register('/login', (root) => renderAuthPage(root, { onLogin: handleLogin }))
+        .register('/logout', handleLogout)
+        .register('/', withLayout(renderFeedPage))
+        .register('*', withLayout((container) => {
+            container.textContent = 'Страница не найдена.';
+        }))
+        .beforeEach((path) => {
+            const isGuestPath = GUEST_PATHS.includes(path);
+
+            if (!isAuthenticated() && !isGuestPath) {
+                return '/login';
+            }
+
+            if (isAuthenticated() && isGuestPath) {
+                return '/';
+            }
+
+            return null;
+        })
+        .onChange(setActiveMenuLink);
+
+    router.start();
 }
 
-router
-    .register('/login', (root) => renderAuthPage(root, { onLogin: handleLogin }))
-    .register('/logout', handleLogout)
-    .register('/', withLayout(renderFeedPage))
-    .register('*', withLayout((container) => {
-        container.textContent = 'Страница не найдена';
-    }))
-    .beforeEach((path) => {
-        const isGuestPath = GUEST_PATHS.includes(path);
+try {
+    await restoreSession();
+} catch (error) {
+    console.error('Не удалось восстановить сессию:', error);
+    showToast(SERVER_ERROR_MESSAGE);
+    sessionChecked = false;
+}
 
-        if (!isAuthenticated() && !isGuestPath) {
-            return '/login';
-        }
-
-        if (isAuthenticated() && isGuestPath) {
-            return '/';
-        }
-
-        return null;
-    })
-    .onChange(setActiveMenuLink);
-
-router.start();
+if (sessionChecked) {
+    startApp();
+}

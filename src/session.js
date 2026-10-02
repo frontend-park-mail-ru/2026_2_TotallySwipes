@@ -1,4 +1,4 @@
-import { refreshSession } from './api/api.js';
+import { refreshSession, APIError } from './api/api.js';
 
 let authenticated = false;
 
@@ -14,7 +14,11 @@ export async function restoreSession() {
     try {
         await refreshSession();
         authenticated = true;
-    } catch {
+    } catch (error) {
+        if (!(error instanceof APIError && error.status === 401)) {
+            throw error;
+        }
+
         authenticated = false;
     }
 

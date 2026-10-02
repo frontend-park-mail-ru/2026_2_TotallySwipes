@@ -7,12 +7,12 @@ const startSession = () => { document.cookie = `${SESSION_COOKIE}=1; path=/`; };
 const endSession = () => { document.cookie = `${SESSION_COOKIE}=0; path=/; max-age=0`; };
 
 const error = (status, code, message) => ({ status, body: { error: { code, message } } });
-const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново');
+const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
 
 export const MOCK_ROUTES = {
     'POST /api/v1/auth/login': ({ body }) => {
         if (body.email !== MOCK_ACCOUNT.email || body.password !== MOCK_ACCOUNT.password) {
-            return error(401, 'INVALID_CREDENTIALS', 'Неверная почта или пароль');
+            return error(401, 'INVALID_CREDENTIALS', 'Неверная почта или пароль.');
         }
 
         startSession();
