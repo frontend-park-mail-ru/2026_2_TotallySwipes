@@ -1,0 +1,55 @@
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.profile-details__header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-details__name {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.profile-details__age {
+    color: var(--color-text-secondary);
+    font-weight: 800;
+}
+
+.profile-details__section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-details__section-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.profile-details__about {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.profile-details__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+}
+
+.profile-details__tag:nth-child(odd) {
+    transform: rotate(-1.2deg);
+}
+
+.profile-details__tag:nth-child(even) {
+    transform: rotate(1.5deg);
+}

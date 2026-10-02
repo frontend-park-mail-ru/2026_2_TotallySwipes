@@ -8,7 +8,10 @@ const app = express();
 
 app.use('/public', express.static(path.join(ROOT, 'public')));
 app.use('/src', express.static(path.join(ROOT, 'src')));
-app.use('/vendor/handlebars', express.static(path.join(ROOT, 'node_modules', 'handlebars', 'dist')));
+app.use(
+    '/vendor/handlebars',
+    express.static(path.join(ROOT, 'node_modules', 'handlebars', 'dist')),
+);
 
 app.use((req, res) => {
     res.sendFile(path.join(ROOT, 'public', 'index.html'));

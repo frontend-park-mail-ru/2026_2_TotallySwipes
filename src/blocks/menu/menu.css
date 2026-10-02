@@ -9,7 +9,6 @@
 }
 
 .menu__item {
-
 }
 
 .menu__link {
@@ -18,23 +17,23 @@
     align-items: center;
     gap: 14px;
     height: 48px;
-    padding: 0px 18px; 
+    padding: 0px 18px;
     border-radius: 14px;
     font-size: 16px;
     font-weight: 600;
-    color: var(--color-sub-text);
+    color: var(--color-text-secondary);
     text-decoration: none;
-    transition: background-color .15s;
+    transition: background-color 0.15s;
 }
 
 .menu__link:hover {
-    background: var(--color-background);
+    background: var(--color-surface-muted);
 }
 
 .menu__link_active,
 .menu__link_active:hover {
-    background: var(--color-text);
-    color: var(--color-surface);
+    background: var(--color-surface-inverse);
+    color: var(--color-text-inverse);
 }
 
 .menu__icon {

@@ -16,7 +16,7 @@
     background: var(--color-avatar-bg);
     object-fit: cover;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .user-preview__info {
@@ -28,10 +28,10 @@
 
 .user-preview__name {
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .user-preview__city {
-    font-size: 14px;
-    color: var(--color-sub-text);
+    font-size: 13px;
+    color: var(--color-text-secondary);
 }

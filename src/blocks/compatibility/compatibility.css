@@ -1,0 +1,19 @@
+.compatibility {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 18px 18px 16px 18px;
+    border-radius: 20px;
+    background-color: var(--color-surface-muted);
+}
+
+.compatibility__percent {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.compatibility__verdict {
+    font-size: 16px;
+    color: var(--color-text-secondary);
+}

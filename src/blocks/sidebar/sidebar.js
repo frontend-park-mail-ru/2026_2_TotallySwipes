@@ -5,17 +5,16 @@ import { userPreviewTemplate } from '../user-preview/user-preview.js';
 
 const MENU_ITEMS = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
-    { href: '/likes', text: 'Симпатии', icon: icons.heart},
-    { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3},
+    { href: '/likes', text: 'Симпатии', icon: icons.heart },
+    { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3 },
     { href: '/test', text: 'Тест совместимости', icon: icons.stars },
     { href: '/profile', text: 'Профиль', icon: icons.user },
 ];
 
 // TODO: брать счётчики с бэкенда
 
-
 export function sidebarTemplate(mix = '') {
-    const menu = menuTemplate(MENU_ITEMS, 'sidebar__menu')
+    const menu = menuTemplate(MENU_ITEMS, 'sidebar__menu');
     return Handlebars.templates['sidebar/sidebar']({ mix, menu });
 }
 

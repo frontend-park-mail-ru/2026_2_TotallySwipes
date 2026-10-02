@@ -10,7 +10,10 @@
     "start": "node server/server.js",
     "predev": "npm run build:templates",
     "dev": "concurrently -n templates,server -c magenta,cyan \"npm:watch:templates\" \"node --watch server/server.js\"",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky || true"
   },
   "dependencies": {
     "express": "^5.2.1",
@@ -21,6 +24,13 @@
     "chokidar-cli": "^3.0.0",
     "concurrently": "^10.0.5",
     "eslint": "^10.11.0",
-    "globals": "^17.12.0"
-  }
+    "globals": "^17.12.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9"
+  },
+  "lint-staged": {
+  "*.js": ["eslint --fix", "prettier --write"],
+  "*.{css,html}": "prettier --write"
+}
 }

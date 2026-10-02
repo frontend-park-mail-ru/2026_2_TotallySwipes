@@ -11,10 +11,10 @@
 
 ## Внешние ссылки
 
-* [Figma](https://www.figma.com/)
-* [Backend](https://github.com/go-park-mail-ru/2026_2_TotallySwipes)
-* [Deploy](https://meow)
-* [Jira](https:/meow)
+- [Figma](https://www.figma.com/)
+- [Backend](https://github.com/go-park-mail-ru/2026_2_TotallySwipes)
+- [Deploy](https://meow)
+- [Jira](https:/meow)
 
 ## Правила оформления Pull Requests
 
