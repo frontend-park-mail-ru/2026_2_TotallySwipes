@@ -13,10 +13,9 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: var(--color-avatar-bg);
+    background: var(--color-accent-sky);
     object-fit: cover;
-    font-size: 18px;
-    font-weight: 800;
+    font: var(--font-body-16-semibold);
 }
 
 .user-preview__info {
@@ -27,11 +26,10 @@
 }
 
 .user-preview__name {
-    font-size: 16px;
-    font-weight: 800;
+    font: var(--font-body-16-semibold);
 }
 
 .user-preview__city {
-    font-size: 13px;
+    font: var(--font-caption-13-regular);
     color: var(--color-text-secondary);
 }

@@ -7,8 +7,8 @@
     justify-content: space-between;
     gap: 1px;
     padding: 11px 0;
-    border-bottom: 1px solid var(--color-border);
-    font-size: 16px;
+    border-bottom: 1px solid var(--color-border-default);
+    font: var(--font-body-16-regular);
 }
 
 .facts__row:last-child {
@@ -21,6 +21,6 @@
 
 .facts__value {
     margin: 0;
-    font-weight: 600;
+    font: var(--font-body-16-semibold);
     text-align: right;
 }

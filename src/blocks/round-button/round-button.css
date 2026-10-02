@@ -9,7 +9,7 @@
     border: none;
     border-radius: 50%;
     background: var(--color-surface);
-    color: var(--color-text);
+    color: var(--color-text-primary);
     font: inherit;
     cursor: pointer;
     transition:
@@ -24,9 +24,9 @@
     bottom: calc(100% + 10px);
     padding: 6px 10px;
     border-radius: 8px;
-    background: var(--color-surface-inverse);
-    color: var(--color-text-inverse);
-    font-size: 13px;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font: var(--font-caption-13-regular);
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -61,14 +61,14 @@
 
 .round-button_type_super {
     border: 4px solid var(--color-surface);
-    background: var(--color-super-bg);
-    color: var(--color-super);
+    background: var(--color-secondary);
+    color: var(--color-on-secondary);
 }
 
 .round-button_type_like {
     border: 4px solid var(--color-surface);
-    background: var(--color-like-bg);
-    color: var(--color-like);
+    background: var(--color-accent-pink);
+    color: var(--color-accent-pink-ink);
 }
 
 .round-button:disabled {
@@ -81,7 +81,7 @@
 }
 
 .round-button:focus-visible {
-    outline: 2px solid var(--color-focus);
+    outline: 2px solid var(--color-accent-lilac-ink);
     outline-offset: 3px;
 }
 
@@ -94,8 +94,8 @@
 }
 
 .round-button_type_dislike:not(:disabled):hover {
-    background: var(--color-dislike-hover-bg);
-    color: var(--color-dislike-hover);
+    background: var(--color-accent-sky);
+    color: var(--color-accent-sky-ink);
 }
 
 .round-button:not(:disabled):hover::after {

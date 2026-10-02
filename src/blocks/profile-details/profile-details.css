@@ -12,13 +12,12 @@
 
 .profile-details__name {
     margin: 0;
-    font-size: 30px;
-    font-weight: 800;
+    font: var(--font-heading-30-extrabold);
+    letter-spacing: var(--letter-spacing-heading-30);
 }
 
 .profile-details__age {
     color: var(--color-text-secondary);
-    font-weight: 800;
 }
 
 .profile-details__section {
@@ -29,15 +28,13 @@
 
 .profile-details__section-title {
     margin: 0;
-    font-size: 13px;
-    font-weight: 600;
+    font: var(--font-caption-13-bold);
     color: var(--color-text-secondary);
 }
 
 .profile-details__about {
     margin: 0;
-    font-size: 16px;
-    line-height: 1.6;
+    font: var(--font-body-16-regular);
 }
 
 .profile-details__tags {
