@@ -24,3 +24,6 @@
 @import url('./blocks/steps/steps.css');
 @import url('./blocks/scale/scale.css');
 @import url('./blocks/test/test.css');
+@import url('./blocks/note/note.css');
+@import url('./blocks/trait-scale/trait-scale.css');
+@import url('./blocks/test-result/test-result.css');
