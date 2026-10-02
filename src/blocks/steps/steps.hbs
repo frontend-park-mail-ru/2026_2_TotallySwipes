@@ -1,0 +1,11 @@
+<nav class="steps {{mix}}" aria-label="Прогресс теста">
+    {{#each items}}
+        <button type="button" class="steps__item steps__item_color_{{color}}{{#if state}} steps__item_state_{{state}}{{/if}}">
+            <span class="steps__bar"></span>
+            <span class="steps__label">
+                <span class="steps__check"></span>
+                {{number}}
+            </span>
+        </button>
+    {{/each}}
+</nav>

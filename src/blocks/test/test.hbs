@@ -1,0 +1,61 @@
+<header class="test__header">
+    <h1 class="test__title">Тест совместимости</h1>
+
+    <div class="test__actions">
+        <button type="button" class="button button_view_plain test__skip">
+            <span class="button__text">Пропустить тест</span>
+        </button>
+
+        {{{counter}}}
+    </div>
+</header>
+
+<form class="test__card">
+    {{{steps}}}
+
+    <div class="test__question">
+        <div class="test__text">
+            <h2 class="test__heading">
+                <span class="test__lead">Я воспринимаю себя как…</span>
+                <span class="test__statement">{{statement}}</span>
+            </h2>
+
+            <p class="test__hint">
+                Насколько это про вас? Отметьте первое, что<br>приходит в голову: правильных ответов нет.
+            </p>
+        </div>
+
+        <img class="test__sticker" src="{{sticker}}" alt="">
+    </div>
+
+    {{{scale}}}
+
+    <div class="test__nav">
+        <button type="button" class="button button_view_outline button_size_l test__prev">
+            <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-left.svg')"></span>
+            <span class="button__text">Предыдущее</span>
+        </button>
+
+        <button type="button" class="button button_view_primary button_size_l" disabled>
+            <span class="button__text">Следующее</span>
+            <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-right.svg')"></span>
+        </button>
+    </div>
+</form>
+
+<footer class="test__footer">
+    <p class="test__note">
+        <img class="test__note-icon" src="/public/icons/info.svg" alt="">
+        Ответы видите только вы.
+    </p>
+
+    <div class="test__result">
+        <p class="test__remaining">
+            Станет доступно после всех<br>{{total}} ответов. Осталось {{remaining}}.
+        </p>
+
+        <button type="button" class="button button_view_primary button_size_l" disabled>
+            <span class="button__text">Узнать результат</span>
+        </button>
+    </div>
+</footer>

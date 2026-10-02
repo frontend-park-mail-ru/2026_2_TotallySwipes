@@ -21,3 +21,6 @@
 @import url('./blocks/round-button/round-button.css');
 @import url('./blocks/empty-state/empty-state.css');
 @import url('./blocks/modal/modal.css');
+@import url('./blocks/steps/steps.css');
+@import url('./blocks/scale/scale.css');
+@import url('./blocks/test/test.css');

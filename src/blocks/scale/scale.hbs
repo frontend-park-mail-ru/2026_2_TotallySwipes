@@ -1,0 +1,14 @@
+<fieldset class="scale scale_color_{{color}} {{mix}}">
+    <legend class="scale__legend">{{legend}}</legend>
+
+    {{#each options}}
+        <label class="scale__option">
+            <input class="scale__input" type="radio" name="{{../name}}" value="{{this}}">
+            <span class="scale__box">{{this}}</span>
+        </label>
+    {{/each}}
+
+    {{#each captions}}
+        <span class="scale__caption scale__caption_align_{{align}}">{{text}}</span>
+    {{/each}}
+</fieldset>
