@@ -16,7 +16,9 @@ const EMAIL_TAKEN_STATUS = 409;
 
 function registerErrorMessage(error) {
     if (error instanceof ApiError && error.status < 500) {
-        return error.message;
+        const reasons = Object.values(error.fields ?? {});
+
+        return reasons.length > 0 ? `${error.message}: ${reasons.join('; ')}` : error.message;
     }
 
     return GENERIC_ERROR_MESSAGE;

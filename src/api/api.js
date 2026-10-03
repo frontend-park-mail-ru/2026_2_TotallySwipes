@@ -12,11 +12,12 @@ const API_URL = 'http://161.104.105.207:8080/api/v1';
 // };
 
 export class ApiError extends Error {
-    constructor(status, code, message) {
+    constructor(status, code, message, fields = null) {
         super(message);
         this.name = 'ApiError';
         this.status = status;
         this.code = code;
+        this.fields = fields;
     }
 }
 
@@ -57,6 +58,7 @@ async function request(path, { method = 'GET', query, body } = {}) {
             response.status,
             data?.error?.code ?? 'UNKNOWN_ERROR',
             data?.error?.message ?? `${method} ${url} — ${response.status}`,
+            data?.error?.fields ?? null,
         );
     }
 
