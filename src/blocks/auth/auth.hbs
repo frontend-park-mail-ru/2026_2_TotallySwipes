@@ -26,8 +26,8 @@
     <section class="auth__panel">
         <div class="auth__card">
             <nav class="auth__tabs">
-                <a class="auth__tab auth__tab_active" href="/login" data-link>Вход</a>
-                <a class="auth__tab" href="/register" data-link>Регистрация</a>
+                <a class="auth__tab {{#if isLogin}}auth__tab_active{{/if}}" href="/login" data-link>Вход</a>
+                <a class="auth__tab {{#if isRegister}}auth__tab_active{{/if}}" href="/register" data-link>Регистрация</a>
             </nav>
             {{{form}}}
         </div>

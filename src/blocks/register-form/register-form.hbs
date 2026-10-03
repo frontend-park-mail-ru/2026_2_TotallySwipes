@@ -1,0 +1,19 @@
+{{{progress}}}
+<h2 class="register-form__title">{{title}}</h2>
+<p class="register-form__subtitle">{{subtitle}}</p>
+<form class="register-form__form" novalidate>
+    <div class="register-form__fields">{{{body}}}</div>
+    <p class="register-form__error" hidden></p>
+    <div class="register-form__actions">
+        {{#if hasBack}}
+            <button class="button button_outline register-form__back" type="button">Назад</button>
+        {{/if}}
+        <button class="button register-form__next" type="submit">{{nextLabel}}{{{arrow}}}</button>
+    </div>
+</form>
+{{#if isFirst}}
+    <p class="register-form__footer">
+        Уже есть аккаунт?
+        <a class="register-form__link" href="/login" data-link>Войти!</a>
+    </p>
+{{/if}}
