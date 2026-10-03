@@ -121,13 +121,13 @@ export function validateSearchAge(from, to) {
     const toValue = to.trim();
 
     if (!/^\d{1,3}$/.test(fromValue) || !/^\d{1,3}$/.test(toValue)) {
-        return `Укажите возраст от ${MIN_AGE} до ${SEARCH_AGE_MAX}.`;
+        return `Укажите возраст от ${SEARCH_AGE_MIN} до ${SEARCH_AGE_MAX}.`;
     }
 
     const [min, max] = [Number(fromValue), Number(toValue)];
 
-    if (min < MIN_AGE || max > SEARCH_AGE_MAX || max < MIN_AGE || min > SEARCH_AGE_MAX) {
-        return `Возраст должен быть от ${MIN_AGE} до ${SEARCH_AGE_MAX}.`;
+    if (min < SEARCH_AGE_MIN || max > SEARCH_AGE_MAX || max < SEARCH_AGE_MIN || min > SEARCH_AGE_MAX) {
+        return `Возраст должен быть от ${SEARCH_AGE_MIN} до ${SEARCH_AGE_MAX}.`;
     }
 
     if (max < min) {
