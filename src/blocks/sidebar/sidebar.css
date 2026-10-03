@@ -11,3 +11,8 @@
 .sidebar__user {
     margin-top: auto;
 }
+
+.sidebar__logout {
+    justify-content: center;
+    margin-top: 16px;
+}
