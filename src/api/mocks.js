@@ -1,3 +1,43 @@
+const MOCK_ACCOUNT = { email: 'admin@swipes.ru', password: 'password1234' };
+
+const SESSION_COOKIE = 'is_auth';
+
+const hasSession = () => document.cookie.split('; ').includes(`${SESSION_COOKIE}=1`);
+const startSession = () => {
+    document.cookie = `${SESSION_COOKIE}=1; path=/`;
+};
+const endSession = () => {
+    document.cookie = `${SESSION_COOKIE}=0; path=/; max-age=0`;
+};
+
+const error = (status, code, message) => ({ status, body: { error: { code, message } } });
+const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
+
+const REGISTER_FIELDS = [
+    'name',
+    'email',
+    'password',
+    'birth_date',
+    'sex',
+    'search_sex',
+    'dating_intent',
+    'search_age_from',
+    'search_age_to',
+];
+const MAX_PHOTOS = 6;
+
+function isRegisterBodyValid(body) {
+    if (!body) {
+        return false;
+    }
+
+    return (
+        REGISTER_FIELDS.every((field) => body[field]) &&
+        body.photos?.length >= 1 &&
+        body.photos?.length <= MAX_PHOTOS
+    );
+}
+
 const FEED_ITEMS = [
     {
         user_id: 42,
@@ -78,12 +118,94 @@ function feedPage(url) {
 }
 
 export const MOCK_ROUTES = {
-    'GET /api/v1/user/me': {
+    'GET /api/v1/profile/me/short': {
         status: 200,
-        body: { id: 1, name: 'User', age: 25, city: 'Москва', avatar: null },
+        body: { user_id: 1, name: 'User', photo_url: null, age: 24 },
     },
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
+    },
+    'GET /api/v1/tests/current': {
+        status: 200,
+        body: {
+            test_id: '1',
+            title: 'Психологическая анкета',
+            instructions: 'Для каждого утверждения выберите один вариант ответа.',
+            answer_options: [
+                { value: 1, label: 'совсем не про меня' },
+                { value: 2 },
+                { value: 3 },
+                { value: 4, label: 'отчасти' },
+                { value: 5 },
+                { value: 6 },
+                { value: 7, label: 'точно про меня' },
+            ],
+            questions: [
+                { id: '101', body: 'открытого, полного энтузиазма' },
+                { id: '102', body: 'критичного, склонного к спорам' },
+                { id: '103', body: 'надёжного, дисциплинированного' },
+                { id: '104', body: 'тревожного, легко расстраивающегося' },
+                { id: '105', body: 'открытого новому, многогранного' },
+                { id: '106', body: 'сдержанного, тихого' },
+                { id: '107', body: 'отзывчивого, тёплого' },
+                { id: '108', body: 'неорганизованного, беспечного' },
+                { id: '109', body: 'спокойного, эмоционально устойчивого' },
+                { id: '110', body: 'консервативного, нетворческого' },
+            ],
+        },
+    },
+    'POST /api/v1/tests/1/results': {
+        status: 201,
+        body: {
+            result_id: '1',
+            test_id: '1',
+            revision: 1,
+            completed_at: '2026-10-03T12:00:00Z',
+            big_five: {
+                openness: 0.85,
+                conscientiousness: 0.8,
+                extraversion: 0.25,
+                agreeableness: 0.55,
+                neuroticism: 0.2,
+            },
+            personality_type: 'STRATEGIST',
+            about_personality_type:
+                'Стратег: вам ближе новые идеи, продуманный подход и спокойный формат общения.',
+        },
+    },
+    'POST /api/v1/auth/register': (url, { body }) => {
+        if (!isRegisterBodyValid(body)) {
+            return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
+        }
+
+        if (body.email.trim().toLowerCase() === MOCK_ACCOUNT.email) {
+            return error(409, 'EMAIL_ALREADY_EXISTS', 'Почта уже занята');
+        }
+
+        startSession();
+
+        return { status: 201, body: { user_id: 2, profile_completed: false } };
+    },
+    'POST /api/v1/auth/login': (url, { body }) => {
+        if (body.email !== MOCK_ACCOUNT.email || body.password !== MOCK_ACCOUNT.password) {
+            return error(401, 'INVALID_CREDENTIALS', 'Неверная почта или пароль.');
+        }
+
+        startSession();
+
+        return { status: 200, body: { user_id: 1, profile_completed: true } };
+    },
+    'POST /api/v1/auth/logout': () => {
+        endSession();
+
+        return { status: 204 };
+    },
+    'POST /api/v1/auth/refresh': () => {
+        if (!hasSession()) {
+            return unauthorized();
+        }
+
+        return { status: 204 };
     },
 };

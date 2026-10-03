@@ -1,0 +1,18 @@
+<div class="register-photos__grid">
+    {{#each slots}}
+        {{#if url}}
+            <div class="register-photos__slot">
+                <img class="register-photos__image" src="{{url}}" alt="">
+                {{#if main}}
+                    <span class="register-photos__badge">Главное</span>
+                {{/if}}
+                <button class="register-photos__remove" type="button" data-index="{{index}}">{{{@root.closeIcon}}}</button>
+            </div>
+        {{else}}
+            <button class="register-photos__slot register-photos__slot_empty" type="button">
+                {{{@root.plusIcon}}}
+                <span class="register-photos__add">Добавить</span>
+            </button>
+        {{/if}}
+    {{/each}}
+</div>

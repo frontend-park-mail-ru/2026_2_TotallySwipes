@@ -20,6 +20,15 @@
     mask: var(--icon) center / contain no-repeat;
 }
 
+.pill_size_s {
+    padding: 4px 16px 4px 12px;
+}
+
+.pill_size_s .pill__icon {
+    width: 16px;
+    height: 16px;
+}
+
 .pill_color_pink {
     --pill-bg: var(--color-accent-pink);
     --pill-ink: var(--color-accent-pink-ink);

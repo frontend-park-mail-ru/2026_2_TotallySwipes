@@ -1,0 +1,80 @@
+.steps {
+    display: flex;
+    gap: 4px;
+}
+
+.steps__item {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.steps__bar {
+    align-self: stretch;
+    height: 8px;
+    border-radius: 9999px;
+    background-color: var(--color-border-default);
+}
+
+.steps__label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 8px;
+    font: var(--font-caption-13-bold);
+}
+
+.steps__check {
+    display: none;
+    width: 12px;
+    height: 12px;
+    background-color: currentColor;
+    mask: url('/public/icons/check.svg') center / contain no-repeat;
+}
+
+.steps__item_color_sun {
+    --steps-ink: var(--color-accent-sun-ink);
+}
+
+.steps__item_color_pink {
+    --steps-ink: var(--color-accent-pink-ink);
+}
+
+.steps__item_color_sky {
+    --steps-ink: var(--color-accent-sky-ink);
+}
+
+.steps__item_color_mint {
+    --steps-ink: var(--color-accent-mint-ink);
+}
+
+.steps__item_color_lilac {
+    --steps-ink: var(--color-accent-lilac-ink);
+}
+
+.steps__item_state_done {
+    color: var(--steps-ink);
+}
+
+.steps__item_state_done .steps__check {
+    display: block;
+}
+
+.steps__item_state_done .steps__bar,
+.steps__item_state_current .steps__bar {
+    background-color: var(--steps-ink);
+}
+
+.steps__item_state_current .steps__label {
+    background-color: var(--steps-ink);
+    color: var(--color-on-primary);
+}
