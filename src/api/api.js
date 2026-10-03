@@ -64,7 +64,7 @@ export function logout() {
 }
 
 export function getCurrentUser() {
-    return request('/user/me');
+    return request('/profile/me/short');
 }
 
 export function getFeed({ limit = 10, cursor } = {}) {

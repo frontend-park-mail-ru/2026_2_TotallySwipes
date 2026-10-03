@@ -45,9 +45,13 @@
     transition: 0.2s;
 }
 
-.scale__option:hover .scale__box {
+.scale__option:hover .scale__input:not(:disabled, :checked) + .scale__box {
     border-color: var(--color-text-primary);
     background-color: var(--color-bg-subtle);
+}
+
+.scale:disabled .scale__option {
+    cursor: default;
 }
 
 .scale__input:checked + .scale__box {

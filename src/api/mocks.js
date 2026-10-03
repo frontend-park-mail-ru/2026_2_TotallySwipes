@@ -78,9 +78,9 @@ function feedPage(url) {
 }
 
 export const MOCK_ROUTES = {
-    'GET /api/v1/user/me': {
+    'GET /api/v1/profile/me/short': {
         status: 200,
-        body: { id: 1, name: 'User', age: 25, city: 'Москва', avatar: null },
+        body: { user_id: 1, name: 'User', photo_url: null },
     },
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {

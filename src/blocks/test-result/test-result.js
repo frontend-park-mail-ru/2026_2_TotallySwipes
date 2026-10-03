@@ -1,6 +1,14 @@
 import { traitScaleTemplate } from '../trait-scale/trait-scale.js';
 import { showModal } from '../modal/modal.js';
+import { getCurrentUser } from '../../api/api.js';
 import { loadResult, clearResult, clearDraft } from '../../storage/test-storage.js';
+
+const ERROR_MODAL = {
+    image: '/public/icons/mascot-error.svg',
+    title: 'Произошла ошибка',
+    text: 'Похоже, что пропала связь. Попробуйте ещё раз.',
+    buttonText: 'Повторить',
+};
 
 const TRAITS = [
     {
@@ -77,7 +85,7 @@ function toResultView(result) {
     };
 }
 
-function confirmRestart(router) {
+function confirmRestart(router, userId) {
     showModal({
         image: '/public/icons/clock-mascot.svg',
         title: 'Пройти тест заново?',
@@ -86,8 +94,8 @@ function confirmRestart(router) {
         cancelText: 'Оставить результат',
         onClose: (returnValue) => {
             if (returnValue === 'confirm') {
-                clearResult();
-                clearDraft();
+                clearResult(userId);
+                clearDraft(userId);
                 router.go('/test');
             }
         },
@@ -95,20 +103,40 @@ function confirmRestart(router) {
 }
 
 export function renderTestResultPage(root, router) {
-    const result = loadResult();
+    let userId = null;
 
     const page = document.createElement('section');
     page.className = 'test-result';
+    root.append(page);
 
-    page.innerHTML = Handlebars.templates['test-result/test-result'](
-        result ? toResultView(result) : { empty: true },
-    );
+    async function load() {
+        try {
+            const user = await getCurrentUser();
+
+            if (!page.isConnected) {
+                return;
+            }
+
+            userId = user.user_id;
+            const result = loadResult(userId);
+
+            page.innerHTML = Handlebars.templates['test-result/test-result'](
+                result ? toResultView(result) : { empty: true },
+            );
+        } catch (error) {
+            console.error('Не удалось загрузить пользователя:', error);
+
+            if (page.isConnected) {
+                showModal({ ...ERROR_MODAL, onClose: load });
+            }
+        }
+    }
 
     page.addEventListener('click', (event) => {
         if (event.target.closest('.test-result__button_restart')) {
-            confirmRestart(router);
+            confirmRestart(router, userId);
         }
     });
 
-    root.append(page);
+    load();
 }

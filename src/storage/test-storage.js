@@ -1,5 +1,10 @@
-const DRAFT_KEY = 'test-draft';
-const RESULT_KEY = 'test-result';
+function draftKey(userId) {
+    return `test-draft:${userId}`;
+}
+
+function resultKey(userId) {
+    return `test-result:${userId}`;
+}
 
 function read(key) {
     try {
@@ -25,26 +30,26 @@ function remove(key) {
     }
 }
 
-export function saveDraft(draft) {
-    write(DRAFT_KEY, draft);
+export function saveDraft(userId, draft) {
+    write(draftKey(userId), draft);
 }
 
-export function loadDraft() {
-    return read(DRAFT_KEY);
+export function loadDraft(userId) {
+    return read(draftKey(userId));
 }
 
-export function clearDraft() {
-    remove(DRAFT_KEY);
+export function clearDraft(userId) {
+    remove(draftKey(userId));
 }
 
-export function saveResult(result) {
-    write(RESULT_KEY, result);
+export function saveResult(userId, result) {
+    write(resultKey(userId), result);
 }
 
-export function loadResult() {
-    return read(RESULT_KEY);
+export function loadResult(userId) {
+    return read(resultKey(userId));
 }
 
-export function clearResult() {
-    remove(RESULT_KEY);
+export function clearResult(userId) {
+    remove(resultKey(userId));
 }

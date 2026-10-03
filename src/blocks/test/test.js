@@ -2,7 +2,7 @@ import { pillTemplate } from '../pill/pill.js';
 import { stepsTemplate } from '../steps/steps.js';
 import { scaleTemplate } from '../scale/scale.js';
 import { showModal } from '../modal/modal.js';
-import { getCurrentTest, sendTestResults } from '../../api/api.js';
+import { getCurrentUser, getCurrentTest, sendTestResults } from '../../api/api.js';
 import { saveDraft, loadDraft, clearDraft, saveResult } from '../../storage/test-storage.js';
 
 const COLORS = ['sun', 'pink', 'sky', 'mint', 'lilac'];
@@ -91,6 +91,7 @@ function restoreState(draft, test) {
 }
 
 export function renderTestPage(root, router) {
+    let userId = null;
     let test = null;
     let state = null;
 
@@ -107,7 +108,7 @@ export function renderTestPage(root, router) {
     }
 
     function persist() {
-        saveDraft({ testId: test.id, current: state.current, answers: state.answers });
+        saveDraft(userId, { testId: test.id, current: state.current, answers: state.answers });
     }
 
     function render() {
@@ -151,6 +152,7 @@ export function renderTestPage(root, router) {
                         checked: option.value === answer,
                     })),
                     captions: test.captions,
+                    disabled: state.isSubmitting,
                 },
                 'test__scale',
             ),
@@ -159,14 +161,15 @@ export function renderTestPage(root, router) {
 
     async function load() {
         try {
-            const data = await getCurrentTest();
+            const [user, data] = await Promise.all([getCurrentUser(), getCurrentTest()]);
 
             if (!page.isConnected) {
                 return;
             }
 
+            userId = user.user_id;
             test = toTest(data);
-            state = restoreState(loadDraft(), test);
+            state = restoreState(loadDraft(userId), test);
             render();
         } catch (error) {
             console.error('Не удалось загрузить тест:', error);
@@ -213,8 +216,8 @@ export function renderTestPage(root, router) {
                 })),
             );
 
-            saveResult(result);
-            clearDraft();
+            saveResult(userId, result);
+            clearDraft(userId);
 
             if (page.isConnected) {
                 router.go('/test/result');
@@ -253,7 +256,7 @@ export function renderTestPage(root, router) {
     }
 
     page.addEventListener('change', (event) => {
-        if (event.target.classList.contains('scale__input')) {
+        if (event.target.classList.contains('scale__input') && !state.isSubmitting) {
             const question = test.questions[state.current];
             state.answers[question.id] = Number(event.target.value);
             persist();
