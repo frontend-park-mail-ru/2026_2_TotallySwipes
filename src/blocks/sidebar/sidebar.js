@@ -34,6 +34,7 @@ export async function loadSidebarUser(sidebar) {
 async function handleLogout() {
     try {
         await logout();
+        location.replace('/login');
     } catch (error) {
         console.error('Не удалось завершить сессию:', error);
         showModal({
@@ -48,8 +49,6 @@ async function handleLogout() {
             },
         });
     }
-
-    location.replace('/login');
 }
 
 export function initSidebarLogout(sidebar) {
