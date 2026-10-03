@@ -144,3 +144,10 @@ vite.config.ts.timestamp-*
 
 src/templates.js
 svg/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/

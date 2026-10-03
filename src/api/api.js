@@ -64,11 +64,22 @@ export function logout() {
 }
 
 export function getCurrentUser() {
-    return request('/user/me');
+    return request('/profile/me/short');
 }
 
 export function getFeed({ limit = 10, cursor } = {}) {
     return request('/feed', { query: { limit, cursor } });
+}
+
+export function getCurrentTest() {
+    return request('/tests/current');
+}
+
+export function sendTestResults(testId, answers) {
+    return request(`/tests/${testId}/results`, {
+        method: 'POST',
+        body: { answers },
+    });
 }
 
 export function sendSwipe(targetUserId, direction) {

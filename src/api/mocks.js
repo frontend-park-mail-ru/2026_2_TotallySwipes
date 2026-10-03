@@ -78,13 +78,61 @@ function feedPage(url) {
 }
 
 export const MOCK_ROUTES = {
-    'GET /api/v1/user/me': {
+    'GET /api/v1/profile/me/short': {
         status: 200,
-        body: { id: 1, name: 'User', age: 25, city: 'Москва', avatar: null },
+        body: { user_id: 1, name: 'User', photo_url: null },
     },
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
+    },
+    'GET /api/v1/tests/current': {
+        status: 200,
+        body: {
+            test_id: '1',
+            title: 'Психологическая анкета',
+            instructions: 'Для каждого утверждения выберите один вариант ответа.',
+            answer_options: [
+                { value: 1, label: 'совсем не про меня' },
+                { value: 2 },
+                { value: 3 },
+                { value: 4, label: 'отчасти' },
+                { value: 5 },
+                { value: 6 },
+                { value: 7, label: 'точно про меня' },
+            ],
+            questions: [
+                { id: '101', body: 'открытого, полного энтузиазма' },
+                { id: '102', body: 'критичного, склонного к спорам' },
+                { id: '103', body: 'надёжного, дисциплинированного' },
+                { id: '104', body: 'тревожного, легко расстраивающегося' },
+                { id: '105', body: 'открытого новому, многогранного' },
+                { id: '106', body: 'сдержанного, тихого' },
+                { id: '107', body: 'отзывчивого, тёплого' },
+                { id: '108', body: 'неорганизованного, беспечного' },
+                { id: '109', body: 'спокойного, эмоционально устойчивого' },
+                { id: '110', body: 'консервативного, нетворческого' },
+            ],
+        },
+    },
+    'POST /api/v1/tests/1/results': {
+        status: 201,
+        body: {
+            result_id: '1',
+            test_id: '1',
+            revision: 1,
+            completed_at: '2026-10-03T12:00:00Z',
+            big_five: {
+                openness: 0.85,
+                conscientiousness: 0.8,
+                extraversion: 0.25,
+                agreeableness: 0.55,
+                neuroticism: 0.2,
+            },
+            personality_type: 'STRATEGIST',
+            about_personality_type:
+                'Стратег: вам ближе новые идеи, продуманный подход и спокойный формат общения.',
+        },
     },
     'POST /api/v1/auth/logout': {
         status: 204,
