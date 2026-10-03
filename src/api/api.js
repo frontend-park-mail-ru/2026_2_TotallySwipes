@@ -59,8 +59,19 @@ async function request(path, { method = 'GET', query, body } = {}) {
     return data;
 }
 
+export function login(email, password) {
+    return request('/auth/login', {
+        method: 'POST',
+        body: { email: email.trim(), password },
+    });
+}
+
 export function logout() {
     return request('/auth/logout', { method: 'POST' });
+}
+
+export function refreshSession() {
+    return request('/auth/refresh', { method: 'POST' });
 }
 
 export function getCurrentUser() {

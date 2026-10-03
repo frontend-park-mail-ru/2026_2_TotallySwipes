@@ -2,6 +2,7 @@ export class Router {
     #root;
     #routes = new Map();
     #onChange = () => {};
+    #guard = () => null;
 
     constructor(root) {
         this.#root = root;
@@ -14,6 +15,11 @@ export class Router {
 
     onChange(callback) {
         this.#onChange = callback;
+        return this;
+    }
+
+    beforeEach(guard) {
+        this.#guard = guard;
         return this;
     }
 
@@ -43,14 +49,25 @@ export class Router {
         this.#render(location.pathname);
     }
 
-    go(path) {
-        history.pushState(null, '', path);
+    go(path, { replace = false } = {}) {
+        if (replace) {
+            history.replaceState(null, '', path);
+        } else {
+            history.pushState(null, '', path);
+        }
+
         this.#render(path);
     }
 
     #render(path) {
+        const redirect = this.#guard(path);
+        if (redirect) {
+            history.replaceState(null, '', redirect);
+            this.#render(redirect);
+            return;
+        }
+
         const render = this.#routes.get(path) ?? this.#routes.get('*');
-        this.#root.replaceChildren();
         render(this.#root, this);
         this.#onChange(path);
     }

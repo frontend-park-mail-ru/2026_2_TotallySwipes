@@ -11,3 +11,17 @@ export function renderLayout(root) {
 
     return root.querySelector('.layout__main');
 }
+
+export function withLayout(renderPage) {
+    return (root, router) => {
+        let main = root.querySelector('.layout__main');
+
+        if (main) {
+            main.replaceChildren();
+        } else {
+            main = renderLayout(root);
+        }
+
+        renderPage(main, router);
+    };
+}

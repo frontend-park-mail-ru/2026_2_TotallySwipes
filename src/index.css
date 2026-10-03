@@ -27,3 +27,8 @@
 @import url('./blocks/note/note.css');
 @import url('./blocks/trait-scale/trait-scale.css');
 @import url('./blocks/test-result/test-result.css');
+@import url('./blocks/checkbox/checkbox.css');
+@import url('./blocks/form-field/form-field.css');
+@import url('./blocks/login-form/login-form.css');
+@import url('./blocks/auth/auth.css');
+@import url('./blocks/toast/toast.css');

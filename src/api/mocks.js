@@ -1,3 +1,18 @@
+const MOCK_ACCOUNT = { email: 'admin@swipes.ru', password: 'password1234' };
+
+const SESSION_COOKIE = 'is_auth';
+
+const hasSession = () => document.cookie.split('; ').includes(`${SESSION_COOKIE}=1`);
+const startSession = () => {
+    document.cookie = `${SESSION_COOKIE}=1; path=/`;
+};
+const endSession = () => {
+    document.cookie = `${SESSION_COOKIE}=0; path=/; max-age=0`;
+};
+
+const error = (status, code, message) => ({ status, body: { error: { code, message } } });
+const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
+
 const FEED_ITEMS = [
     {
         user_id: 42,
@@ -134,7 +149,28 @@ export const MOCK_ROUTES = {
                 'Стратег: вам ближе новые идеи, продуманный подход и спокойный формат общения.',
         },
     },
-    'POST /api/v1/auth/logout': {
-        status: 204,
+    'POST /api/v1/auth/login': (url, options) => {
+        // TODO: Сделать валидацию JSON-а.
+        const body = JSON.parse(options.body);
+
+        if (body.email !== MOCK_ACCOUNT.email || body.password !== MOCK_ACCOUNT.password) {
+            return error(401, 'INVALID_CREDENTIALS', 'Неверная почта или пароль.');
+        }
+
+        startSession();
+
+        return { status: 200, body: { user_id: 1, profile_completed: true } };
+    },
+    'POST /api/v1/auth/logout': () => {
+        endSession();
+
+        return { status: 204 };
+    },
+    'POST /api/v1/auth/refresh': () => {
+        if (!hasSession()) {
+            return unauthorized();
+        }
+
+        return { status: 204 };
     },
 };
