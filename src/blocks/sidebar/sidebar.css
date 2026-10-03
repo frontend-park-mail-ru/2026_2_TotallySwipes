@@ -13,7 +13,6 @@
 }
 
 .sidebar__logout {
-    transition:
-        border-color 0.3s,
-        background-color 0.3s;
+    justify-content: center;
+    margin-top: 16px;
 }
