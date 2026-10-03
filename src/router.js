@@ -51,7 +51,7 @@ export class Router {
     #render(path) {
         const render = this.#routes.get(path) ?? this.#routes.get('*');
         this.#root.replaceChildren();
-        render(this.#root);
+        render(this.#root, this);
         this.#onChange(path);
     }
 }

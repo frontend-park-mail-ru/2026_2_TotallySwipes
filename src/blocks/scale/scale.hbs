@@ -1,0 +1,14 @@
+<fieldset class="scale scale_color_{{color}} {{mix}}" style="--scale-count: {{options.length}}" {{#if disabled}}disabled{{/if}}>
+    <legend class="scale__legend">{{legend}}</legend>
+
+    {{#each options}}
+        <label class="scale__option">
+            <input class="scale__input" type="radio" name="{{../name}}" value="{{value}}" {{#if checked}}checked{{/if}}>
+            <span class="scale__box">{{value}}</span>
+        </label>
+    {{/each}}
+
+    {{#each captions}}
+        <span class="scale__caption scale__caption_align_{{align}}">{{text}}</span>
+    {{/each}}
+</fieldset>
