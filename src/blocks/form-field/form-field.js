@@ -13,9 +13,22 @@ export function setFormFieldError(input, message) {
     const error = field.querySelector('.form-field__error');
 
     field.classList.toggle('form-field_invalid', Boolean(message));
-    input.setAttribute('aria-invalid', message ? 'true' : 'false');
     error.textContent = message ?? '';
     error.hidden = !message;
+}
+
+// rules: [{ input, validate(value) -> текст ошибки | null }].
+// Показывает ошибки у всех невалидных полей, фокусирует первое из них.
+export function validateFormFields(rules) {
+    const invalid = rules.filter(({ input, validate }) => {
+        const error = validate(input.value);
+        setFormFieldError(input, error);
+        return error !== null;
+    });
+
+    invalid[0]?.input.focus();
+
+    return invalid.length === 0;
 }
 
 export function initFormFieldToggles(root) {
@@ -25,7 +38,6 @@ export function initFormFieldToggles(root) {
         button.addEventListener('click', () => {
             const isHidden = input.type === 'password';
             input.type = isHidden ? 'text' : 'password';
-            button.setAttribute('aria-label', isHidden ? 'Скрыть пароль' : 'Показать пароль');
         });
     });
 }

@@ -1,0 +1,8 @@
+<div class="step-progress">
+    <p class="step-progress__label">Шаг {{current}} из {{total}}</p>
+    <div class="step-progress__bar">
+        {{#each segments}}
+            <span class="step-progress__segment step-progress__segment_{{this}}"></span>
+        {{/each}}
+    </div>
+</div>

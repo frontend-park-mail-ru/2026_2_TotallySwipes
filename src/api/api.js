@@ -35,7 +35,9 @@ async function request(path, { method = 'GET', query, body } = {}) {
     const url = buildUrl(path, query);
     const init = { method, credentials: 'include' };
 
-    if (body !== undefined) {
+    if (body instanceof FormData) {
+        init.body = body;
+    } else if (body !== undefined) {
         init.headers = { 'Content-Type': 'application/json' };
         init.body = JSON.stringify(body);
     }
@@ -64,6 +66,24 @@ export function login(email, password) {
         method: 'POST',
         body: { email: email.trim(), password },
     });
+}
+
+export function register(profile) {
+    const form = new FormData();
+
+    form.append('name', profile.name);
+    form.append('email', profile.email);
+    form.append('password', profile.password);
+    form.append('birth_date', profile.birthDate);
+    form.append('sex', profile.sex);
+    form.append('search_sex', profile.searchSex);
+    form.append('dating_intent', profile.datingIntent);
+    form.append('search_age_from', profile.searchAgeFrom);
+    form.append('search_age_to', profile.searchAgeTo);
+    profile.interests.forEach((interest) => form.append('tags', interest));
+    profile.photos.forEach((photo) => form.append('photos', photo));
+
+    return request('/auth/register', { method: 'POST', body: form });
 }
 
 export function logout() {

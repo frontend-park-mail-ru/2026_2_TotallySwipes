@@ -29,4 +29,19 @@ export const icons = {
         <path d="M1.66667 10C1.66667 10 4.58333 4.16667 10 4.16667C15.4167 4.16667 18.3333 10 18.3333 10C18.3333 10 15.4167 15.8333 10 15.8333C4.58333 15.8333 1.66667 10 1.66667 10Z"/>
         <path d="M10 12.5C11.3807 12.5 12.5 11.3807 12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5Z"/>
     </svg>`,
+
+    plus: `<svg ${svgAttrs}>
+        <path d="M10 4.16667V15.8333"/>
+        <path d="M4.16667 10H15.8333"/>
+    </svg>`,
+
+    close: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 3L11 11"/>
+        <path d="M11 3L3 11"/>
+    </svg>`,
+
+    arrow: `<svg ${svgAttrs}>
+        <path d="M4.16667 10H15.8333"/>
+        <path d="M10 4.16667L15.8333 10L10 15.8333"/>
+    </svg>`,
 };

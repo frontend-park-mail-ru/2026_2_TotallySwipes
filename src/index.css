@@ -28,7 +28,14 @@
 @import url('./blocks/trait-scale/trait-scale.css');
 @import url('./blocks/test-result/test-result.css');
 @import url('./blocks/checkbox/checkbox.css');
+@import url('./blocks/chips/chips.css');
 @import url('./blocks/form-field/form-field.css');
 @import url('./blocks/login-form/login-form.css');
+@import url('./blocks/step-progress/step-progress.css');
+@import url('./blocks/register-form/register-form.css');
+@import url('./blocks/register-profile/register-profile.css');
+@import url('./blocks/register-search/register-search.css');
+@import url('./blocks/register-photos/register-photos.css');
+@import url('./blocks/register-interests/register-interests.css');
 @import url('./blocks/auth/auth.css');
 @import url('./blocks/toast/toast.css');

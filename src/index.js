@@ -6,10 +6,10 @@ import { setActiveMenuLink } from './blocks/menu/menu.js';
 import { renderFeedPage } from './blocks/feed/feed.js';
 import { renderTestPage } from './blocks/test/test.js';
 import { renderTestResultPage } from './blocks/test-result/test-result.js';
-import { renderAuthPage } from './blocks/auth/auth.js';
+import { renderAuthPage, renderRegisterPage } from './blocks/auth/auth.js';
 import { showToast } from './blocks/toast/toast.js';
 
-const GUEST_PATHS = ['/login'];
+const GUEST_PATHS = ['/login', '/register'];
 const SERVER_ERROR_MESSAGE = 'Ошибка на сервере. Обновите страницу или повторите попытку позднее.';
 
 let sessionChecked = true;
@@ -20,6 +20,17 @@ function startApp() {
     function handleLogin() {
         setAuthenticated(true);
         router.go('/');
+    }
+
+    async function handleRegistered() {
+        try {
+            await restoreSession();
+        } catch (error) {
+            console.error('Не удалось проверить сессию после регистрации:', error);
+            showToast(SERVER_ERROR_MESSAGE);
+        }
+
+        router.go(isAuthenticated() ? '/test' : '/login', { replace: true });
     }
 
     async function handleLogout() {
@@ -38,6 +49,9 @@ function startApp() {
 
     router
         .register('/login', (root) => renderAuthPage(root, { onLogin: handleLogin }))
+        .register('/register', (root) =>
+            renderRegisterPage(root, { onRegistered: handleRegistered }),
+        )
         .register('/logout', handleLogout)
         .register('/', withLayout(renderFeedPage))
         .register('/test', withLayout(renderTestPage))

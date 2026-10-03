@@ -1,4 +1,5 @@
 import { loginFormTemplate, initLoginForm } from '../login-form/login-form.js';
+import { registerFormTemplate, initRegisterForm } from '../register-form/register-form.js';
 import { pillTemplate } from '../pill/pill.js';
 
 const PILLS = [
@@ -22,11 +23,23 @@ const PILLS = [
     },
 ];
 
-export function renderAuthPage(root, { onLogin }) {
+function renderAuthShell(root, { activeTab, form }) {
     root.innerHTML = Handlebars.templates['auth/auth']({
         pills: PILLS.map(({ mix, ...pill }) => pillTemplate(pill, mix)).join(''),
-        form: loginFormTemplate(),
+        form,
+        isLogin: activeTab === 'login',
+        isRegister: activeTab === 'register',
     });
+}
+
+export function renderAuthPage(root, { onLogin }) {
+    renderAuthShell(root, { activeTab: 'login', form: loginFormTemplate() });
 
     initLoginForm(root.querySelector('.login-form'), { onSuccess: onLogin });
+}
+
+export function renderRegisterPage(root, { onRegistered } = {}) {
+    renderAuthShell(root, { activeTab: 'register', form: registerFormTemplate() });
+
+    initRegisterForm(root.querySelector('.register-form'), { onRegistered });
 }
