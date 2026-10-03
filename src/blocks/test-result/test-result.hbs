@@ -1,3 +1,17 @@
+{{#if empty}}
+<div class="test-result__card">
+    <h1 class="test-result__title">Результата пока нет</h1>
+    <p class="test-result__description">
+        Пройдите тест совместимости — это займёт пару минут, а подбор анкет станет точнее.
+    </p>
+    <div class="test-result__actions">
+        <a class="button button_view_primary test-result__button" href="/test" data-link>
+            <span class="button__text">Пройти тест</span>
+            <span class="button__icon test-result__icon" style="--icon: url('/public/icons/arrow-right.svg')"></span>
+        </a>
+    </div>
+</div>
+{{else}}
 <div class="test-result__card">
     <a class="test-result__back" href="/test" data-link>
         <span class="test-result__icon" style="--icon: url('/public/icons/arrow-left.svg')"></span>
@@ -24,9 +38,9 @@
             <span class="button__text">Смотреть анкеты по совместимости</span>
             <span class="button__icon test-result__icon" style="--icon: url('/public/icons/arrow-right.svg')"></span>
         </a>
-        <a class="button button_view_outline test-result__button test-result__button_restart" href="/test" data-link>
+        <button type="button" class="button button_view_outline test-result__button test-result__button_restart">
             <span class="button__text">Пройти заново</span>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -51,3 +65,4 @@
     </ul>
     <p class="note__footer">Основан на опроснике «Большая пятёрка».</p>
 </aside>
+{{/if}}

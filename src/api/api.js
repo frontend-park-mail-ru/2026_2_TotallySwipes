@@ -71,8 +71,15 @@ export function getFeed({ limit = 10, cursor } = {}) {
     return request('/feed', { query: { limit, cursor } });
 }
 
-export function getTestResult() {
-    return request('/test/result');
+export function getCurrentTest() {
+    return request('/tests/current');
+}
+
+export function sendTestResults(testId, answers) {
+    return request(`/tests/${testId}/results`, {
+        method: 'POST',
+        body: { answers },
+    });
 }
 
 export function sendSwipe(targetUserId, direction) {

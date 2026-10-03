@@ -36,10 +36,17 @@
             <span class="button__text">Предыдущее</span>
         </button>
 
-        <button type="button" class="button button_view_primary button_size_l" disabled>
-            <span class="button__text">Следующее</span>
-            <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-right.svg')"></span>
-        </button>
+        {{#if allAnswered}}
+            <button type="button" class="button button_view_primary button_size_l test__submit" {{#if isSubmitting}}disabled{{/if}}>
+                <span class="button__text">Узнать результат</span>
+                <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-right.svg')"></span>
+            </button>
+        {{else}}
+            <button type="button" class="button button_view_primary button_size_l test__next" {{#unless canNext}}disabled{{/unless}}>
+                <span class="button__text">Следующее</span>
+                <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-right.svg')"></span>
+            </button>
+        {{/if}}
     </div>
 </form>
 
@@ -49,13 +56,20 @@
         Ответы видите только вы.
     </p>
 
-    <div class="test__result">
-        <p class="test__remaining">
-            Станет доступно после всех<br>{{total}} ответов. Осталось {{remaining}}.
+    {{#if allAnswered}}
+        <p class="test__complete">
+            <span class="test__complete-icon"></span>
+            Все {{total}} ответов на месте
         </p>
+    {{else}}
+        <div class="test__result">
+            <p class="test__remaining">
+                Станет доступно после всех<br>{{total}} ответов. Осталось {{remaining}}.
+            </p>
 
-        <button type="button" class="button button_view_primary button_size_l" disabled>
-            <span class="button__text">Узнать результат</span>
-        </button>
-    </div>
+            <button type="button" class="button button_view_primary button_size_l" disabled>
+                <span class="button__text">Узнать результат</span>
+            </button>
+        </div>
+    {{/if}}
 </footer>

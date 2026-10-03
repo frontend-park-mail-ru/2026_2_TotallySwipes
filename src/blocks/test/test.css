@@ -79,9 +79,11 @@
 
 .test__sticker {
     flex-shrink: 0;
-    width: 133px;
-    height: 133px;
-    margin: -10px;
+    width: 112px;
+    height: 112px;
+    object-fit: scale-down;
+    filter: drop-shadow(0 1px 1px rgba(20, 20, 20, 0.08))
+        drop-shadow(0 8px 10px rgba(20, 20, 20, 0.16));
 }
 
 .test__scale {
@@ -136,4 +138,20 @@
     color: var(--color-text-secondary);
     font: var(--font-caption-13-regular);
     text-align: right;
+}
+
+.test__complete {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--color-success-default);
+    font: var(--font-caption-13-bold);
+}
+
+.test__complete-icon {
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    mask: url('/public/icons/check.svg') center / contain no-repeat;
 }
