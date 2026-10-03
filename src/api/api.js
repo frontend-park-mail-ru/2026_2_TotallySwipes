@@ -4,11 +4,12 @@ const USE_MOCKS = false;
 // const API_URL = '/api/v1';
 const API_URL = 'http://161.104.105.207:8080/api/v1';
 
-const SWIPE_ACTIONS = {
-    like: 'like',
-    dislike: 'dislike',
-    super: 'like',
-};
+// раскомментировать при добавлении свайпа на бек
+// const SWIPE_ACTIONS = {
+//     like: 'like',
+//     dislike: 'dislike',
+//     super: 'like',
+// };
 
 export class ApiError extends Error {
     constructor(status, code, message) {
@@ -114,9 +115,13 @@ export function sendTestResults(testId, answers) {
     });
 }
 
-export function sendSwipe(targetUserId, direction) {
-    return request('/feed/swipe', {
-        method: 'POST',
-        body: { target_user_id: targetUserId, action: SWIPE_ACTIONS[direction] },
-    });
+export function sendSwipe() {
+    return Promise.resolve();
 }
+
+// export function sendSwipe(targetUserId, direction) {
+//     return request('/feed/swipe', {
+//         method: 'POST',
+//         body: { target_user_id: targetUserId, action: SWIPE_ACTIONS[direction] },
+//     });
+// }
