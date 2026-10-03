@@ -59,17 +59,26 @@ export function registerFormTemplate() {
 export function initRegisterForm(root, { onRegistered } = {}) {
     // Введённые на каждом шаге данные живут только пока открыта страница регистрации.
     const data = {};
+    let isSubmitting = false;
+
+    function setActionsDisabled(form, disabled) {
+        form.querySelectorAll('.register-form__actions .button').forEach((button) => {
+            button.disabled = disabled;
+        });
+    }
 
     async function submit(form) {
         const formError = form.querySelector('.register-form__error');
-        const submitButton = form.querySelector('.register-form__next');
 
+        isSubmitting = true;
         formError.hidden = true;
-        submitButton.disabled = true;
+        setActionsDisabled(form, true);
 
         try {
             await register(data);
         } catch (error) {
+            isSubmitting = false;
+
             if (error instanceof APIError && error.status === EMAIL_TAKEN_STATUS) {
                 showStep(0);
 
@@ -82,7 +91,7 @@ export function initRegisterForm(root, { onRegistered } = {}) {
 
             formError.textContent = registerErrorMessage(error);
             formError.hidden = false;
-            submitButton.disabled = false;
+            setActionsDisabled(form, false);
 
             return;
         }
@@ -111,6 +120,10 @@ export function initRegisterForm(root, { onRegistered } = {}) {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
 
+            if (isSubmitting) {
+                return;
+            }
+
             if (step.validate && !step.validate(form, data)) {
                 return;
             }
@@ -128,6 +141,10 @@ export function initRegisterForm(root, { onRegistered } = {}) {
         });
 
         form.querySelector('.register-form__back')?.addEventListener('click', () => {
+            if (isSubmitting) {
+                return;
+            }
+
             step.save?.(form, data);
             showStep(index - 1);
         });
