@@ -32,6 +32,22 @@
     border-radius: 10px;
 }
 
+.button_view_ghost:hover {
+    border-color: var(--color-border-hover);
+    background-color: var(--color-bg-page);
+}
+
+.button_view_soft {
+    border: 2px solid var(--color-border-strong);
+    background-color: var(--color-surface);
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+.button_view_soft:hover {
+    background-color: var(--color-bg-page);
+}
+
 .button_view_primary {
     border: 1px solid var(--color-primary);
     background-color: var(--color-primary);

@@ -86,4 +86,7 @@ export const MOCK_ROUTES = {
     'POST /api/v1/feed/swipe': {
         status: 204,
     },
+    'POST /api/v1/auth/logout': {
+        status: 204,
+    },
 };
