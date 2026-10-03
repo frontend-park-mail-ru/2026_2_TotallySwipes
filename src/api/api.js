@@ -41,8 +41,30 @@ function post(path, data) {
     });
 }
 
+function postForm(path, formData) {
+    return request(path, { method: 'POST', body: formData });
+}
+
 export function login(email, password) {
     return post('/auth/login', { email: email.trim(), password });
+}
+
+export function register(profile) {
+    const form = new FormData();
+
+    form.append('name', profile.name);
+    form.append('email', profile.email);
+    form.append('password', profile.password);
+    form.append('birth_date', profile.birthDate);
+    form.append('sex', profile.sex);
+    form.append('search_sex', profile.searchSex);
+    form.append('dating_intent', profile.datingIntent);
+    form.append('search_age_from', profile.searchAgeFrom);
+    form.append('search_age_to', profile.searchAgeTo);
+    profile.interests.forEach((interest) => form.append('tags', interest));
+    profile.photos.forEach((photo) => form.append('photos', photo));
+
+    return postForm('/auth/register', form);
 }
 
 export function logout() {

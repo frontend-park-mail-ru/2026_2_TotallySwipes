@@ -1,6 +1,6 @@
 .auth {
     display: grid;
-    grid-template-columns: 52fr 48fr;
+    grid-template-columns: 1fr 1fr;
     min-height: 100vh;
 }
 
@@ -8,7 +8,7 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    padding: 56px 64px;
+    padding: 48px 64px;
     background: var(--color-surface);
 }
 
@@ -19,20 +19,20 @@
 
 .auth__pitch {
     max-width: 560px;
-    margin-top: 150px;
+    margin-top: 158px;
 }
 
 .auth__headline {
     margin: 0;
     font-size: 48px;
     font-weight: 800;
-    letter-spacing: -.03em;
-    line-height: 1.05;
+    letter-spacing: -.04em;
+    line-height: 50px;
 }
 
 .auth__lead {
     max-width: 480px;
-    margin: 24px 0 0;
+    margin: 16px 0 0;
     font-size: 16px;
     line-height: 1.5;
     color: var(--color-sub-text);
@@ -40,7 +40,7 @@
 
 .auth__art {
     position: relative;
-    width: 600px;
+    width: 592px;
     height: 290px;
     margin-top: auto;
 }
@@ -56,13 +56,13 @@
 
 .auth__sticker_mascot {
     top: 30px;
-    left: 0;
+    left: 7px;
     transform: rotate(-6deg);
 }
 
 .auth__sticker_badge {
-    top: 0;
-    left: 222px;
+    top: 9px;
+    left: 213px;
     transform: rotate(8deg);
 }
 
@@ -85,8 +85,8 @@
 }
 
 .auth__pill_matches {
-    top: 236px;
-    left: 380px;
+    top: 242px;
+    left: 372px;
     transform: rotate(4deg);
 }
 
@@ -103,10 +103,10 @@
     box-sizing: border-box;
     width: 100%;
     max-width: 460px;
-    padding: 36px;
+    padding: 32px;
     border-radius: 30px;
     background: var(--color-surface);
-    box-shadow: 0 24px 60px rgba(26, 26, 26, .08);
+    box-shadow: 0 16px 40px -24px rgba(20, 20, 20, .25), 0 1px 2px rgba(20, 20, 20, .04);
 }
 
 .auth__tabs {
@@ -114,7 +114,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 4px;
     padding: 4px;
-    border-radius: 16px;
+    border-radius: 14px;
     background: var(--color-background);
 }
 
@@ -122,10 +122,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 42px;
-    border-radius: 12px;
+    height: 40px;
+    border-radius: 11px;
     font-size: 16px;
     font-weight: 600;
+    line-height: 24px;
     color: var(--color-sub-text);
     text-decoration: none;
     transition: background-color .15s;
@@ -134,5 +135,5 @@
 .auth__tab_active {
     background: var(--color-surface);
     color: var(--color-text);
-    box-shadow: 0 2px 6px rgba(26, 26, 26, .12);
+    box-shadow: 0 4px 10px -6px rgba(0, 0, 0, .2), 0 1px 2px rgba(0, 0, 0, .08);
 }

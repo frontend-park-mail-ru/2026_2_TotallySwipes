@@ -1,0 +1,5 @@
+.register-profile__date {
+    display: grid;
+    grid-template-columns: 95px 1fr 119px;
+    gap: 8px;
+}

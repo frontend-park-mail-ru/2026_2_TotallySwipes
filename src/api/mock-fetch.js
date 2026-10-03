@@ -2,6 +2,22 @@ import { MOCK_ROUTES } from './mocks.js';
 
 const MOCK_DELAY_MS = 300;
 
+const MULTI_VALUE_FIELDS = ['tags', 'photos'];
+
+function parseBody(body) {
+    if (body instanceof FormData) {
+        const fields = Object.fromEntries(body);
+
+        MULTI_VALUE_FIELDS.forEach((field) => {
+            fields[field] = body.getAll(field);
+        });
+
+        return fields;
+    }
+
+    return body ? JSON.parse(body) : null;
+}
+
 export async function mockFetch(url, options = {}) {
     const method = (options.method ?? 'GET').toUpperCase();
     const { pathname } = new URL(url, location.origin);
@@ -14,7 +30,7 @@ export async function mockFetch(url, options = {}) {
     }
 
     // TODO: Сделать валидацию JSON-а.
-    const body = options.body ? JSON.parse(options.body) : null;
+    const body = parseBody(options.body);
     const { status, body: responseBody } = handler({ body });
 
     return jsonResponse(status, responseBody);

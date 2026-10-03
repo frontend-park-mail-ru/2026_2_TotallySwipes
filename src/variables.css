@@ -4,6 +4,8 @@
     --color-surface: #FFFFFF;
     --color-background: #F3F3F0;
     --color-line-main-area: #D6D5CF;
+    --color-placeholder: #7A7A73;
+    --color-bg-subtle: #FBFBFA;
 
     --color-accent: #AD1480;
     --color-accent-light: #FFC6EE;
@@ -14,8 +16,16 @@
     --color-sky-ink: #1C3F82;
     --color-lilac: #DDD2FF;
     --color-lilac-ink: #4A2BA5;
+    --color-sun: #FFE48F;
+    --color-sun-ink: #8A5100;
 
     --color-error-ring: #FFE3F6;
+
+    --color-danger: #AD1480;
+    --color-danger-hover: #8E1069;
+
+    --color-red: #D4352B;
+    --color-red-hover: #B02820;
 
     --color-avatar-bg: #CFE6FB;
 

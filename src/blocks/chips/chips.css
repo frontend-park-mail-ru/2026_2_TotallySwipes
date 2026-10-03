@@ -1,0 +1,97 @@
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chips_stickers {
+    gap: 16px 12px;
+}
+
+.chips__item {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+}
+
+.chips__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.chips__label {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 44px;
+    padding: 0 16px;
+    border: 1.5px solid var(--color-line-main-area);
+    border-radius: 12px;
+    background: var(--color-surface);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--color-text);
+    transition: background-color .15s, border-color .15s, color .15s, transform .15s;
+}
+
+.chips__label svg {
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.chips__input:checked + .chips__label {
+    border-color: var(--chips-border, var(--color-text));
+    background: var(--chips-bg, var(--color-text));
+    box-shadow: var(--chips-shadow, none);
+    color: var(--chips-ink, var(--color-surface));
+    transform: rotate(var(--chips-rotate, 0deg));
+}
+
+.chips__item_mint {
+    --chips-bg: var(--color-mint);
+    --chips-ink: var(--color-mint-ink);
+}
+
+.chips__item_sun {
+    --chips-bg: var(--color-sun);
+    --chips-ink: var(--color-sun-ink);
+}
+
+.chips__item_pink {
+    --chips-bg: var(--color-accent-light);
+    --chips-ink: var(--color-accent);
+}
+
+.chips__item_sky {
+    --chips-bg: var(--color-sky);
+    --chips-ink: var(--color-sky-ink);
+}
+
+.chips__item_lilac {
+    --chips-bg: var(--color-lilac);
+    --chips-ink: var(--color-lilac-ink);
+}
+
+.chips__item_accent {
+    --chips-border: var(--chips-bg);
+    --chips-shadow:
+        0 0 0 4px var(--color-surface),
+        0 1px 2px 4px rgba(20, 20, 20, .08),
+        0 10px 22px -6px rgba(20, 20, 20, .35);
+    --chips-rotate: -1.5deg;
+}
+
+.chips__item_accent:nth-child(even) {
+    --chips-rotate: 1.5deg;
+}
+
+.chips__input:focus-visible + .chips__label {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
