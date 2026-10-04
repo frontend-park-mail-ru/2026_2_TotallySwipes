@@ -1,10 +1,32 @@
 import { formFieldTemplate, initFormFieldToggles, setFormFieldError, validateFormFields } from '../form-field/form-field.js';
-import { checkboxTemplate } from '../checkbox/checkbox.js';
-import { validateEmail, validatePassword, validateAgreement } from '../../validation.js';
+import { validateEmail, validatePassword } from '../../validation.js';
+import { checkEmailAvailable, ApiError } from '../../api/api.js';
 
-const AGREEMENT_TEXT = 'Мне есть 18 лет, я принимаю правила сервиса и политику конфиденциальности.';
+const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
 
-// Шаг 1: Данные для входа. Сохраняет в data: email, password, agreed.
+async function isEmailFree(input) {
+    let message = null;
+
+    try {
+        if (!(await checkEmailAvailable(input.value))) {
+            message = EMAIL_TAKEN_MESSAGE;
+        }
+    } catch (error) {
+        if (error instanceof ApiError && error.status === 400) {
+            message = Object.values(error.fields ?? {})[0] ?? error.message;
+        }
+    }
+
+    setFormFieldError(input, message);
+
+    if (message) {
+        input.focus();
+    }
+
+    return message === null;
+}
+
+// Шаг 1: Данные для входа. Сохраняет в data: email, password.
 export const accountStep = {
     template() {
         return Handlebars.templates['register-account/register-account']({
@@ -23,12 +45,6 @@ export const accountStep = {
                 label: 'Пароль',
                 placeholder: 'Придумайте пароль',
                 autocomplete: 'new-password',
-                hint: 'Минимум 8 символов',
-            }),
-            agreement: checkboxTemplate({
-                id: 'register-agreement',
-                name: 'agreement',
-                text: AGREEMENT_TEXT,
             }),
         });
     },
@@ -38,31 +54,32 @@ export const accountStep = {
 
         form.elements.email.value = data.email ?? '';
         form.elements.password.value = data.password ?? '';
-        form.elements.agreement.checked = data.agreed ?? false;
 
         form.addEventListener('input', (event) => {
-            if (event.target.matches('.form-field__input, .checkbox__input')) {
+            if (event.target.matches('.form-field__input')) {
                 setFormFieldError(event.target, null);
             }
         });
     },
 
-    validate(form, data) {
-        const { email, password, agreement } = form.elements;
+    async validate(form, data) {
+        const { email, password } = form.elements;
 
         const isValid = validateFormFields([
             { input: email, validate: validateEmail },
             { input: password, validate: validatePassword },
-            { input: agreement, validate: () => validateAgreement(agreement.checked) },
         ]);
 
         if (!isValid) {
             return false;
         }
 
+        if (!(await isEmailFree(email))) {
+            return false;
+        }
+
         data.email = email.value.trim();
         data.password = password.value;
-        data.agreed = true;
 
         return true;
     },

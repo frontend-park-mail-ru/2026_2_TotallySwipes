@@ -1,6 +1,6 @@
 import { formFieldTemplate, setFormFieldError, validateFormFields } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
-import { validateName, validateBirthDate, toIsoDate, validateSex } from '../../validation.js';
+import { normalizeName, validateName, validateBirthDate, toIsoDate, validateSex } from '../../validation.js';
 
 const MONTHS = [
     'января',
@@ -77,7 +77,7 @@ export const profileStep = {
         }
 
         this.save(form, data);
-        data.name = data.name.trim();
+        data.name = normalizeName(data.name);
         data.birthDate = toIsoDate(data.birthDay, data.birthMonth, data.birthYear);
 
         return true;

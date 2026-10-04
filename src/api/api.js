@@ -108,19 +108,44 @@ async function send(path, { method = 'GET', query, body } = {}) {
     return data;
 }
 
+function toAsciiEmail(email) {
+    const value = email.trim().normalize('NFC');
+    const atIdx = value.lastIndexOf('@');
+    const domain = value.slice(atIdx + 1);
+
+    if (atIdx === -1 || !/\P{ASCII}/u.test(domain)) {
+        return value;
+    }
+
+    try {
+        return `${value.slice(0, atIdx + 1)}${new URL(`http://${domain}`).hostname}`;
+    } catch {
+        return value;
+    }
+}
+
 export function login(email, password) {
     return request('/auth/login', {
         method: 'POST',
-        body: { email: email.trim(), password },
+        body: { email: toAsciiEmail(email), password: password.normalize('NFC') },
     });
+}
+
+export async function checkEmailAvailable(email) {
+    const { available } = await request('/auth/email/check', {
+        method: 'POST',
+        body: { email: toAsciiEmail(email) },
+    });
+
+    return available;
 }
 
 export function register(profile) {
     const form = new FormData();
 
     form.append('name', profile.name);
-    form.append('email', profile.email);
-    form.append('password', profile.password);
+    form.append('email', toAsciiEmail(profile.email));
+    form.append('password', profile.password.normalize('NFC'));
     form.append('birth_date', profile.birthDate);
     form.append('sex', profile.sex);
     form.append('search_sex', profile.searchSex);

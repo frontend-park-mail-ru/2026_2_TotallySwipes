@@ -1,14 +1,25 @@
 // Проверки почты
-const EMAIL_MIN_LENGTH = 6;
 const EMAIL_MAX_LENGTH = 254;
-const EMAIL_PATTERN = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const EMAIL_LOCAL_MAX_LENGTH = 64;
+const EMAIL_DOMAIN_MIN_LENGTH = 4;
+
+const EMAIL_LOCAL_PATTERN = String.raw`[\p{L}0-9][\p{L}\p{M}0-9'_+&*-]*(?:\.[\p{L}\p{M}0-9'_+&*-]+)*`;
+const EMAIL_DOMAIN_SUB_PATTERN = String.raw`[\p{L}0-9](?:[\p{L}\p{M}0-9\-]{0,61}[\p{L}\p{M}0-9])?`;
+const EMAIL_DOMAIN_TOP_LETTERS_PATTERN = String.raw`\p{L}[\p{L}\p{M}]{1,62}`;
+const EMAIL_DOMAIN_TOP_PUNYCODE_PATTERN = String.raw`xn--[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,57}[a-zA-Z0-9])?`;
+const EMAIL_DOMAIN_TOP_PATTERN = `(?:${EMAIL_DOMAIN_TOP_LETTERS_PATTERN}|${EMAIL_DOMAIN_TOP_PUNYCODE_PATTERN})`;
+
+const EMAIL_PATTERN = new RegExp(
+    `^${EMAIL_LOCAL_PATTERN}@(?:${EMAIL_DOMAIN_SUB_PATTERN}\\.)+${EMAIL_DOMAIN_TOP_PATTERN}$`,
+    'u',
+);
 
 // Проверки пароля
 const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 128;
+const PASSWORD_MAX_BYTE_LENGTH = 72;
 
 // Проверки имени
-const NAME_MAX_LENGTH = 100;
+const NAME_MAX_LENGTH = 64;
 
 // Проверки даты рождения
 const MIN_AGE = 18;
@@ -27,14 +38,34 @@ export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const INTERESTS_MAX_COUNT = 7;
 
 export function validateEmail(value) {
-    const email = value.trim();
+    // По-хорошему, .toLowerCase() только у доменной части, так как
+    // при применении .toLowerCase() к локальной части получаем проблемы от самого toLowerCase()
+    // и нарушаем RFC.
 
-    if (email.length < EMAIL_MIN_LENGTH) {
-        return `Почта не может быть короче ${EMAIL_MIN_LENGTH} символов.`;
+    const email = value.trim().toLowerCase().normalize('NFC');
+    if (email.length === 0) {
+        return 'Почта не может быть пустой.';
     }
-
     if (email.length > EMAIL_MAX_LENGTH) {
         return `Почта не может быть длиннее ${EMAIL_MAX_LENGTH} символов.`;
+    }
+
+    const lastAtIdx = email.lastIndexOf('@');
+    if (lastAtIdx === -1) {
+        return 'Почта должна иметь хотя бы один символ "@".';
+    }
+
+    const localPart = email.slice(0, lastAtIdx);
+    if (localPart.length === 0) {
+        return 'Часть почты до символа "@" не может быть пустой.';
+    }
+    if (localPart.length > EMAIL_LOCAL_MAX_LENGTH) {
+        return `Часть почты до символа "@" не может быть длиннее ${EMAIL_LOCAL_MAX_LENGTH} символов.`;
+    }
+
+    const domainPart = email.slice(lastAtIdx + 1);
+    if (domainPart.length < EMAIL_DOMAIN_MIN_LENGTH) {
+        return `Часть почты после символа "@" не может быть короче ${EMAIL_DOMAIN_MIN_LENGTH} символов.`;
     }
 
     if (!EMAIL_PATTERN.test(email)) {
@@ -45,32 +76,67 @@ export function validateEmail(value) {
 }
 
 export function validatePassword(value) {
-    const password = value;
+    const password = value.normalize('NFC');
 
     if (password.length === 0) {
         return 'Пароль не может быть пустым.';
     }
 
-    if (password.length < PASSWORD_MIN_LENGTH) {
+    if ([...password].length < PASSWORD_MIN_LENGTH) {
         return `Пароль не может быть короче ${PASSWORD_MIN_LENGTH} символов.`;
     }
 
-    if (password.length > PASSWORD_MAX_LENGTH) {
-        return `Пароль не может быть длиннее ${PASSWORD_MAX_LENGTH} символов.`;
+    const byteLength = new TextEncoder().encode(password).length;
+    if (byteLength > PASSWORD_MAX_BYTE_LENGTH) {
+        return `Пароль слишком длинный: не больше ${PASSWORD_MAX_BYTE_LENGTH} байт (латиница -- 1 байт на символ, кириллица -- 2, то есть около ${PASSWORD_MAX_BYTE_LENGTH / 2} букв).`;
+    }
+
+    if (!/\p{L}/u.test(password)) {
+        return 'Пароль должен содержать хотя бы одну букву.';
+    }
+    if (!/\p{Nd}/u.test(password)) {
+        return 'Пароль должен содержать хотя бы одну цифру.';
     }
 
     return null;
 }
 
+export function normalizeName(value) {
+    return value.trim().replace(/\s+/g, ' ').normalize('NFC');
+}
+
 export function validateName(value) {
-    const name = value.trim();
+    const name = normalizeName(value);
 
     if (name.length === 0) {
         return 'Имя не может быть пустым.';
     }
 
-    if (name.length > NAME_MAX_LENGTH) {
+    if ([...name].length > NAME_MAX_LENGTH) {
         return `Имя не может быть длиннее ${NAME_MAX_LENGTH} символов.`;
+    }
+
+    const words = name.split(' ');
+    for (const word of words) {
+        if (!/^[\p{L}\p{M}.'-]+$/u.test(word)) {
+            return 'Слова в имени содержат недопустимые символы (разрешены только буквы, дефис, апостроф и точка).';
+        }
+
+        if (!/^\p{L}/u.test(word)) {
+            return 'Каждое слово в имени должно начинаться с буквы.';
+        }
+
+        if (/[.'-]\p{M}/u.test(word)) {
+            return 'Диакритический знак в имени должен стоять сразу после буквы.';
+        }
+
+        if (!/[\p{L}\p{M}.]$/u.test(word)) {
+            return 'Каждое слово в имени должно заканчиваться буквой или точкой.';
+        }
+
+        if (/[.'-]{2,}/.test(word)) {
+            return 'Два разделителя подряд внутри слова в имени недопустимы.';
+        }
     }
 
     return null;
@@ -159,10 +225,6 @@ export function validatePhotoCount(count) {
     }
 
     return null;
-}
-
-export function validateAgreement(isChecked) {
-    return isChecked ? null : 'Подтвердите, что вам есть 18 лет и вы принимаете правила.';
 }
 
 export function validateSex(value) {
