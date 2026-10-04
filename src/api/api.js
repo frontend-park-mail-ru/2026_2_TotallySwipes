@@ -1,8 +1,8 @@
 import { mockFetch } from './mock-fetch.js';
 
 const USE_MOCKS = false;
-// const API_URL = '/api/v1';
-const API_URL = 'http://161.104.105.207:8080/api/v1';
+const API_URL = '/api/v1';
+// const API_URL = 'http://161.104.105.207:8080/api/v1';
 
 // раскомментировать при добавлении свайпа на бек
 // const SWIPE_ACTIONS = {
@@ -65,10 +65,26 @@ async function request(path, { method = 'GET', query, body } = {}) {
     return data;
 }
 
+function toAsciiEmail(email) {
+    const value = email.trim().normalize('NFC');
+    const atIdx = value.lastIndexOf('@');
+    const domain = value.slice(atIdx + 1);
+
+    if (atIdx === -1 || !/\P{ASCII}/u.test(domain)) {
+        return value;
+    }
+
+    try {
+        return `${value.slice(0, atIdx + 1)}${new URL(`http://${domain}`).hostname}`;
+    } catch {
+        return value;
+    }
+}
+
 export function login(email, password) {
     return request('/auth/login', {
         method: 'POST',
-        body: { email: email.trim(), password },
+        body: { email: toAsciiEmail(email), password: password.normalize('NFC') },
     });
 }
 
@@ -76,8 +92,8 @@ export function register(profile) {
     const form = new FormData();
 
     form.append('name', profile.name);
-    form.append('email', profile.email);
-    form.append('password', profile.password);
+    form.append('email', toAsciiEmail(profile.email));
+    form.append('password', profile.password.normalize('NFC'));
     form.append('birth_date', profile.birthDate);
     form.append('sex', profile.sex);
     form.append('search_sex', profile.searchSex);

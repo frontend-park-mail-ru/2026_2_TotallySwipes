@@ -23,7 +23,6 @@ export const accountStep = {
                 label: 'Пароль',
                 placeholder: 'Придумайте пароль',
                 autocomplete: 'new-password',
-                hint: 'Минимум 8 символов',
             }),
             agreement: checkboxTemplate({
                 id: 'register-agreement',
