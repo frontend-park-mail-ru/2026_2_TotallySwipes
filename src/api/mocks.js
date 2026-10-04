@@ -1,17 +1,36 @@
 const MOCK_ACCOUNT = { email: 'admin@swipes.ru', password: 'password1234' };
 
 const SESSION_COOKIE = 'is_auth';
+const ACCESS_COOKIE = 'mock_access';
 
-const hasSession = () => document.cookie.split('; ').includes(`${SESSION_COOKIE}=1`);
+const hasCookie = (name) => document.cookie.split('; ').includes(`${name}=1`);
+const setCookie = (name) => {
+    document.cookie = `${name}=1; path=/`;
+};
+const removeCookie = (name) => {
+    document.cookie = `${name}=0; path=/; max-age=0`;
+};
+
+const hasSession = () => hasCookie(SESSION_COOKIE);
 const startSession = () => {
-    document.cookie = `${SESSION_COOKIE}=1; path=/`;
+    setCookie(SESSION_COOKIE);
+    setCookie(ACCESS_COOKIE);
 };
 const endSession = () => {
-    document.cookie = `${SESSION_COOKIE}=0; path=/; max-age=0`;
+    removeCookie(SESSION_COOKIE);
+    removeCookie(ACCESS_COOKIE);
 };
 
 const error = (status, code, message) => ({ status, body: { error: { code, message } } });
 const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
+
+export function checkAccess(pathname) {
+    if (pathname.startsWith('/api/v1/auth/') || hasCookie(ACCESS_COOKIE)) {
+        return null;
+    }
+
+    return unauthorized();
+}
 
 const REGISTER_FIELDS = [
     'name',
@@ -47,7 +66,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу половинку',
         compatibility: 0.87,
         age: 24,
-        tags: ['books', 'bicycle', 'coffee', 'music', 'hiking'],
+        tags: ['Книги', 'Велосипед', 'Кофе', 'Музыка', 'Походы'],
         photos: [{ id: 1, url: '/public/img/1.jpg' }],
     },
     {
@@ -57,7 +76,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу половинку',
         compatibility: 0.82,
         age: 25,
-        tags: ['cooking', 'concerts', 'animals'],
+        tags: ['Кулинария', 'Концерты', 'Животные'],
         photos: [{ id: 2, url: '/public/img/2.jpg' }],
     },
     {
@@ -67,7 +86,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу общение',
         compatibility: 0.91,
         age: 26,
-        tags: ['running', 'board_games', 'sport'],
+        tags: ['Бег', 'Настолки'],
         photos: [{ id: 3, url: '/public/img/3.jpg' }],
     },
     {
@@ -77,7 +96,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу встречи',
         compatibility: 0.76,
         age: 27,
-        tags: ['photo', 'painting', 'travel'],
+        tags: ['Фотография', 'Рисование', 'Путешествия'],
         photos: [{ id: 4, url: '/public/img/1.jpg' }],
     },
     {
@@ -87,7 +106,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу половинку',
         compatibility: 0.64,
         age: 28,
-        tags: ['movies'],
+        tags: ['Кино'],
         photos: [{ id: 5, url: '/public/img/2.jpg' }],
     },
     {
@@ -101,6 +120,28 @@ const FEED_ITEMS = [
         photos: [{ id: 6, url: '/public/img/3.jpg' }],
     },
 ];
+
+const TEST_RESULT = {
+    result_id: '1',
+    test_id: '1',
+    revision: 1,
+    completed_at: '2026-10-03T12:00:00Z',
+    big_five: {
+        openness: 0.85,
+        conscientiousness: 0.8,
+        extraversion: 0.25,
+        agreeableness: 0.55,
+        neuroticism: 0.2,
+    },
+    personality_type: 'STRATEGIST',
+    about_personality_type:
+        'Стратег: вам ближе новые идеи, продуманный подход и спокойный формат общения.',
+};
+
+const TEST_RESULT_KEY = 'mock-test-result';
+
+const hasTestResult = () => localStorage.getItem(TEST_RESULT_KEY) === '1';
+const saveTestResult = () => localStorage.setItem(TEST_RESULT_KEY, '1');
 
 function feedPage(url) {
     const limit = Number(url.searchParams.get('limit') ?? 10);
@@ -155,24 +196,17 @@ export const MOCK_ROUTES = {
             ],
         },
     },
-    'POST /api/v1/tests/1/results': {
-        status: 201,
-        body: {
-            result_id: '1',
-            test_id: '1',
-            revision: 1,
-            completed_at: '2026-10-03T12:00:00Z',
-            big_five: {
-                openness: 0.85,
-                conscientiousness: 0.8,
-                extraversion: 0.25,
-                agreeableness: 0.55,
-                neuroticism: 0.2,
-            },
-            personality_type: 'STRATEGIST',
-            about_personality_type:
-                'Стратег: вам ближе новые идеи, продуманный подход и спокойный формат общения.',
-        },
+    'POST /api/v1/tests/1/results': () => {
+        saveTestResult();
+
+        return { status: 201, body: TEST_RESULT };
+    },
+    'GET /api/v1/tests/results/me': () => {
+        if (!hasTestResult()) {
+            return error(404, 'TEST_RESULT_NOT_FOUND', 'Тест ещё не пройден');
+        }
+
+        return { status: 200, body: TEST_RESULT };
     },
     'POST /api/v1/auth/register': (url, { body }) => {
         if (!isRegisterBodyValid(body)) {
@@ -203,8 +237,11 @@ export const MOCK_ROUTES = {
     },
     'POST /api/v1/auth/refresh': () => {
         if (!hasSession()) {
+            endSession();
             return unauthorized();
         }
+
+        setCookie(ACCESS_COOKIE);
 
         return { status: 204 };
     },

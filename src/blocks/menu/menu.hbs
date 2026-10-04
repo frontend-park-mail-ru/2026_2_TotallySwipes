@@ -1,12 +1,12 @@
 <ul class="menu {{mix}}">
     {{#each items}}
         <li class="menu__item">
-            <a class="menu__link" href="{{href}}" data-link>
+            <a class="menu__link{{#if disabled}} menu__link_disabled{{/if}}"{{#unless disabled}} href="{{href}}" data-link{{/unless}}>
                 <span class="menu__icon">{{{icon}}}</span>
                 <span class="menu__text">{{text}}</span>
-                {{#if counter}}
+                {{#if counter}}{{#unless disabled}}
                     <span class="counter menu__counter">{{counter}}</span>
-                {{/if}}
+                {{/unless}}{{/if}}
             </a>
         </li>
     {{/each}}

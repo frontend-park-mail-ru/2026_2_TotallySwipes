@@ -89,7 +89,7 @@
 
 .button:disabled {
     opacity: 0.4;
-    cursor: default;
+    cursor: not-allowed;
 }
 
 .button_view_primary:disabled {

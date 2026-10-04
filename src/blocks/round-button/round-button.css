@@ -102,3 +102,7 @@
     opacity: 1;
     transition-delay: 0.6s;
 }
+
+.round-button:disabled {
+    cursor: not-allowed;
+}

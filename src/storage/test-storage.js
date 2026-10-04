@@ -34,6 +34,10 @@ export function saveDraft(userId, draft) {
     write(draftKey(userId), draft);
 }
 
+export function startDraft(userId) {
+    write(draftKey(userId), { answers: {} });
+}
+
 export function loadDraft(userId) {
     return read(draftKey(userId));
 }

@@ -1,4 +1,4 @@
-import { MOCK_ROUTES } from './mocks.js';
+import { MOCK_ROUTES, checkAccess } from './mocks.js';
 
 const MULTI_VALUE_FIELDS = ['tags', 'photos'];
 
@@ -20,6 +20,11 @@ function parseBody(body) {
 export async function mockFetch(url, options = {}) {
     const method = (options.method ?? 'GET').toUpperCase();
     const parsedUrl = new URL(url, location.origin);
+
+    const denied = checkAccess(parsedUrl.pathname);
+    if (denied) {
+        return jsonResponse(denied.body, denied.status);
+    }
 
     const route = MOCK_ROUTES[`${method} ${parsedUrl.pathname}`];
     if (!route) {

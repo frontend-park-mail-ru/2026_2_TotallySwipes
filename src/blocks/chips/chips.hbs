@@ -2,7 +2,7 @@
     {{#each options}}
         <label class="chips__item{{#if accent}} chips__item_accent chips__item_{{accent}}{{/if}}">
             <input class="chips__input" type="{{../type}}" name="{{../name}}" value="{{value}}">
-            <span class="chips__label">{{#if icon}}{{{icon}}}{{/if}}{{label}}</span>
+            <span class="chips__label">{{#if icon}}<span class="chips__icon" style="--icon: url('{{icon}}')"></span>{{/if}}{{label}}</span>
         </label>
     {{/each}}
 </div>

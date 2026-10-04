@@ -1,5 +1,5 @@
 import { Router } from './router.js';
-import { logout } from './api/api.js';
+import { logout, onUnauthorized } from './api/api.js';
 import { restoreSession, isAuthenticated, setAuthenticated } from './session.js';
 import { withLayout } from './blocks/layout/layout.js';
 import { setActiveMenuLink } from './blocks/menu/menu.js';
@@ -16,6 +16,15 @@ let sessionChecked = true;
 
 function startApp() {
     const router = new Router(document.getElementById('root'));
+
+    onUnauthorized(() => {
+        if (!isAuthenticated()) {
+            return;
+        }
+
+        setAuthenticated(false);
+        router.go('/login', { replace: true });
+    });
 
     function handleLogin() {
         setAuthenticated(true);

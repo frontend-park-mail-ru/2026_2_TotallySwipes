@@ -1,41 +1,28 @@
 import { setFormFieldError } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
-import { interestIcons } from './interest-icons.js';
 import { INTERESTS_MAX_COUNT, validateInterestsCount } from '../../validation.js';
-
+import { INTERESTS, interestIconUrl } from '../../interests.js';
 
 const ACCENTS = ['mint', 'sun', 'pink', 'sky', 'lilac'];
-
-const INTERESTS = [
-    { label: 'Кофе', icon: 'coffee' },
-    { label: 'Книги', icon: 'books' },
-    { label: 'Музыка', icon: 'music' },
-    { label: 'Походы', icon: 'hiking' },
-    { label: 'Велосипед', icon: 'bicycle' },
-    { label: 'Путешествия', icon: 'travel' },
-    { label: 'Фотография', icon: 'photography' },
-    { label: 'Настолки', icon: 'boardgames' },
-    { label: 'Кулинария', icon: 'cooking' },
-    { label: 'Бег', icon: 'running' },
-    { label: 'Рисование', icon: 'drawing' },
-    { label: 'Кино', icon: 'movies' },
-    { label: 'Концерты', icon: 'concerts' },
-    { label: 'Животные', icon: 'animals' },
-];
 
 // Шаг 5: Интересы. Сохраняет в data: interests -- массив подписей (на бэкенд уходят как tags).
 // Интересы необязательны, поэтому validate нет.
 export const interestsStep = {
     template() {
-        const options = INTERESTS.map(({ label, icon }, index) => ({
+        const options = INTERESTS.map(({ label }, index) => ({
             value: label,
             label,
-            icon: interestIcons[icon],
+            icon: interestIconUrl(label),
             accent: ACCENTS[index % ACCENTS.length],
         }));
 
         return Handlebars.templates['register-interests/register-interests']({
-            chips: chipsTemplate({ type: 'checkbox', name: 'interests', options, mix: 'chips_stickers' }),
+            chips: chipsTemplate({
+                type: 'checkbox',
+                name: 'interests',
+                options,
+                mix: 'chips_stickers',
+            }),
             max: INTERESTS_MAX_COUNT,
         });
     },

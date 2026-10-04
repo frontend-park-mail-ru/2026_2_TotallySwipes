@@ -2,7 +2,13 @@ import { pillTemplate } from '../pill/pill.js';
 import { stepsTemplate } from '../steps/steps.js';
 import { scaleTemplate } from '../scale/scale.js';
 import { showModal } from '../modal/modal.js';
-import { getCurrentUser, getCurrentTest, sendTestResults } from '../../api/api.js';
+import {
+    ApiError,
+    getCurrentUser,
+    getCurrentTest,
+    getMyTestResult,
+    sendTestResults,
+} from '../../api/api.js';
 import { saveDraft, loadDraft, clearDraft, saveResult } from '../../storage/test-storage.js';
 
 const COLORS = ['sun', 'pink', 'sky', 'mint', 'lilac'];
@@ -62,6 +68,18 @@ function stepState(index, question, state) {
     }
 
     return '';
+}
+
+async function fetchMyResult() {
+    try {
+        return await getMyTestResult();
+    } catch (error) {
+        if (error instanceof ApiError && error.status === 404) {
+            return null;
+        }
+
+        throw error;
+    }
 }
 
 function restoreState(draft, test) {
@@ -161,15 +179,30 @@ export function renderTestPage(root, router) {
 
     async function load() {
         try {
-            const [user, data] = await Promise.all([getCurrentUser(), getCurrentTest()]);
+            const user = await getCurrentUser();
+            userId = user.user_id;
+
+            const draft = loadDraft(userId);
+            const result = draft ? null : await fetchMyResult();
 
             if (!page.isConnected) {
                 return;
             }
 
-            userId = user.user_id;
+            if (result) {
+                saveResult(userId, result);
+                router.go('/test/result', { replace: true });
+                return;
+            }
+
+            const data = await getCurrentTest();
+
+            if (!page.isConnected) {
+                return;
+            }
+
             test = toTest(data);
-            state = restoreState(loadDraft(userId), test);
+            state = restoreState(draft, test);
             render();
         } catch (error) {
             console.error('Не удалось загрузить тест:', error);

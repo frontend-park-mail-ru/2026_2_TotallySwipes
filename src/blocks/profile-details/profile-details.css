@@ -11,9 +11,16 @@
 }
 
 .profile-details__name {
+    display: flex;
     margin: 0;
     font: var(--font-heading-30-extrabold);
     letter-spacing: var(--letter-spacing-heading-30);
+    white-space: nowrap;
+}
+
+.profile-details__name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .profile-details__age {

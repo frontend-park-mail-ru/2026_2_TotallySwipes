@@ -6,13 +6,14 @@ import { userPreviewTemplate } from '../user-preview/user-preview.js';
 
 const MENU_ITEMS = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
-    { href: '/likes', text: 'Симпатии', icon: icons.heart },
-    { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3 },
+    { href: '/likes', text: 'Симпатии', icon: icons.heart, disabled: true },
+    { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3, disabled: true },
     { href: '/test', text: 'Тест совместимости', icon: icons.stars },
-    { href: '/profile', text: 'Профиль', icon: icons.user },
+    { href: '/profile', text: 'Профиль', icon: icons.user, disabled: true },
 ];
 
 // TODO: брать счётчики с бэкенда
+// TODO: убрать disabled, когда разделы будут готовы
 
 export function sidebarTemplate(mix = '') {
     const menu = menuTemplate(MENU_ITEMS, 'sidebar__menu');

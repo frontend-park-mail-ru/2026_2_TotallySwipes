@@ -1,7 +1,7 @@
 import { traitScaleTemplate } from '../trait-scale/trait-scale.js';
 import { showModal } from '../modal/modal.js';
 import { getCurrentUser } from '../../api/api.js';
-import { loadResult, clearResult, clearDraft } from '../../storage/test-storage.js';
+import { loadResult, clearResult, startDraft } from '../../storage/test-storage.js';
 
 const ERROR_MODAL = {
     image: '/public/icons/mascot-error.svg',
@@ -95,7 +95,7 @@ function confirmRestart(router, userId) {
         onClose: (returnValue) => {
             if (returnValue === 'confirm') {
                 clearResult(userId);
-                clearDraft(userId);
+                startDraft(userId);
                 router.go('/test');
             }
         },
@@ -133,7 +133,7 @@ export function renderTestResultPage(root, router) {
     }
 
     page.addEventListener('click', (event) => {
-        if (event.target.closest('.test-result__button_restart')) {
+        if (event.target.closest('.test-result__button_restart, .test-result__back')) {
             confirmRestart(router, userId);
         }
     });

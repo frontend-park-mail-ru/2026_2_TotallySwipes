@@ -44,9 +44,13 @@
         transform 0.15s;
 }
 
-.chips__label svg {
+.chips__icon {
     flex-shrink: 0;
+    width: 17px;
+    height: 17px;
     margin-right: 8px;
+    background-color: currentColor;
+    mask: var(--icon) center / contain no-repeat;
 }
 
 .chips__input:checked + .chips__label {

@@ -1,10 +1,12 @@
 import { mockFetch } from './mock-fetch.js';
 
-const USE_MOCKS = false;
-// const API_URL = '/api/v1';
-const API_URL = 'http://161.104.105.207:8080/api/v1';
+const USE_MOCKS = true;
+const API_URL = '/api/v1';
 
-// раскомментировать при добавлении свайпа на бек
+// const USE_MOCKS = false;
+// const API_URL = 'http://161.104.105.207:8080/api/v1';
+
+// TODO: раскомментировать при добавлении свайпа на бек
 // const SWIPE_ACTIONS = {
 //     like: 'like',
 //     dislike: 'dislike',
@@ -34,7 +36,48 @@ function buildUrl(path, query = {}) {
     return `${API_URL}${path}${search ? `?${search}` : ''}`;
 }
 
-async function request(path, { method = 'GET', query, body } = {}) {
+let refreshPromise = null;
+let handleUnauthorized = () => {};
+
+export function onUnauthorized(callback) {
+    handleUnauthorized = callback;
+}
+
+function refreshOnce() {
+    refreshPromise ??= send('/auth/refresh', { method: 'POST' }).finally(() => {
+        refreshPromise = null;
+    });
+
+    return refreshPromise;
+}
+
+function isUnauthorized(error) {
+    return error instanceof ApiError && error.status === 401;
+}
+
+async function request(path, options = {}) {
+    try {
+        return await send(path, options);
+    } catch (error) {
+        if (!isUnauthorized(error) || path.startsWith('/auth/')) {
+            throw error;
+        }
+    }
+
+    try {
+        await refreshOnce();
+    } catch (error) {
+        if (isUnauthorized(error)) {
+            handleUnauthorized();
+        }
+
+        throw error;
+    }
+
+    return send(path, options);
+}
+
+async function send(path, { method = 'GET', query, body } = {}) {
     const url = buildUrl(path, query);
     const init = { method, credentials: 'include' };
 
@@ -95,7 +138,7 @@ export function logout() {
 }
 
 export function refreshSession() {
-    return request('/auth/refresh', { method: 'POST' });
+    return refreshOnce();
 }
 
 export function getCurrentUser() {
@@ -108,6 +151,10 @@ export function getFeed({ limit = 10, cursor } = {}) {
 
 export function getCurrentTest() {
     return request('/tests/current');
+}
+
+export function getMyTestResult() {
+    return request('/tests/results/me');
 }
 
 export function sendTestResults(testId, answers) {
