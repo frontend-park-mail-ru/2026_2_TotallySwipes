@@ -17,7 +17,7 @@ const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 //     { label: 'Курение', value: 'Не курю' },
 // ];
 
-const PHOTO_PLACEHOLDER = '/public/icons/card-mascot-sky.svg';
+const PHOTO_PLACEHOLDER = '/public/icons/photo-placeholder.svg';
 
 const PILL_COLORS = ['pink', 'sky', 'lilac', 'mint', 'sun'];
 
