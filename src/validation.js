@@ -101,6 +101,18 @@ export function validatePassword(value) {
     return null;
 }
 
+export function validatePasswordConfirm(password, confirm) {
+    if (confirm.length === 0) {
+        return 'Повторите пароль.';
+    }
+
+    if (password.normalize('NFC') !== confirm.normalize('NFC')) {
+        return 'Пароли не совпадают.';
+    }
+
+    return null;
+}
+
 export function normalizeName(value) {
     return value.trim().replace(/\s+/g, ' ').normalize('NFC');
 }
