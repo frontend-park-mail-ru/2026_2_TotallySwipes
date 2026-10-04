@@ -66,7 +66,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу половинку',
         compatibility: 0.87,
         age: 24,
-        tags: ['Книги', 'Велосипед', 'Кофе', 'Музыка', 'Походы'],
+        tags: ['книги', 'велосипед', 'кофе', 'музыка', 'походы'],
         photos: [{ id: 1, url: '/public/img/1.jpg' }],
     },
     {
@@ -76,7 +76,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу половинку',
         compatibility: 0.82,
         age: 25,
-        tags: ['Кулинария', 'Концерты', 'Животные'],
+        tags: ['кулинария', 'концерты', 'животные'],
         photos: [{ id: 2, url: '/public/img/2.jpg' }],
     },
     {
@@ -86,7 +86,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу общение',
         compatibility: 0.91,
         age: 26,
-        tags: ['Бег', 'Настолки'],
+        tags: ['бег', 'настолки'],
         photos: [{ id: 3, url: '/public/img/3.jpg' }],
     },
     {
@@ -96,7 +96,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу встречи',
         compatibility: 0.76,
         age: 27,
-        tags: ['Фотография', 'Рисование', 'Путешествия'],
+        tags: ['фотография', 'рисование', 'путешествия'],
         photos: [{ id: 4, url: '/public/img/1.jpg' }],
     },
     {
@@ -106,7 +106,7 @@ const FEED_ITEMS = [
         dating_intent: 'Ищу половинку',
         compatibility: 0.64,
         age: 28,
-        tags: ['Кино'],
+        tags: ['кино'],
         photos: [{ id: 5, url: '/public/img/2.jpg' }],
     },
     {
