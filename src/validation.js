@@ -14,6 +14,9 @@ const EMAIL_PATTERN = new RegExp(
     'u',
 );
 
+const EMAIL_LATIN_PATTERN = /\p{Script=Latin}/u;
+const EMAIL_CYRILLIC_PATTERN = /\p{Script=Cyrillic}/u;
+
 // Проверки пароля
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_BYTE_LENGTH = 72;
@@ -36,6 +39,12 @@ export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Проверки интересов
 export const INTERESTS_MAX_COUNT = 7;
+
+function hasMixedScriptLabel(domain) {
+    return domain
+        .split('.')
+        .some((label) => EMAIL_LATIN_PATTERN.test(label) && EMAIL_CYRILLIC_PATTERN.test(label));
+}
 
 export function validateEmail(value) {
     // По-хорошему, .toLowerCase() только у доменной части, так как
@@ -70,6 +79,10 @@ export function validateEmail(value) {
 
     if (!EMAIL_PATTERN.test(email)) {
         return 'Почта должна быть корректного формата.';
+    }
+
+    if (hasMixedScriptLabel(domainPart)) {
+        return 'Часть почты после символа "@" не может смешивать русские и английские буквы в одном слове.';
     }
 
     return null;
