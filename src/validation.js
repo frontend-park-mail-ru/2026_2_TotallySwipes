@@ -14,6 +14,9 @@ const EMAIL_PATTERN = new RegExp(
     'u',
 );
 
+const EMAIL_LATIN_PATTERN = /\p{Script=Latin}/u;
+const EMAIL_CYRILLIC_PATTERN = /\p{Script=Cyrillic}/u;
+
 // Проверки пароля
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_BYTE_LENGTH = 72;
@@ -36,6 +39,12 @@ export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Проверки интересов
 export const INTERESTS_MAX_COUNT = 7;
+
+function hasMixedScriptLabel(domain) {
+    return domain
+        .split('.')
+        .some((label) => EMAIL_LATIN_PATTERN.test(label) && EMAIL_CYRILLIC_PATTERN.test(label));
+}
 
 export function validateEmail(value) {
     // По-хорошему, .toLowerCase() только у доменной части, так как
@@ -72,8 +81,14 @@ export function validateEmail(value) {
         return 'Почта должна быть корректного формата.';
     }
 
+    if (hasMixedScriptLabel(domainPart)) {
+        return 'Часть почты после символа "@" не может смешивать русские и английские буквы в одном слове.';
+    }
+
     return null;
 }
+
+export const PASSWORD_HINT = `От ${PASSWORD_MIN_LENGTH} символов, хотя бы одна буква и одна цифра.`;
 
 export function validatePassword(value) {
     const password = value.normalize('NFC');
@@ -96,6 +111,18 @@ export function validatePassword(value) {
     }
     if (!/\p{Nd}/u.test(password)) {
         return 'Пароль должен содержать хотя бы одну цифру.';
+    }
+
+    return null;
+}
+
+export function validatePasswordConfirm(password, confirm) {
+    if (confirm.length === 0) {
+        return 'Повторите пароль.';
+    }
+
+    if (password.normalize('NFC') !== confirm.normalize('NFC')) {
+        return 'Пароли не совпадают.';
     }
 
     return null;
