@@ -1,5 +1,5 @@
 import { formFieldTemplate, initFormFieldToggles, setFormFieldError, validateFormFields } from '../form-field/form-field.js';
-import { validateEmail, validatePassword, validatePasswordConfirm } from '../../validation.js';
+import { PASSWORD_HINT, validateEmail, validatePassword, validatePasswordConfirm } from '../../validation.js';
 import { checkEmailAvailable, ApiError } from '../../api/api.js';
 
 const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
@@ -44,6 +44,7 @@ export const accountStep = {
                 type: 'password',
                 label: 'Пароль',
                 placeholder: 'Придумайте пароль',
+                hint: PASSWORD_HINT,
                 autocomplete: 'new-password',
             }),
             passwordConfirm: formFieldTemplate({

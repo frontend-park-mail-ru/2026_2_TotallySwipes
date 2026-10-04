@@ -75,6 +75,8 @@ export function validateEmail(value) {
     return null;
 }
 
+export const PASSWORD_HINT = `От ${PASSWORD_MIN_LENGTH} символов, хотя бы одна буква и одна цифра.`;
+
 export function validatePassword(value) {
     const password = value.normalize('NFC');
 
