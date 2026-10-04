@@ -1,0 +1,16 @@
+.register-search__age {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.register-search__age-text {
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--color-text-secondary);
+}
+
+.register-search__age-input {
+    width: 88px;
+    text-align: center;
+}

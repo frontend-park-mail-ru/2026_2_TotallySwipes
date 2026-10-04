@@ -5,7 +5,7 @@
     grid-template-columns: 1fr 400px;
     box-sizing: border-box;
     min-height: 100vh;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 .feed__main {
@@ -34,6 +34,7 @@
     height: var(--stack-height);
     aspect-ratio: 400 / 572;
     align-self: center;
+    z-index: 1;
 }
 
 .feed__card {
@@ -91,6 +92,11 @@
     gap: 18px;
 }
 
+.feed__actions:hover {
+    position: relative;
+    z-index: 2;
+}
+
 .feed__empty {
     display: none;
     box-sizing: border-box;
@@ -121,4 +127,8 @@
     padding: 34px 32px 40px;
     background-color: var(--color-surface);
     box-sizing: border-box;
+}
+
+.feed__header_button:disabled {
+    cursor: not-allowed;
 }

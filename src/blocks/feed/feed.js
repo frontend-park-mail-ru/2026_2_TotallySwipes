@@ -5,35 +5,19 @@ import { roundButtonTemplate } from '../round-button/round-button.js';
 import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
-
-const TAGS = {
-    coffee: { text: 'Кофе', icon: 'coffee' },
-    books: { text: 'Книги', icon: 'book' },
-    music: { text: 'Музыка', icon: 'music' },
-    hiking: { text: 'Походы', icon: 'mountain' },
-    bicycle: { text: 'Велосипед', icon: 'bike' },
-    travel: { text: 'Путешествия', icon: 'plane' },
-    photo: { text: 'Фото', icon: 'camera' },
-    board_games: { text: 'Настолки', icon: 'game' },
-    cooking: { text: 'Кулинария', icon: 'flame' },
-    running: { text: 'Бег', icon: 'zap' },
-    painting: { text: 'Рисование', icon: 'palette' },
-    movies: { text: 'Кино', icon: 'eye' },
-    concerts: { text: 'Концерты', icon: 'users' },
-    animals: { text: 'Животные', icon: 'heart' },
-    sport: { text: 'Спорт', icon: 'zap' },
-};
+import { interestIconUrl } from '../../interests.js';
 
 const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 
-const STATIC_FACTS = [
-    { label: 'Рост', value: '168 см' },
-    { label: 'Работа', value: 'Редактор' },
-    { label: 'Образование', value: 'Высшее' },
-    { label: 'Курение', value: 'Не курю' },
-];
+// TODO: заполнять, когда будет профиль
+// const STATIC_FACTS = [
+//     { label: 'Рост', value: '168 см' },
+//     { label: 'Работа', value: 'Редактор' },
+//     { label: 'Образование', value: 'Высшее' },
+//     { label: 'Курение', value: 'Не курю' },
+// ];
 
-const PHOTO_PLACEHOLDER = '/public/icons/card-mascot-sky.svg';
+const PHOTO_PLACEHOLDER = '/public/icons/photo-placeholder.svg';
 
 const PILL_COLORS = ['pink', 'sky', 'lilac', 'mint', 'sun'];
 
@@ -45,11 +29,9 @@ function compatibilityVerdict(percent) {
 }
 
 function toInterest(tag, index) {
-    const known = TAGS[tag];
-
     return {
-        text: known ? known.text : tag,
-        icon: known ? `/public/icons/${known.icon}.svg` : null,
+        text: tag,
+        icon: interestIconUrl(tag),
         color: PILL_COLORS[index % PILL_COLORS.length],
     };
 }
@@ -73,9 +55,11 @@ function toProfileView(item) {
         compatibility,
         compatibilityVerdict: hasCompatibility ? compatibilityVerdict(compatibility) : null,
         interests: item.tags.map(toInterest),
-        facts: [{ label: 'Цель', value: item.dating_intent }, ...STATIC_FACTS].filter(
-            (fact) => fact.value,
-        ),
+        facts: [{ label: 'Цель', value: item.dating_intent }].filter((fact) => fact.value),
+        // TODO: расскоментировать когда убдет профиль
+        // facts: [{ label: 'Цель', value: item.dating_intent }, ...STATIC_FACTS].filter(
+        //     (fact) => fact.value,
+        // ),
     };
 }
 

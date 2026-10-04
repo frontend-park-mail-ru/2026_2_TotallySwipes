@@ -1,0 +1,144 @@
+.auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+}
+
+.auth__intro {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 48px 64px;
+    background: var(--color-surface);
+}
+
+.auth__logo {
+    align-self: flex-start;
+    font-size: 34px;
+}
+
+.auth__pitch {
+    max-width: 560px;
+    margin-top: 158px;
+}
+
+.auth__headline {
+    margin: 0;
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 50px;
+}
+
+.auth__lead {
+    max-width: 480px;
+    margin: 16px 0 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+}
+
+.auth__art {
+    position: relative;
+    width: 592px;
+    height: 290px;
+    margin-top: auto;
+}
+
+.auth__sticker,
+.auth__pill {
+    position: absolute;
+}
+
+.auth__sticker {
+    filter: drop-shadow(0 1px 1px rgba(20, 20, 20, 0.08))
+        drop-shadow(0 8px 10px rgba(20, 20, 20, 0.16));
+}
+
+.auth__sticker_mascot {
+    top: 30px;
+    left: 7px;
+    transform: rotate(-6deg);
+}
+
+.auth__sticker_badge {
+    top: 9px;
+    left: 213px;
+    transform: rotate(8deg);
+}
+
+.auth__sticker_star {
+    top: 58px;
+    left: 420px;
+    transform: rotate(12deg);
+}
+
+.auth__pill_test {
+    top: 182px;
+    left: 196px;
+    transform: rotate(-3deg);
+}
+
+.auth__pill_nearby {
+    top: 238px;
+    left: 12px;
+    transform: rotate(2deg);
+}
+
+.auth__pill_matches {
+    top: 242px;
+    left: 372px;
+    transform: rotate(4deg);
+}
+
+.auth__panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 32px 24px;
+    background: var(--color-bg-page);
+}
+
+.auth__card {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 460px;
+    padding: 32px;
+    border-radius: 30px;
+    background: var(--color-surface);
+    box-shadow:
+        0 16px 40px -24px rgba(20, 20, 20, 0.25),
+        0 1px 2px rgba(20, 20, 20, 0.04);
+}
+
+.auth__tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 14px;
+    background: var(--color-bg-page);
+}
+
+.auth__tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border-radius: 11px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: background-color 0.15s;
+}
+
+.auth__tab_active {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    box-shadow:
+        0 4px 10px -6px rgba(0, 0, 0, 0.2),
+        0 1px 2px rgba(0, 0, 0, 0.08);
+}

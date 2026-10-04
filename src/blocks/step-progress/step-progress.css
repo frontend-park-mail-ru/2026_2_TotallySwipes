@@ -1,0 +1,31 @@
+.step-progress {
+    --step-progress-track: #e6e5e0;
+}
+
+.step-progress__label {
+    margin: 0;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--color-text-secondary);
+}
+
+.step-progress__bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.step-progress__segment {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--step-progress-track);
+}
+
+.step-progress__segment_done {
+    background: var(--color-text-secondary);
+}
+
+.step-progress__segment_current {
+    background: var(--color-text-primary);
+}

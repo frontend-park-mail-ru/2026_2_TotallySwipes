@@ -29,6 +29,13 @@
     background: var(--color-bg-page);
 }
 
+.menu__link_disabled,
+.menu__link_disabled:hover {
+    background: none;
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+}
+
 .menu__link_active,
 .menu__link_active:hover {
     background: var(--color-primary);

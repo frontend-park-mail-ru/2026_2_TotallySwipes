@@ -1,0 +1,24 @@
+<div class="auth">
+    <section class="auth__intro">
+        <a class="logo auth__logo" href="/" data-link>swipes.</a>
+        <div class="auth__pitch">
+            <h1 class="auth__headline">Знакомства, где видно, что вы совпадаете.</h1>
+            <p class="auth__lead">Пройдите короткий тест, и рядом с каждой анкетой появится процент совместимости. Нравится — свайп вправо.</p>
+        </div>
+        <div class="auth__art">
+            <img class="auth__sticker auth__sticker_mascot" src="/public/stickers/card-mascot-sun.svg" width="210" alt="">
+            <img class="auth__sticker auth__sticker_badge" src="/public/badges/badge-swipe-right.svg" width="136" alt="">
+            <img class="auth__sticker auth__sticker_star" src="/public/stickers/star-pink.svg" width="112" alt="">
+            {{{pills}}}
+        </div>
+    </section>
+    <section class="auth__panel">
+        <div class="auth__card">
+            <nav class="auth__tabs">
+                <a class="auth__tab {{#if isLogin}}auth__tab_active{{/if}}" href="/login" data-link>Вход</a>
+                <a class="auth__tab {{#if isRegister}}auth__tab_active{{/if}}" href="/register" data-link>Регистрация</a>
+            </nav>
+            {{{form}}}
+        </div>
+    </section>
+</div>

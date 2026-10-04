@@ -11,9 +11,9 @@
 
 ## Внешние ссылки
 
-- [Figma](https://www.figma.com/)
+- [Figma](https://www.figma.com/design/2S6yuqLyCUiD05kEVg7an4/Totally-Swipes?node-id=90-1702&t=sScWP3TWLfaa5Sus-1)
 - [Backend](https://github.com/go-park-mail-ru/2026_2_TotallySwipes)
-- [Deploy](https://meow)
+- [Deploy](http://161.104.105.207/)
 - [Jira](https:/meow)
 
 ## Правила оформления Pull Requests

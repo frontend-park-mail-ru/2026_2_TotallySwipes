@@ -64,8 +64,15 @@
 }
 
 .profile-card__title {
+    display: flex;
     font: var(--font-heading-30-extrabold);
     letter-spacing: var(--letter-spacing-heading-30);
+    white-space: nowrap;
+}
+
+.profile-card__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .profile-card__age {

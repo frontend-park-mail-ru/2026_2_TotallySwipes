@@ -1,0 +1,15 @@
+<div class="trait-scale trait-scale_color_{{color}} {{mix}}">
+    <div class="trait-scale__header">
+        <span class="trait-scale__title">{{title}}</span>
+        <span class="trait-scale__value">{{value}} из {{max}}</span>
+    </div>
+    <div class="trait-scale__track" role="meter" aria-label="{{title}}" aria-valuemin="{{min}}" aria-valuemax="{{max}}" aria-valuenow="{{score}}">
+        <div class="trait-scale__bar" style="--trait-scale-fill: {{fill}}%">
+            <span class="trait-scale__dot"></span>
+        </div>
+    </div>
+    <div class="trait-scale__poles">
+        <span class="trait-scale__pole">{{low}}</span>
+        <span class="trait-scale__pole">{{high}}</span>
+    </div>
+</div>

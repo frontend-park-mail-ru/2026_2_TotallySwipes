@@ -14,6 +14,7 @@
     --color-border-hover: #B9B8B1;
 
     --color-primary: #141414;
+    --color-primary-hover: #2B2B2B;
     --color-on-primary: #FFFFFF;
     --color-secondary: #DDD2FF;
     --color-on-secondary: #4A2BA5;
@@ -34,6 +35,7 @@
     --color-warning-default: #8A5100;
     --color-warning-bg: #FFE48F;
     --color-error-default: #AD1480;
+    --color-error-hover: #8E1069;
     --color-error-bg: #FFE3F6;
     --color-error-ring: #FFE3F6;
 
@@ -52,6 +54,9 @@
     --letter-spacing-heading-30: -0.03em;
 
     --shadow-sticker: 0 10px 22px -10px rgba(20, 20, 20, 0.35);
+    --shadow-panel:
+        0 1px 2px rgba(20, 20, 20, 0.04),
+        0 16px 40px -24px rgba(20, 20, 20, 0.25);
     --shadow-card: 0 24px 48px -24px rgba(20, 20, 20, 0.35);
     --shadow-dialog:
         0 32px 64px -24px rgba(20, 20, 20, 0.45),
