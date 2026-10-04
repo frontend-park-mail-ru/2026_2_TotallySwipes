@@ -1,8 +1,8 @@
 import { mockFetch } from './mock-fetch.js';
 
 const USE_MOCKS = false;
-const API_URL = '/api/v1';
-// const API_URL = 'http://161.104.105.207:8080/api/v1';
+// const API_URL = '/api/v1';
+const API_URL = 'http://161.104.105.207:8080/api/v1';
 
 // раскомментировать при добавлении свайпа на бек
 // const SWIPE_ACTIONS = {
