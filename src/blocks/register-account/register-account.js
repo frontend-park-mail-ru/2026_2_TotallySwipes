@@ -1,9 +1,6 @@
 import { formFieldTemplate, initFormFieldToggles, setFormFieldError, validateFormFields } from '../form-field/form-field.js';
-import { checkboxTemplate } from '../checkbox/checkbox.js';
-import { validateEmail, validatePassword, validateAgreement } from '../../validation.js';
+import { validateEmail, validatePassword } from '../../validation.js';
 import { checkEmailAvailable, ApiError } from '../../api/api.js';
-
-const AGREEMENT_TEXT = 'Мне есть 18 лет, я принимаю правила сервиса и политику конфиденциальности.';
 
 const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
 
@@ -29,7 +26,7 @@ async function isEmailFree(input) {
     return message === null;
 }
 
-// Шаг 1: Данные для входа. Сохраняет в data: email, password, agreed.
+// Шаг 1: Данные для входа. Сохраняет в data: email, password.
 export const accountStep = {
     template() {
         return Handlebars.templates['register-account/register-account']({
@@ -49,11 +46,6 @@ export const accountStep = {
                 placeholder: 'Придумайте пароль',
                 autocomplete: 'new-password',
             }),
-            agreement: checkboxTemplate({
-                id: 'register-agreement',
-                name: 'agreement',
-                text: AGREEMENT_TEXT,
-            }),
         });
     },
 
@@ -62,22 +54,20 @@ export const accountStep = {
 
         form.elements.email.value = data.email ?? '';
         form.elements.password.value = data.password ?? '';
-        form.elements.agreement.checked = data.agreed ?? false;
 
         form.addEventListener('input', (event) => {
-            if (event.target.matches('.form-field__input, .checkbox__input')) {
+            if (event.target.matches('.form-field__input')) {
                 setFormFieldError(event.target, null);
             }
         });
     },
 
     async validate(form, data) {
-        const { email, password, agreement } = form.elements;
+        const { email, password } = form.elements;
 
         const isValid = validateFormFields([
             { input: email, validate: validateEmail },
             { input: password, validate: validatePassword },
-            { input: agreement, validate: () => validateAgreement(agreement.checked) },
         ]);
 
         if (!isValid) {
@@ -90,7 +80,6 @@ export const accountStep = {
 
         data.email = email.value.trim();
         data.password = password.value;
-        data.agreed = true;
 
         return true;
     },

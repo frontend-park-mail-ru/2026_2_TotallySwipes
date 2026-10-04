@@ -227,10 +227,6 @@ export function validatePhotoCount(count) {
     return null;
 }
 
-export function validateAgreement(isChecked) {
-    return isChecked ? null : 'Подтвердите, что вам есть 18 лет и вы принимаете правила.';
-}
-
 export function validateSex(value) {
     return value === '' ? 'Выберите пол.' : null;
 }
