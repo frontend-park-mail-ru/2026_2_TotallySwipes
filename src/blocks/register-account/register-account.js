@@ -1,8 +1,33 @@
 import { formFieldTemplate, initFormFieldToggles, setFormFieldError, validateFormFields } from '../form-field/form-field.js';
 import { checkboxTemplate } from '../checkbox/checkbox.js';
 import { validateEmail, validatePassword, validateAgreement } from '../../validation.js';
+import { checkEmailAvailable, ApiError } from '../../api/api.js';
 
 const AGREEMENT_TEXT = 'Мне есть 18 лет, я принимаю правила сервиса и политику конфиденциальности.';
+
+const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
+
+async function isEmailFree(input) {
+    let message = null;
+
+    try {
+        if (!(await checkEmailAvailable(input.value))) {
+            message = EMAIL_TAKEN_MESSAGE;
+        }
+    } catch (error) {
+        if (error instanceof ApiError && error.status === 400) {
+            message = Object.values(error.fields ?? {})[0] ?? error.message;
+        }
+    }
+
+    setFormFieldError(input, message);
+
+    if (message) {
+        input.focus();
+    }
+
+    return message === null;
+}
 
 // Шаг 1: Данные для входа. Сохраняет в data: email, password, agreed.
 export const accountStep = {
@@ -46,7 +71,7 @@ export const accountStep = {
         });
     },
 
-    validate(form, data) {
+    async validate(form, data) {
         const { email, password, agreement } = form.elements;
 
         const isValid = validateFormFields([
@@ -56,6 +81,10 @@ export const accountStep = {
         ]);
 
         if (!isValid) {
+            return false;
+        }
+
+        if (!(await isEmailFree(email))) {
             return false;
         }
 

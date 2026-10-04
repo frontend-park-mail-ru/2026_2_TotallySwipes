@@ -88,6 +88,15 @@ export function login(email, password) {
     });
 }
 
+export async function checkEmailAvailable(email) {
+    const { available } = await request('/auth/email/check', {
+        method: 'POST',
+        body: { email: toAsciiEmail(email) },
+    });
+
+    return available;
+}
+
 export function register(profile) {
     const form = new FormData();
 

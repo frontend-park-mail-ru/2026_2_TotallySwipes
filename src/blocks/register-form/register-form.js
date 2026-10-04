@@ -25,7 +25,7 @@ function registerErrorMessage(error) {
 }
 
 // Шаг: { title, subtitle, template?(data), init?(form, data), save?(form, data), validate?(form, data) }.
-// validate при успехе сама сохраняет введённые значения в data и возвращает true.
+// validate (может быть async!) при успехе сама сохраняет введённые значения в data и возвращает true.
 // save запоминает введённое без проверки, когда пользователь возвращается на шаг назад.
 const STEPS = [
     {
@@ -120,15 +120,23 @@ export function initRegisterForm(root, { onRegistered } = {}) {
         const form = root.querySelector('.register-form__form');
         step.init?.(form, data);
 
-        form.addEventListener('submit', (event) => {
+        form.addEventListener('submit', async (event) => {
             event.preventDefault();
 
             if (isSubmitting) {
                 return;
             }
 
-            if (step.validate && !step.validate(form, data)) {
-                return;
+            if (step.validate) {
+                setActionsDisabled(form, true);
+
+                const isValid = await step.validate(form, data);
+
+                setActionsDisabled(form, false);
+
+                if (!isValid) {
+                    return;
+                }
             }
 
             if (isLast) {
