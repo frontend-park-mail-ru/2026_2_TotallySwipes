@@ -92,6 +92,11 @@
     gap: 18px;
 }
 
+.feed__actions:hover {
+    position: relative;
+    z-index: 2;
+}
+
 .feed__empty {
     display: none;
     box-sizing: border-box;

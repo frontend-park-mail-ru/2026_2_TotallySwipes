@@ -139,7 +139,6 @@ export function renderTestPage(root, router) {
             statement: question.body,
             sticker: STICKERS[color],
             total: total(),
-            remaining,
             allAnswered: remaining === 0,
             canNext: answer !== undefined,
             isSubmitting: state.isSubmitting,
