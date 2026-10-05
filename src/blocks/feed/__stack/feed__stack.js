@@ -5,17 +5,38 @@ function clamp01(value) {
     return Math.min(Math.max(value, 0), 1);
 }
 
+/**
+ * Выставляет прозрачность штампов лайка, дизлайка и суперлайка по смещению карточки.
+ *
+ * @param {HTMLElement} card
+ * @param {number} dx
+ * @param {number} dy
+ */
 function setStamps(card, dx, dy) {
     card.style.setProperty('--swipe-like', clamp01(dx / SWIPE_THRESHOLD));
     card.style.setProperty('--swipe-dislike', clamp01(-dx / SWIPE_THRESHOLD));
     card.style.setProperty('--swipe-super', clamp01(-dy / SWIPE_THRESHOLD));
 }
 
+/**
+ * Возвращает карточку на место и прячет штампы.
+ *
+ * @param {HTMLElement} card
+ */
 function resetCard(card) {
     card.style.transform = '';
     setStamps(card, 0, 0);
 }
 
+/**
+ * Включает перетаскивание верхней карточки стопки.
+ *
+ * @param {HTMLElement} stackElement - Контейнер карточек, верхняя - последняя.
+ * @param {Object} params
+ * @param {function(string): void} params.onSwipe - Вызывается с направлением после того,
+ *     как карточка улетела.
+ * @returns {{swipe: function(string): void}}
+ */
 export function initStack(stackElement, { onSwipe }) {
     let isAnimating = false;
     let drag = null;
@@ -85,6 +106,11 @@ export function initStack(stackElement, { onSwipe }) {
         drag = null;
     });
 
+    /**
+     * Анимирует уход верхней карточки и удаляет её.
+     *
+     * @param {'like'|'dislike'|'super'} direction
+     */
     function swipe(direction) {
         if (isAnimating) return;
         isAnimating = true;

@@ -1,6 +1,11 @@
 import { locationTemplate } from '../location/location.js';
 import { pillTemplate } from '../pill/pill.js';
 
+/**
+ * @param {Object} profile - Анкета после toProfileView.
+ * @param {string} [mix]
+ * @returns {string} HTML подробной информации об анкете.
+ */
 export function profileDetailsTemplate(profile, mix = '') {
     const { location, interests, ...rest } = profile;
 

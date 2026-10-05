@@ -2,6 +2,9 @@ const DEFAULT_DURATION_MS = 5000;
 
 let container = null;
 
+/**
+ * @returns {HTMLElement} Контейнер тостов, создаётся при первом вызове.
+ */
 function getContainer() {
     if (!container?.isConnected) {
         container = document.createElement('div');
@@ -12,6 +15,12 @@ function getContainer() {
     return container;
 }
 
+/**
+ * Показывает уведомление, которое само скрывается.
+ *
+ * @param {string} message
+ * @param {number} [duration=DEFAULT_DURATION_MS] - Время показа в мс.
+ */
 export function showToast(message, duration = DEFAULT_DURATION_MS) {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = Handlebars.templates['toast/toast']({ message });

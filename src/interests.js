@@ -15,6 +15,10 @@ export const INTERESTS = [
     { label: 'Животные', icon: 'heart' },
 ];
 
+/**
+ * @param {string} label - Подпись интереса.
+ * @returns {string|null} Путь к иконке или null, если интерес неизвестен.
+ */
 export function interestIconUrl(label) {
     const interest = INTERESTS.find((item) => item.label === label);
 

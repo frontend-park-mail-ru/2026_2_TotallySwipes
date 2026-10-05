@@ -1,9 +1,18 @@
 import { setFormFieldError, validateFormFields } from '../form-field/form-field.js';
-import { PHOTO_MAX_COUNT, PHOTO_TYPES, validatePhotoFile, validatePhotoCount } from '../../validation.js';
+import {
+    PHOTO_MAX_COUNT,
+    PHOTO_TYPES,
+    validatePhotoFile,
+    validatePhotoCount,
+} from '../../validation.js';
 import { icons } from '../../icons.js';
 
 const previewUrls = new Map();
 
+/**
+ * @param {File} file
+ * @returns {string} Object URL для превью, один на файл.
+ */
 function previewUrl(file) {
     if (!previewUrls.has(file)) {
         previewUrls.set(file, URL.createObjectURL(file));
@@ -12,11 +21,20 @@ function previewUrl(file) {
     return previewUrls.get(file);
 }
 
+/**
+ * Освобождает Object URL превью.
+ *
+ * @param {File} file
+ */
 function releasePreview(file) {
     URL.revokeObjectURL(previewUrls.get(file));
     previewUrls.delete(file);
 }
 
+/**
+ * @param {File[]} photos
+ * @returns {string} HTML сетки из PHOTO_MAX_COUNT слотов.
+ */
 function gridTemplate(photos) {
     const slots = Array.from({ length: PHOTO_MAX_COUNT }, (_, index) => {
         const file = photos[index];
@@ -31,6 +49,13 @@ function gridTemplate(photos) {
     });
 }
 
+/**
+ * Добавляет подходящие файлы в photos, пока не кончится лимит.
+ *
+ * @param {File[]} photos - Изменяется на месте.
+ * @param {File[]} files
+ * @returns {string|null} Последняя ошибка или null.
+ */
 function addPhotos(photos, files) {
     let error = null;
 
@@ -52,7 +77,10 @@ function addPhotos(photos, files) {
     return error;
 }
 
-// Шаг 4: Фото. Сохраняет в data: photos -- массив File, порядок задаёт порядок в анкете, первое фото главное.
+/**
+ * Шаг 4: фото. Сохраняет в data: photos - массив File.
+ * Порядок задаёт порядок в анкете, первое фото главное.
+ */
 export const photosStep = {
     template(data) {
         return Handlebars.templates['register-photos/register-photos']({

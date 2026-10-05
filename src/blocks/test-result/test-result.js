@@ -51,6 +51,10 @@ const TRAITS = [
 const MIN_SCORE = 1;
 const MAX_SCORE = 7;
 
+/**
+ * @param {number} share - Доля от 0 до 1.
+ * @returns {number} Балл от MIN_SCORE до MAX_SCORE с одним знаком после запятой.
+ */
 function toScore(share) {
     const score = MIN_SCORE + share * (MAX_SCORE - MIN_SCORE);
     return Math.round(score * 10) / 10;
@@ -60,6 +64,12 @@ function capitalize(text) {
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+/**
+ * Делит описание типа личности вида «Название: текст».
+ *
+ * @param {string} about
+ * @returns {{name: string, text: string}}
+ */
 function splitAbout(about) {
     const colon = about.indexOf(':');
 
@@ -69,12 +79,20 @@ function splitAbout(about) {
     };
 }
 
+/**
+ * @param {Object<string, number>} bigFive - Доли черт Big Five от 0 до 1.
+ * @returns {string} HTML шкал всех черт.
+ */
 function traitsHtml(bigFive) {
     return TRAITS.map(({ share, ...trait }) =>
         traitScaleTemplate({ ...trait, score: toScore(share(bigFive)) }),
     ).join('');
 }
 
+/**
+ * @param {Object} result - Результат теста из API.
+ * @returns {{title: string, description: string, traits: string}}
+ */
 function toResultView(result) {
     const { name, text } = splitAbout(result.about_personality_type);
 
@@ -85,6 +103,12 @@ function toResultView(result) {
     };
 }
 
+/**
+ * Спрашивает подтверждение и начинает тест заново.
+ *
+ * @param {Router} router
+ * @param {number} userId
+ */
 function confirmRestart(router, userId) {
     showModal({
         image: '/public/icons/clock-mascot.svg',
@@ -102,6 +126,12 @@ function confirmRestart(router, userId) {
     });
 }
 
+/**
+ * Рендерит результат теста из localStorage.
+ *
+ * @param {HTMLElement} root
+ * @param {Router} router
+ */
 export function renderTestResultPage(root, router) {
     let userId = null;
 

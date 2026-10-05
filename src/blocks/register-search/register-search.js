@@ -14,13 +14,22 @@ const DATING_INTENT_OPTIONS = [
     { value: 'Ищу общение', label: 'Общение' },
 ];
 
-
-// Шаг 3: Кого ищете. Сохраняет в data: searchSex, searchAgeFrom, searchAgeTo, datingIntent.
+/**
+ * Шаг 3: кого ищете. Сохраняет в data: searchSex, searchAgeFrom, searchAgeTo, datingIntent.
+ */
 export const searchStep = {
     template() {
         return Handlebars.templates['register-search/register-search']({
-            searchSex: chipsTemplate({ type: 'radio', name: 'searchSex', options: SEARCH_SEX_OPTIONS }),
-            datingIntent: chipsTemplate({ type: 'radio', name: 'datingIntent', options: DATING_INTENT_OPTIONS }),
+            searchSex: chipsTemplate({
+                type: 'radio',
+                name: 'searchSex',
+                options: SEARCH_SEX_OPTIONS,
+            }),
+            datingIntent: chipsTemplate({
+                type: 'radio',
+                name: 'datingIntent',
+                options: DATING_INTENT_OPTIONS,
+            }),
         });
     },
 

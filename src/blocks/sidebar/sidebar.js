@@ -15,11 +15,20 @@ const MENU_ITEMS = [
 // TODO: брать счётчики с бэкенда
 // TODO: убрать disabled, когда разделы будут готовы
 
+/**
+ * @param {string} [mix]
+ * @returns {string}
+ */
 export function sidebarTemplate(mix = '') {
     const menu = menuTemplate(MENU_ITEMS, 'sidebar__menu');
     return Handlebars.templates['sidebar/sidebar']({ mix, menu });
 }
 
+/**
+ * Загружает текущего пользователя и показывает его в сайдбаре.
+ *
+ * @param {HTMLElement} sidebar
+ */
 export async function loadSidebarUser(sidebar) {
     const userContainer = sidebar.querySelector('.sidebar__user');
 
@@ -32,6 +41,9 @@ export async function loadSidebarUser(sidebar) {
     }
 }
 
+/**
+ * Выходит из аккаунта. При ошибке предлагает попробовать ещё раз.
+ */
 async function handleLogout() {
     try {
         await logout();
@@ -52,6 +64,11 @@ async function handleLogout() {
     }
 }
 
+/**
+ * Вешает на кнопку выхода подтверждение.
+ *
+ * @param {HTMLElement} sidebar
+ */
 export function initSidebarLogout(sidebar) {
     sidebar.querySelector('.sidebar__logout').addEventListener('click', () => {
         showModal({

@@ -1,9 +1,25 @@
-import { formFieldTemplate, initFormFieldToggles, setFormFieldError, validateFormFields } from '../form-field/form-field.js';
-import { PASSWORD_HINT, validateEmail, validatePassword, validatePasswordConfirm } from '../../validation.js';
+import {
+    formFieldTemplate,
+    initFormFieldToggles,
+    setFormFieldError,
+    validateFormFields,
+} from '../form-field/form-field.js';
+import {
+    PASSWORD_HINT,
+    validateEmail,
+    validatePassword,
+    validatePasswordConfirm,
+} from '../../validation.js';
 import { checkEmailAvailable, ApiError } from '../../api/api.js';
 
 const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
 
+/**
+ * Проверяет на бэкенде, что почта свободна, и показывает ошибку у поля.
+ *
+ * @param {HTMLInputElement} input
+ * @returns {Promise<boolean>}
+ */
 async function isEmailFree(input) {
     let message = null;
 
@@ -26,7 +42,9 @@ async function isEmailFree(input) {
     return message === null;
 }
 
-// Шаг 1: Данные для входа. Сохраняет в data: email, password.
+/**
+ * Шаг 1: данные для входа. Сохраняет в data: email, password.
+ */
 export const accountStep = {
     template() {
         return Handlebars.templates['register-account/register-account']({

@@ -1,3 +1,8 @@
+/**
+ * @param {number} current - Номер текущего шага, с 1.
+ * @param {number} total
+ * @returns {string}
+ */
 export function stepProgressTemplate(current, total) {
     const segments = Array.from({ length: total }, (_, index) => {
         if (index + 1 < current) {

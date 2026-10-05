@@ -2,6 +2,13 @@ import { MOCK_ROUTES, checkAccess } from './mocks.js';
 
 const MULTI_VALUE_FIELDS = ['tags', 'photos'];
 
+/**
+ * Разбирает тело запроса для мок-обработчиков: FormData в объект, строку - как JSON.
+ * Поля tags и photos собираются в массивы.
+ *
+ * @param {FormData|string|undefined} body
+ * @returns {Object|null}
+ */
 function parseBody(body) {
     if (body instanceof FormData) {
         const fields = Object.fromEntries(body);
@@ -17,6 +24,13 @@ function parseBody(body) {
     return body ? JSON.parse(body) : null;
 }
 
+/**
+ * Подмена fetch для работы без бэкенда: отвечает по таблице MOCK_ROUTES.
+ *
+ * @param {string} url
+ * @param {RequestInit} [options]
+ * @returns {Promise<Response>}
+ */
 export async function mockFetch(url, options = {}) {
     const method = (options.method ?? 'GET').toUpperCase();
     const parsedUrl = new URL(url, location.origin);
@@ -39,6 +53,11 @@ export async function mockFetch(url, options = {}) {
     return jsonResponse(mock.body, mock.status);
 }
 
+/**
+ * @param {*} body
+ * @param {number} status
+ * @returns {Response} JSON-ответ, при статусе 204 - без тела.
+ */
 function jsonResponse(body, status) {
     if (status === 204) {
         return new Response(null, { status });

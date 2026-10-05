@@ -14,6 +14,9 @@ const SERVER_ERROR_MESSAGE = 'Ошибка на сервере. Обновите
 
 let sessionChecked = true;
 
+/**
+ * Создаёт роутер, регистрирует страницы и запускает приложение.
+ */
 function startApp() {
     const router = new Router(document.getElementById('root'));
 
@@ -31,6 +34,9 @@ function startApp() {
         router.go('/');
     }
 
+    /**
+     * После регистрации проверяет сессию и ведёт на тест или на вход.
+     */
     async function handleRegistered() {
         try {
             await restoreSession();

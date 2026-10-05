@@ -21,6 +21,10 @@ const PHOTO_PLACEHOLDER = '/public/icons/photo-placeholder.svg';
 
 const PILL_COLORS = ['pink', 'sky', 'lilac', 'mint', 'sun'];
 
+/**
+ * @param {number} percent - Совместимость в процентах.
+ * @returns {string} Словесная оценка совместимости.
+ */
 function compatibilityVerdict(percent) {
     if (percent > 85) return 'очень высокая';
     if (percent > 70) return 'хорошая';
@@ -28,6 +32,11 @@ function compatibilityVerdict(percent) {
     return 'низкая';
 }
 
+/**
+ * @param {string} tag
+ * @param {number} index
+ * @returns {{text: string, icon: string|null, color: string}} Данные для пилюли интереса.
+ */
 function toInterest(tag, index) {
     return {
         text: tag,
@@ -36,6 +45,12 @@ function toInterest(tag, index) {
     };
 }
 
+/**
+ * Переводит анкету из ответа API в данные для шаблонов карточки и деталей.
+ *
+ * @param {Object} item - Анкета из ленты.
+ * @returns {Object}
+ */
 function toProfileView(item) {
     const hasCompatibility =
         typeof item.compatibility === 'number' &&
@@ -87,6 +102,12 @@ const LOAD_ERROR_MODAL = {
     buttonText: 'Повторить',
 };
 
+/**
+ * Добавляет карточки под низ стопки, пока в ней не станет три.
+ *
+ * @param {HTMLElement} stackElement
+ * @param {Object} state - Состояние ленты.
+ */
 function fillStack(stackElement, state) {
     while (stackElement.children.length < 3) {
         const nextIndex = state.index + stackElement.children.length;
@@ -97,6 +118,11 @@ function fillStack(stackElement, state) {
     }
 }
 
+/**
+ * Расставляет модификаторы слоёв: у верхней карточки layer_1.
+ *
+ * @param {HTMLElement} stackElement
+ */
 function updateLayers(stackElement) {
     const cards = [...stackElement.children].reverse();
 
@@ -106,6 +132,11 @@ function updateLayers(stackElement) {
     });
 }
 
+/**
+ * @param {number} index - Индекс анкеты в state.profiles.
+ * @param {Object} state - Состояние ленты.
+ * @returns {string} HTML карточки или пустая строка, если анкеты нет.
+ */
 function cardHtml(index, state) {
     const profile = state.profiles[index];
     if (!profile) return '';
@@ -116,6 +147,10 @@ function cardHtml(index, state) {
     });
 }
 
+/**
+ * @param {Object} state - Состояние ленты.
+ * @returns {string} HTML деталей текущей анкеты.
+ */
 function detailsHtml(state) {
     const profile = state.profiles[state.index];
     if (!profile) return '';
@@ -123,6 +158,11 @@ function detailsHtml(state) {
     return profileDetailsTemplate(profile);
 }
 
+/**
+ * Рендерит ленту анкет. Если свайп не отправился, анкета возвращается наверх стопки.
+ *
+ * @param {HTMLElement} root
+ */
 export function renderFeedPage(root) {
     const state = {
         profiles: [],
@@ -186,6 +226,9 @@ export function renderFeedPage(root) {
 
     loadMore();
 
+    /**
+     * Догружает следующую страницу ленты, если она есть и загрузка ещё не идёт.
+     */
     function loadMore() {
         if (state.isLoading || !state.hasMore) return;
         state.isLoading = true;
@@ -220,6 +263,9 @@ export function renderFeedPage(root) {
             });
     }
 
+    /**
+     * Показывает заглушку, когда анкеты закончились и больше их нет.
+     */
     function updateEmpty() {
         const isExhausted = state.index >= state.profiles.length;
         page.classList.toggle('feed_empty', isExhausted && !state.hasMore);
