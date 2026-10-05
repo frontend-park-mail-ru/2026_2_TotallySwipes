@@ -24,6 +24,12 @@ const endSession = () => {
 const error = (status, code, message) => ({ status, body: { error: { code, message } } });
 const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
 
+/**
+ * Имитирует проверку access-токена: без мок-сессии всё, кроме /auth/*, получает 401.
+ *
+ * @param {string} pathname
+ * @returns {{status: number, body: Object}|null} Ответ-ошибка или null, если доступ есть.
+ */
 export function checkAccess(pathname) {
     if (pathname.startsWith('/api/v1/auth/') || hasCookie(ACCESS_COOKIE)) {
         return null;
@@ -143,6 +149,12 @@ const TEST_RESULT_KEY = 'mock-test-result';
 const hasTestResult = () => localStorage.getItem(TEST_RESULT_KEY) === '1';
 const saveTestResult = () => localStorage.setItem(TEST_RESULT_KEY, '1');
 
+/**
+ * Отдаёт страницу мок-ленты по limit и cursor из URL.
+ *
+ * @param {URL} url
+ * @returns {{status: number, body: Object}}
+ */
 function feedPage(url) {
     const limit = Number(url.searchParams.get('limit') ?? 10);
     const cursor = url.searchParams.get('cursor');

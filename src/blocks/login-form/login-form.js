@@ -8,6 +8,10 @@ import { login, ApiError } from '../../api/api.js';
 
 const GENERIC_ERROR = 'Не удалось войти. Проверьте соединение и попробуйте ещё раз';
 
+/**
+ * @param {*} error
+ * @returns {string} Сообщение бэкенда для ошибок 4xx, иначе общее сообщение.
+ */
 function loginErrorMessage(error) {
     if (error instanceof ApiError && error.status < 500) {
         return error.message;
@@ -16,6 +20,9 @@ function loginErrorMessage(error) {
     return GENERIC_ERROR;
 }
 
+/**
+ * @returns {string} HTML формы входа.
+ */
 export function loginFormTemplate() {
     const email = formFieldTemplate({
         id: 'login-email',
@@ -38,6 +45,13 @@ export function loginFormTemplate() {
     return Handlebars.templates['login-form/login-form']({ email, password });
 }
 
+/**
+ * Вешает валидацию и отправку на форму входа.
+ *
+ * @param {HTMLElement} root
+ * @param {Object} params
+ * @param {Function} params.onSuccess - Вызывается после успешного входа.
+ */
 export function initLoginForm(root, { onSuccess }) {
     initFormFieldToggles(root);
 

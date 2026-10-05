@@ -1,6 +1,16 @@
-import { formFieldTemplate, setFormFieldError, validateFormFields } from '../form-field/form-field.js';
+import {
+    formFieldTemplate,
+    setFormFieldError,
+    validateFormFields,
+} from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
-import { normalizeName, validateName, validateBirthDate, toIsoDate, validateSex } from '../../validation.js';
+import {
+    normalizeName,
+    validateName,
+    validateBirthDate,
+    toIsoDate,
+    validateSex,
+} from '../../validation.js';
 
 const MONTHS = [
     'января',
@@ -22,8 +32,9 @@ const SEX_OPTIONS = [
     { value: 'male', label: 'Мужчина' },
 ];
 
-
-// Шаг 2: О себе. Сохраняет в data: name, birthDay, birthMonth, birthYear, birthDate, sex.
+/**
+ * Шаг 2: о себе. Сохраняет в data: name, birthDay, birthMonth, birthYear, birthDate, sex.
+ */
 export const profileStep = {
     template() {
         return Handlebars.templates['register-profile/register-profile']({

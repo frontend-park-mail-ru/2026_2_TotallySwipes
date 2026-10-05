@@ -14,6 +14,10 @@ const GENERIC_ERROR_MESSAGE =
     'Не удалось завершить регистрацию. Проверьте соединение и попробуйте ещё раз.';
 const EMAIL_TAKEN_STATUS = 409;
 
+/**
+ * @param {*} error
+ * @returns {string} Сообщение бэкенда с причинами по полям или общее сообщение.
+ */
 function registerErrorMessage(error) {
     if (error instanceof ApiError && error.status < 500) {
         const reasons = Object.values(error.fields ?? {});
@@ -24,9 +28,19 @@ function registerErrorMessage(error) {
     return GENERIC_ERROR_MESSAGE;
 }
 
-// Шаг: { title, subtitle, template?(data), init?(form, data), save?(form, data), validate?(form, data) }.
-// validate (может быть async!) при успехе сама сохраняет введённые значения в data и возвращает true.
-// save запоминает введённое без проверки, когда пользователь возвращается на шаг назад.
+/**
+ * @typedef {Object} RegisterStep
+ * @property {string} title
+ * @property {string} subtitle
+ * @property {function(Object): string} [template] - HTML тела шага.
+ * @property {function(HTMLFormElement, Object): void} [init] - Заполняет поля из data.
+ * @property {function(HTMLFormElement, Object): void} [save] - Запоминает введённое без проверки,
+ *     когда пользователь возвращается на шаг назад.
+ * @property {function(HTMLFormElement, Object): (boolean|Promise<boolean>)} [validate] - При успехе
+ *     сама сохраняет введённые значения в data и возвращает true. Может быть async.
+ */
+
+/** @type {RegisterStep[]} */
 const STEPS = [
     {
         title: 'Создайте аккаунт!',
@@ -55,12 +69,21 @@ const STEPS = [
     },
 ];
 
+/**
+ * @returns {string} Контейнер формы, шаги рендерит initRegisterForm.
+ */
 export function registerFormTemplate() {
     return '<div class="register-form"></div>';
 }
 
+/**
+ * Запускает пошаговую регистрацию. Введённые данные живут, пока открыта страница.
+ *
+ * @param {HTMLElement} root
+ * @param {Object} [params]
+ * @param {Function} [params.onRegistered] - Вызывается после успешной регистрации.
+ */
 export function initRegisterForm(root, { onRegistered } = {}) {
-    // Введённые на каждом шаге данные живут только пока открыта страница регистрации.
     const data = {};
     let isSubmitting = false;
 
@@ -70,6 +93,11 @@ export function initRegisterForm(root, { onRegistered } = {}) {
         });
     }
 
+    /**
+     * Отправляет регистрацию. Если почта занята, возвращает на первый шаг.
+     *
+     * @param {HTMLFormElement} form
+     */
     async function submit(form) {
         const formError = form.querySelector('.register-form__error');
 
@@ -102,6 +130,9 @@ export function initRegisterForm(root, { onRegistered } = {}) {
         onRegistered?.();
     }
 
+    /**
+     * @param {number} index - Индекс шага в STEPS.
+     */
     function showStep(index) {
         const step = STEPS[index];
         const isLast = index === STEPS.length - 1;

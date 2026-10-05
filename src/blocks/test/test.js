@@ -28,14 +28,26 @@ const ERROR_MODAL = {
     buttonText: 'Повторить',
 };
 
+/**
+ * @param {number} index - Индекс вопроса.
+ * @returns {string} Цвет из палитры по кругу.
+ */
 function colorOf(index) {
     return COLORS[index % COLORS.length];
 }
 
+/**
+ * @param {number} index
+ * @returns {string} Номер шага с ведущим нулём: 01, 02...
+ */
 function stepNumber(index) {
     return String(index + 1).padStart(2, '0');
 }
 
+/**
+ * @param {{label: string}[]} options
+ * @returns {{text: string, align: string}[]} Подписи начала, середины и конца шкалы.
+ */
 function toCaptions(options) {
     return [
         { text: options[0].label, align: 'start' },
@@ -44,6 +56,10 @@ function toCaptions(options) {
     ];
 }
 
+/**
+ * @param {Object} data - Тест из API.
+ * @returns {Object} Тест в удобном для страницы виде.
+ */
 function toTest(data) {
     return {
         id: data.test_id,
@@ -58,6 +74,12 @@ function isAnswered(state, question) {
     return state.answers[question.id] !== undefined;
 }
 
+/**
+ * @param {number} index
+ * @param {Object} question
+ * @param {Object} state
+ * @returns {'current'|'done'|''}
+ */
 function stepState(index, question, state) {
     if (index === state.current) {
         return 'current';
@@ -70,6 +92,9 @@ function stepState(index, question, state) {
     return '';
 }
 
+/**
+ * @returns {Promise<Object|null>} Результат теста или null, если тест не пройден.
+ */
 async function fetchMyResult() {
     try {
         return await getMyTestResult();
@@ -82,6 +107,13 @@ async function fetchMyResult() {
     }
 }
 
+/**
+ * Восстанавливает состояние из черновика, отбрасывая ответы, которых нет в тесте.
+ *
+ * @param {Object|null} draft
+ * @param {Object} test
+ * @returns {{current: number, answers: Object<number, number>, isSubmitting: boolean}}
+ */
 function restoreState(draft, test) {
     const state = { current: 0, answers: {}, isSubmitting: false };
 
@@ -108,6 +140,12 @@ function restoreState(draft, test) {
     return state;
 }
 
+/**
+ * Рендерит тест. Если тест уже пройден, переходит на результат.
+ *
+ * @param {HTMLElement} root
+ * @param {Router} router
+ */
 export function renderTestPage(root, router) {
     let userId = null;
     let test = null;
@@ -176,6 +214,9 @@ export function renderTestPage(root, router) {
         });
     }
 
+    /**
+     * Загружает пользователя, черновик и тест. При ошибке предлагает повторить.
+     */
     async function load() {
         try {
             const user = await getCurrentUser();
@@ -212,6 +253,9 @@ export function renderTestPage(root, router) {
         }
     }
 
+    /**
+     * @param {number} index - Индекс вопроса. Вне диапазона ничего не делает.
+     */
     function goTo(index) {
         if (index < 0 || index >= total()) {
             return;
@@ -222,6 +266,9 @@ export function renderTestPage(root, router) {
         render();
     }
 
+    /**
+     * Переходит к следующему вопросу, а с последнего - к первому неотвеченному.
+     */
     function goNext() {
         if (state.current < total() - 1) {
             goTo(state.current + 1);
@@ -231,6 +278,9 @@ export function renderTestPage(root, router) {
         goTo(test.questions.findIndex((question) => !isAnswered(state, question)));
     }
 
+    /**
+     * Отправляет ответы, когда отвечены все вопросы.
+     */
     async function submit() {
         if (state.isSubmitting || answeredCount() < total()) {
             return;

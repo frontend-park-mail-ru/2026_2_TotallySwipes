@@ -23,6 +23,14 @@ const PILLS = [
     },
 ];
 
+/**
+ * Рендерит общую оболочку страниц входа и регистрации.
+ *
+ * @param {HTMLElement} root
+ * @param {Object} params
+ * @param {'login'|'register'} params.activeTab - Активная вкладка.
+ * @param {string} params.form - HTML формы.
+ */
 function renderAuthShell(root, { activeTab, form }) {
     root.innerHTML = Handlebars.templates['auth/auth']({
         pills: PILLS.map(({ mix, ...pill }) => pillTemplate(pill, mix)).join(''),
@@ -32,12 +40,26 @@ function renderAuthShell(root, { activeTab, form }) {
     });
 }
 
+/**
+ * Рендерит страницу входа.
+ *
+ * @param {HTMLElement} root
+ * @param {Object} params
+ * @param {Function} params.onLogin - Вызывается после успешного входа.
+ */
 export function renderAuthPage(root, { onLogin }) {
     renderAuthShell(root, { activeTab: 'login', form: loginFormTemplate() });
 
     initLoginForm(root.querySelector('.login-form'), { onSuccess: onLogin });
 }
 
+/**
+ * Рендерит страницу регистрации.
+ *
+ * @param {HTMLElement} root
+ * @param {Object} [params]
+ * @param {Function} [params.onRegistered] - Вызывается после успешной регистрации.
+ */
 export function renderRegisterPage(root, { onRegistered } = {}) {
     renderAuthShell(root, { activeTab: 'register', form: registerFormTemplate() });
 
