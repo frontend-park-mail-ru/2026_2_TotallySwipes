@@ -1,23 +1,14 @@
 import { MOCK_ROUTES, checkAccess } from './mocks.js';
 
-const MULTI_VALUE_FIELDS = ['tags', 'photos'];
-
 /**
  * Разбирает тело запроса для мок-обработчиков: FormData в объект, строку - как JSON.
- * Поля tags и photos собираются в массивы.
  *
  * @param {FormData|string|undefined} body
  * @returns {Object|null}
  */
 function parseBody(body) {
     if (body instanceof FormData) {
-        const fields = Object.fromEntries(body);
-
-        MULTI_VALUE_FIELDS.forEach((field) => {
-            fields[field] = body.getAll(field);
-        });
-
-        return fields;
+        return Object.fromEntries(body);
     }
 
     // TODO: Сделать валидацию JSON-а.
@@ -40,7 +31,9 @@ export async function mockFetch(url, options = {}) {
         return jsonResponse(denied.body, denied.status);
     }
 
-    const route = MOCK_ROUTES[`${method} ${parsedUrl.pathname}`];
+    const route =
+        MOCK_ROUTES[`${method} ${parsedUrl.pathname}`] ??
+        MOCK_ROUTES[`${method} ${parsedUrl.pathname.replace(/\/\d+$/, '/{id}')}`];
     if (!route) {
         return jsonResponse({ error: { code: 'NOT_FOUND', message: 'Not found' } }, 404);
     }

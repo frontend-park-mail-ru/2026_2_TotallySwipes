@@ -6,15 +6,15 @@ import { INTERESTS, interestIconUrl } from '../../interests.js';
 const ACCENTS = ['mint', 'sun', 'pink', 'sky', 'lilac'];
 
 /**
- * Шаг 5: интересы. Сохраняет в data: interests - массив подписей (на бэкенд уходят как tags).
+ * Шаг 5: интересы. Сохраняет в data: interests - массив ключей тегов бэкенда.
  * Интересы необязательны, поэтому validate нет.
  */
 export const interestsStep = {
     template() {
-        const options = INTERESTS.map(({ label }, index) => ({
-            value: label,
+        const options = INTERESTS.map(({ key, label }, index) => ({
+            value: key,
             label,
-            icon: interestIconUrl(label),
+            icon: interestIconUrl(key),
             accent: ACCENTS[index % ACCENTS.length],
         }));
 

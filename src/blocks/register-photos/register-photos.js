@@ -78,8 +78,85 @@ function addPhotos(photos, files) {
 }
 
 /**
+ * Переносит фото с позиции from на позицию to, остальные сдвигаются.
+ *
+ * @param {File[]} photos - Изменяется на месте.
+ * @param {number} from
+ * @param {number} to
+ */
+function movePhoto(photos, from, to) {
+    const [moved] = photos.splice(from, 1);
+    photos.splice(to, 0, moved);
+}
+
+/**
+ * Включает перестановку фото перетаскиванием. Слушатели висят на form,
+ * поэтому переживают перерисовку сетки.
+ *
+ * @param {HTMLFormElement} form
+ * @param {File[]} photos - Изменяется на месте.
+ * @param {Function} renderGrid
+ */
+function initPhotoDrag(form, photos, renderGrid) {
+    let from = null;
+
+    const slotOf = (event) => event.target.closest('.register-photos__slot_filled');
+    const clearTargets = () => {
+        form.querySelectorAll('.register-photos__slot_drop-target').forEach((slot) => {
+            slot.classList.remove('register-photos__slot_drop-target');
+        });
+    };
+
+    form.addEventListener('dragstart', (event) => {
+        const slot = slotOf(event);
+        if (!slot) {
+            return;
+        }
+
+        from = Number(slot.dataset.index);
+        event.dataTransfer.effectAllowed = 'move';
+        slot.classList.add('register-photos__slot_dragging');
+    });
+
+    form.addEventListener('dragover', (event) => {
+        const slot = slotOf(event);
+        if (from === null || !slot) {
+            return;
+        }
+
+        event.preventDefault();
+        clearTargets();
+        if (Number(slot.dataset.index) !== from) {
+            slot.classList.add('register-photos__slot_drop-target');
+        }
+    });
+
+    form.addEventListener('drop', (event) => {
+        const slot = slotOf(event);
+        if (from === null || !slot) {
+            return;
+        }
+
+        event.preventDefault();
+        const to = Number(slot.dataset.index);
+        if (to !== from) {
+            movePhoto(photos, from, to);
+            renderGrid();
+        }
+    });
+
+    form.addEventListener('dragend', () => {
+        from = null;
+        clearTargets();
+        form.querySelector('.register-photos__slot_dragging')?.classList.remove(
+            'register-photos__slot_dragging',
+        );
+    });
+}
+
+/**
  * Шаг 4: фото. Сохраняет в data: photos - массив File.
- * Порядок задаёт порядок в анкете, первое фото главное.
+ * Порядок задаёт порядок в анкете, первое фото главное; менять его можно перетаскиванием.
  */
 export const photosStep = {
     template(data) {
@@ -109,6 +186,8 @@ export const photosStep = {
                 fileInput.click();
             }
         });
+
+        initPhotoDrag(form, data.photos, renderGrid);
 
         fileInput.addEventListener('change', () => {
             const error = addPhotos(data.photos, [...fileInput.files]);

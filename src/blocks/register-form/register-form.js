@@ -5,7 +5,8 @@ import { searchStep } from '../register-search/register-search.js';
 import { photosStep } from '../register-photos/register-photos.js';
 import { interestsStep } from '../register-interests/register-interests.js';
 import { setFormFieldError } from '../form-field/form-field.js';
-import { register, ApiError } from '../../api/api.js';
+import { ApiError } from '../../api/api.js';
+import { createRegisterProgress, submitRegistration } from './__submit/register-form__submit.js';
 import { icons } from '../../icons.js';
 
 const NEXT_LABEL = 'Продолжить';
@@ -59,7 +60,8 @@ const STEPS = [
     },
     {
         title: 'Добавьте фото!',
-        subtitle: 'Хотя бы одно, где хорошо видно лицо. Первое станет главным.',
+        subtitle:
+            'Хотя бы одно, где хорошо видно лицо. Первое станет главным — порядок меняется перетаскиванием.',
         ...photosStep,
     },
     {
@@ -85,6 +87,7 @@ export function registerFormTemplate() {
  */
 export function initRegisterForm(root, { onRegistered } = {}) {
     const data = {};
+    const progress = createRegisterProgress();
     let isSubmitting = false;
 
     function setActionsDisabled(form, disabled) {
@@ -95,6 +98,7 @@ export function initRegisterForm(root, { onRegistered } = {}) {
 
     /**
      * Отправляет регистрацию. Если почта занята, возвращает на первый шаг.
+     * После ошибки повторная отправка продолжает с места сбоя.
      *
      * @param {HTMLFormElement} form
      */
@@ -106,7 +110,7 @@ export function initRegisterForm(root, { onRegistered } = {}) {
         setActionsDisabled(form, true);
 
         try {
-            await register(data);
+            await submitRegistration(data, progress);
         } catch (error) {
             isSubmitting = false;
 
@@ -142,7 +146,7 @@ export function initRegisterForm(root, { onRegistered } = {}) {
             title: step.title,
             subtitle: step.subtitle,
             body: step.template?.(data) ?? '',
-            hasBack: index > 0,
+            hasBack: index > (progress.registered ? 1 : 0),
             isFirst: index === 0,
             nextLabel: isLast ? FINISH_LABEL : NEXT_LABEL,
             arrow: icons.arrow,

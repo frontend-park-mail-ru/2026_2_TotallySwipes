@@ -1,26 +1,37 @@
+/**
+ * Справочник интересов. key - ключ тега на бэкенде, label и icon хранит только фронтенд.
+ */
 export const INTERESTS = [
-    { label: 'Кофе', icon: 'coffee' },
-    { label: 'Книги', icon: 'book' },
-    { label: 'Музыка', icon: 'music' },
-    { label: 'Походы', icon: 'mountain' },
-    { label: 'Велосипед', icon: 'bike' },
-    { label: 'Путешествия', icon: 'plane' },
-    { label: 'Фотография', icon: 'camera' },
-    { label: 'Настолки', icon: 'game' },
-    { label: 'Кулинария', icon: 'flame' },
-    { label: 'Бег', icon: 'zap' },
-    { label: 'Рисование', icon: 'palette' },
-    { label: 'Кино', icon: 'star' },
-    { label: 'Концерты', icon: 'sparkles' },
-    { label: 'Животные', icon: 'heart' },
+    { key: 'coffee', label: 'Кофе', icon: 'coffee' },
+    { key: 'books', label: 'Книги', icon: 'book' },
+    { key: 'music', label: 'Музыка', icon: 'music' },
+    { key: 'hiking', label: 'Походы', icon: 'mountain' },
+    { key: 'bicycle', label: 'Велосипед', icon: 'bike' },
+    { key: 'travel', label: 'Путешествия', icon: 'plane' },
+    { key: 'photo', label: 'Фотография', icon: 'camera' },
+    { key: 'board_games', label: 'Настолки', icon: 'game' },
+    { key: 'cooking', label: 'Кулинария', icon: 'flame' },
+    { key: 'running', label: 'Бег', icon: 'zap' },
+    { key: 'painting', label: 'Рисование', icon: 'palette' },
+    { key: 'movies', label: 'Кино', icon: 'star' },
+    { key: 'concerts', label: 'Концерты', icon: 'sparkles' },
+    { key: 'animals', label: 'Животные', icon: 'heart' },
 ];
 
 /**
- * @param {string} label - Подпись интереса.
+ * @param {string} key - Ключ тега с бэкенда.
+ * @returns {string} Подпись интереса или сам ключ, если интерес неизвестен.
+ */
+export function interestLabel(key) {
+    return INTERESTS.find((item) => item.key === key)?.label ?? key;
+}
+
+/**
+ * @param {string} key - Ключ тега с бэкенда.
  * @returns {string|null} Путь к иконке или null, если интерес неизвестен.
  */
-export function interestIconUrl(label) {
-    const interest = INTERESTS.find((item) => item.label === label);
+export function interestIconUrl(key) {
+    const interest = INTERESTS.find((item) => item.key === key);
 
     return interest ? `/public/icons/${interest.icon}.svg` : null;
 }

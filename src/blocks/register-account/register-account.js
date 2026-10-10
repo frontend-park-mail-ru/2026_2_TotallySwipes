@@ -10,37 +10,6 @@ import {
     validatePassword,
     validatePasswordConfirm,
 } from '../../validation.js';
-import { checkEmailAvailable, ApiError } from '../../api/api.js';
-
-const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
-
-/**
- * Проверяет на бэкенде, что почта свободна, и показывает ошибку у поля.
- *
- * @param {HTMLInputElement} input
- * @returns {Promise<boolean>}
- */
-async function isEmailFree(input) {
-    let message = null;
-
-    try {
-        if (!(await checkEmailAvailable(input.value))) {
-            message = EMAIL_TAKEN_MESSAGE;
-        }
-    } catch (error) {
-        if (error instanceof ApiError && error.status === 400) {
-            message = Object.values(error.fields ?? {})[0] ?? error.message;
-        }
-    }
-
-    setFormFieldError(input, message);
-
-    if (message) {
-        input.focus();
-    }
-
-    return message === null;
-}
 
 /**
  * Шаг 1: данные для входа. Сохраняет в data: email, password.
@@ -96,7 +65,7 @@ export const accountStep = {
         });
     },
 
-    async validate(form, data) {
+    validate(form, data) {
         const { email, password, passwordConfirm } = form.elements;
 
         const isValid = validateFormFields([
@@ -109,10 +78,6 @@ export const accountStep = {
         ]);
 
         if (!isValid) {
-            return false;
-        }
-
-        if (!(await isEmailFree(email))) {
             return false;
         }
 
