@@ -5,7 +5,8 @@ import { roundButtonTemplate } from '../round-button/round-button.js';
 import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
-import { interestIconUrl } from '../../interests.js';
+import { interestIconUrl, interestLabel } from '../../interests.js';
+import { datingGoalFact } from '../../dating-goals.js';
 
 const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 
@@ -33,13 +34,13 @@ function compatibilityVerdict(percent) {
 }
 
 /**
- * @param {string} tag
+ * @param {string} tag - Ключ тега с бэкенда.
  * @param {number} index
  * @returns {{text: string, icon: string|null, color: string}} Данные для пилюли интереса.
  */
 function toInterest(tag, index) {
     return {
-        text: tag,
+        text: interestLabel(tag),
         icon: interestIconUrl(tag),
         color: PILL_COLORS[index % PILL_COLORS.length],
     };
@@ -70,9 +71,11 @@ function toProfileView(item) {
         compatibility,
         compatibilityVerdict: hasCompatibility ? compatibilityVerdict(compatibility) : null,
         interests: item.tags.map(toInterest),
-        facts: [{ label: 'Цель', value: item.dating_intent }].filter((fact) => fact.value),
+        facts: [{ label: 'Цель', value: datingGoalFact(item.dating_goal) }].filter(
+            (fact) => fact.value,
+        ),
         // TODO: расскоментировать когда убдет профиль
-        // facts: [{ label: 'Цель', value: item.dating_intent }, ...STATIC_FACTS].filter(
+        // facts: [{ label: 'Цель', value: datingGoalFact(item.dating_goal) }, ...STATIC_FACTS].filter(
         //     (fact) => fact.value,
         // ),
     };

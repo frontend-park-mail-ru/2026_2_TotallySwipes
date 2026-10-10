@@ -79,3 +79,16 @@
 .register-photos__remove:hover {
     background: var(--color-error-hover);
 }
+
+.register-photos__slot_filled {
+    cursor: grab;
+}
+
+.register-photos__slot_dragging {
+    opacity: 0.4;
+}
+
+.register-photos__slot_drop-target {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}

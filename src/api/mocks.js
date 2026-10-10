@@ -38,30 +38,15 @@ export function checkAccess(pathname) {
     return unauthorized();
 }
 
-const REGISTER_FIELDS = [
-    'name',
-    'email',
-    'password',
-    'birth_date',
-    'sex',
-    'search_sex',
-    'dating_intent',
-    'search_age_from',
-    'search_age_to',
-];
 const MAX_PHOTOS = 6;
 
-function isRegisterBodyValid(body) {
-    if (!body) {
-        return false;
-    }
+let mockPhotos = [];
+let nextPhotoId = 100;
 
-    return (
-        REGISTER_FIELDS.every((field) => body[field]) &&
-        body.photos?.length >= 1 &&
-        body.photos?.length <= MAX_PHOTOS
-    );
-}
+const photosResponse = (status) => ({
+    status,
+    body: { photos: mockPhotos.map(({ id, url }) => ({ id, url })) },
+});
 
 const FEED_ITEMS = [
     {
@@ -69,57 +54,57 @@ const FEED_ITEMS = [
         name: 'Алина',
         about_me:
             'Работаю в книжном издательстве, по выходным катаюсь на велосипеде вдоль реки. Ищу человека, с которым можно молчать и не скучать.',
-        dating_intent: 'Ищу половинку',
+        dating_goal: 'relationship',
         compatibility: 0.87,
         age: 24,
-        tags: ['книги', 'велосипед', 'кофе', 'музыка', 'походы'],
+        tags: ['books', 'bicycle', 'coffee', 'music', 'hiking'],
         photos: [{ id: 1, url: '/public/img/1.jpg' }],
     },
     {
         user_id: 43,
         name: 'Марфа',
         about_me: 'Пеку хлеб на закваске и хожу на все концерты, до которых могу доехать.',
-        dating_intent: 'Ищу половинку',
+        dating_goal: 'relationship',
         compatibility: 0.82,
         age: 25,
-        tags: ['кулинария', 'концерты', 'животные'],
+        tags: ['cooking', 'concerts', 'animals'],
         photos: [{ id: 2, url: '/public/img/2.jpg' }],
     },
     {
         user_id: 44,
         name: 'Мадина',
         about_me: 'Бегаю по утрам, по вечерам играю в настолки.',
-        dating_intent: 'Ищу общение',
+        dating_goal: 'casual',
         compatibility: 0.91,
         age: 26,
-        tags: ['бег', 'настолки'],
+        tags: ['running', 'board_games'],
         photos: [{ id: 3, url: '/public/img/3.jpg' }],
     },
     {
         user_id: 45,
         name: 'Алина',
         about_me: 'Фотографирую город и рисую акварелью.',
-        dating_intent: 'Ищу встречи',
+        dating_goal: 'friendship',
         compatibility: 0.76,
         age: 27,
-        tags: ['фотография', 'рисование', 'путешествия'],
+        tags: ['photo', 'painting', 'travel'],
         photos: [{ id: 4, url: '/public/img/1.jpg' }],
     },
     {
         user_id: 46,
         name: 'Марфа',
         about_me: null,
-        dating_intent: 'Ищу половинку',
+        dating_goal: 'relationship',
         compatibility: 0.64,
         age: 28,
-        tags: ['кино'],
+        tags: ['movies'],
         photos: [{ id: 5, url: '/public/img/2.jpg' }],
     },
     {
         user_id: 47,
         name: 'Мадина',
         about_me: 'Путешествую при любой возможности.',
-        dating_intent: 'Ищу общение',
+        dating_goal: 'casual',
         compatibility: null,
         age: 29,
         tags: [],
@@ -221,7 +206,7 @@ export const MOCK_ROUTES = {
         return { status: 200, body: TEST_RESULT };
     },
     'POST /api/v1/auth/register': (url, { body }) => {
-        if (!isRegisterBodyValid(body)) {
+        if (!body?.email || !body?.password) {
             return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
         }
 
@@ -230,8 +215,45 @@ export const MOCK_ROUTES = {
         }
 
         startSession();
+        mockPhotos = [];
 
-        return { status: 201, body: { user_id: 2, profile_completed: false } };
+        return {
+            status: 201,
+            body: {
+                user_id: 2,
+                missing: ['name', 'birth_date', 'sex', 'dating_goal', 'search_filter', 'photos'],
+            },
+        };
+    },
+    'PATCH /api/v1/profile/me': (url, { body }) => ({ status: 200, body: { user_id: 2, ...body } }),
+    'PUT /api/v1/filters/me': (url, { body }) => ({ status: 200, body }),
+    'POST /api/v1/profile/me/photos': (url, { body }) => {
+        if (mockPhotos.length >= MAX_PHOTOS) {
+            return error(409, 'PHOTO_LIMIT', 'Можно загрузить не больше 6 фотографий');
+        }
+
+        mockPhotos.push({ id: nextPhotoId++, url: URL.createObjectURL(body.photo) });
+
+        return photosResponse(201);
+    },
+    'DELETE /api/v1/profile/me/photos/{id}': (url) => {
+        const id = Number(url.pathname.split('/').pop());
+        mockPhotos = mockPhotos.filter((photo) => photo.id !== id);
+
+        return photosResponse(200);
+    },
+    'PUT /api/v1/profile/me/photos/order': (url, { body }) => {
+        const ids = body?.photo_ids ?? [];
+        const sameSet =
+            ids.length === mockPhotos.length && mockPhotos.every((photo) => ids.includes(photo.id));
+
+        if (!sameSet) {
+            return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
+        }
+
+        mockPhotos = ids.map((id) => mockPhotos.find((photo) => photo.id === id));
+
+        return photosResponse(200);
     },
     'POST /api/v1/auth/login': (url, { body }) => {
         if (body.email !== MOCK_ACCOUNT.email || body.password !== MOCK_ACCOUNT.password) {
@@ -240,7 +262,7 @@ export const MOCK_ROUTES = {
 
         startSession();
 
-        return { status: 200, body: { user_id: 1, profile_completed: true } };
+        return { status: 200, body: { user_id: 1, missing: [] } };
     },
     'POST /api/v1/auth/logout': () => {
         endSession();

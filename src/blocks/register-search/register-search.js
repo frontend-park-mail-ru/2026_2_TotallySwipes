@@ -1,6 +1,8 @@
 import { setFormFieldError, validateFormFields } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
-import { validateSearchAge, validateSearchSex, validateDatingIntent } from '../../validation.js';
+import { validateSearchAge, validateSearchSex, validateDatingGoal } from '../../validation.js';
+import { DATING_GOALS } from '../../dating-goals.js';
+import { updateProfile, setSearchFilter } from '../../api/api.js';
 
 const SEARCH_SEX_OPTIONS = [
     { value: 'female', label: 'Девушек' },
@@ -8,14 +10,10 @@ const SEARCH_SEX_OPTIONS = [
     { value: 'all', label: 'Всех' },
 ];
 
-const DATING_INTENT_OPTIONS = [
-    { value: 'Ищу половинку', label: 'Отношения' },
-    { value: 'Ищу встречи', label: 'Дружба' },
-    { value: 'Ищу общение', label: 'Общение' },
-];
+const DATING_GOAL_OPTIONS = DATING_GOALS.map(({ key, label }) => ({ value: key, label }));
 
 /**
- * Шаг 3: кого ищете. Сохраняет в data: searchSex, searchAgeFrom, searchAgeTo, datingIntent.
+ * Шаг 3: кого ищете. Сохраняет в data: searchSex, searchAgeFrom, searchAgeTo, datingGoal.
  */
 export const searchStep = {
     template() {
@@ -25,10 +23,10 @@ export const searchStep = {
                 name: 'searchSex',
                 options: SEARCH_SEX_OPTIONS,
             }),
-            datingIntent: chipsTemplate({
+            datingGoal: chipsTemplate({
                 type: 'radio',
-                name: 'datingIntent',
-                options: DATING_INTENT_OPTIONS,
+                name: 'datingGoal',
+                options: DATING_GOAL_OPTIONS,
             }),
         });
     },
@@ -37,7 +35,7 @@ export const searchStep = {
         form.elements.searchSex.value = data.searchSex ?? '';
         form.elements.ageFrom.value = data.searchAgeFrom ?? '';
         form.elements.ageTo.value = data.searchAgeTo ?? '';
-        form.elements.datingIntent.value = data.datingIntent ?? '';
+        form.elements.datingGoal.value = data.datingGoal ?? '';
 
         form.addEventListener('input', (event) => {
             if (event.target.matches('.form-field__input, .chips__input')) {
@@ -50,16 +48,16 @@ export const searchStep = {
         data.searchSex = form.elements.searchSex.value;
         data.searchAgeFrom = form.elements.ageFrom.value.trim();
         data.searchAgeTo = form.elements.ageTo.value.trim();
-        data.datingIntent = form.elements.datingIntent.value;
+        data.datingGoal = form.elements.datingGoal.value;
     },
 
     validate(form, data) {
-        const { searchSex, ageFrom, ageTo, datingIntent } = form.elements;
+        const { searchSex, ageFrom, ageTo, datingGoal } = form.elements;
 
         const isValid = validateFormFields([
             { input: searchSex[0], validate: () => validateSearchSex(searchSex.value) },
             { input: ageFrom, validate: () => validateSearchAge(ageFrom.value, ageTo.value) },
-            { input: datingIntent[0], validate: () => validateDatingIntent(datingIntent.value) },
+            { input: datingGoal[0], validate: () => validateDatingGoal(datingGoal.value) },
         ]);
 
         if (!isValid) {
@@ -68,6 +66,16 @@ export const searchStep = {
 
         this.save(form, data);
 
+        return true;
+    },
+
+    async submit(form, data) {
+        await updateProfile({ dating_goal: data.datingGoal });
+        await setSearchFilter({
+            sex: data.searchSex,
+            age_from: Number(data.searchAgeFrom),
+            age_to: Number(data.searchAgeTo),
+        });
         return true;
     },
 };

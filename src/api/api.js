@@ -191,53 +191,75 @@ export function login(email, password) {
 }
 
 /**
- * Проверяет, свободна ли почта для регистрации.
+ * Создаёт аккаунт с пустой анкетой и открывает сессию.
  *
  * @param {string} email
- * @returns {Promise<boolean>}
+ * @param {string} password
+ * @returns {Promise<{user_id: number, missing: string[]}>}
+ * @throws {ApiError} Со статусом 409, если почта уже занята.
  */
-export async function checkEmailAvailable(email) {
-    const { available } = await request('/auth/email/check', {
+export function register(email, password) {
+    return request('/auth/register', {
         method: 'POST',
-        body: { email: toAsciiEmail(email) },
+        body: { email: toAsciiEmail(email), password: password.normalize('NFC') },
     });
-
-    return available;
 }
 
 /**
- * Регистрирует пользователя. Данные и фото отправляются как multipart/form-data.
+ * Меняет присланные поля анкеты, остальные остаются как были.
  *
- * @param {Object} profile - Данные, собранные на шагах регистрации.
- * @param {string} profile.name
- * @param {string} profile.email
- * @param {string} profile.password
- * @param {string} profile.birthDate - Дата в формате YYYY-MM-DD.
- * @param {string} profile.sex
- * @param {string} profile.searchSex
- * @param {string} profile.datingIntent
- * @param {string} profile.searchAgeFrom
- * @param {string} profile.searchAgeTo
- * @param {string[]} profile.interests
- * @param {File[]} profile.photos
- * @returns {Promise<*>}
+ * @param {Object} fields - Поля в формате API: name, birth_date, sex, dating_goal, tags и т. д.
+ * @returns {Promise<Object>} Анкета после изменения.
  */
-export function register(profile) {
+export function updateProfile(fields) {
+    return request('/profile/me', { method: 'PATCH', body: fields });
+}
+
+/**
+ * Задаёт фильтр ленты целиком.
+ *
+ * @param {Object} filter
+ * @param {string} filter.sex - male, female или all.
+ * @param {number} filter.age_from
+ * @param {number} filter.age_to
+ * @returns {Promise<Object>} Сохранённый фильтр.
+ */
+export function setSearchFilter(filter) {
+    return request('/filters/me', { method: 'PUT', body: filter });
+}
+
+/**
+ * Загружает одно фото в конец списка фото анкеты.
+ *
+ * @param {File} file
+ * @returns {Promise<{photos: {id: number, url: string}[]}>} Актуальный список фото.
+ */
+export function uploadPhoto(file) {
     const form = new FormData();
+    form.append('photo', file);
 
-    form.append('name', profile.name);
-    form.append('email', toAsciiEmail(profile.email));
-    form.append('password', profile.password.normalize('NFC'));
-    form.append('birth_date', profile.birthDate);
-    form.append('sex', profile.sex);
-    form.append('search_sex', profile.searchSex);
-    form.append('dating_intent', profile.datingIntent);
-    form.append('search_age_from', profile.searchAgeFrom);
-    form.append('search_age_to', profile.searchAgeTo);
-    profile.interests.forEach((interest) => form.append('tags', interest));
-    profile.photos.forEach((photo) => form.append('photos', photo));
+    return request('/profile/me/photos', { method: 'POST', body: form });
+}
 
-    return request('/auth/register', { method: 'POST', body: form });
+/**
+ * Удаляет фото анкеты.
+ *
+ * @param {number} photoId
+ * @returns {Promise<{photos: {id: number, url: string}[]}>} Актуальный список фото.
+ */
+export function deletePhoto(photoId) {
+    return request(`/profile/me/photos/${photoId}`, { method: 'DELETE' });
+}
+
+/**
+ * Задаёт порядок фото анкеты, первое становится главным.
+ *
+ * @param {number[]} photoIds - id всех фото анкеты, каждый ровно один раз.
+ * @returns {Promise<{photos: {id: number, url: string}[]}>} Актуальный список фото.
+ * @throws {ApiError} Со статусом 400, если набор id не совпадает с фото анкеты.
+ */
+export function reorderPhotos(photoIds) {
+    return request('/profile/me/photos/order', { method: 'PUT', body: { photo_ids: photoIds } });
 }
 
 /**

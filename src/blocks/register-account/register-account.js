@@ -10,40 +10,13 @@ import {
     validatePassword,
     validatePasswordConfirm,
 } from '../../validation.js';
-import { checkEmailAvailable, ApiError } from '../../api/api.js';
+import { register, ApiError } from '../../api/api.js';
 
-const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
-
-/**
- * Проверяет на бэкенде, что почта свободна, и показывает ошибку у поля.
- *
- * @param {HTMLInputElement} input
- * @returns {Promise<boolean>}
- */
-async function isEmailFree(input) {
-    let message = null;
-
-    try {
-        if (!(await checkEmailAvailable(input.value))) {
-            message = EMAIL_TAKEN_MESSAGE;
-        }
-    } catch (error) {
-        if (error instanceof ApiError && error.status === 400) {
-            message = Object.values(error.fields ?? {})[0] ?? error.message;
-        }
-    }
-
-    setFormFieldError(input, message);
-
-    if (message) {
-        input.focus();
-    }
-
-    return message === null;
-}
+const EMAIL_TAKEN_STATUS = 409;
 
 /**
  * Шаг 1: данные для входа. Сохраняет в data: email, password.
+ * Отправка создаёт аккаунт с пустой анкетой и ставит data.registered.
  */
 export const accountStep = {
     template() {
@@ -96,7 +69,7 @@ export const accountStep = {
         });
     },
 
-    async validate(form, data) {
+    validate(form, data) {
         const { email, password, passwordConfirm } = form.elements;
 
         const isValid = validateFormFields([
@@ -112,13 +85,30 @@ export const accountStep = {
             return false;
         }
 
-        if (!(await isEmailFree(email))) {
-            return false;
-        }
-
         data.email = email.value.trim();
         data.password = password.value;
 
+        return true;
+    },
+
+    async submit(form, data) {
+        if (data.registered) {
+            return true;
+        }
+
+        try {
+            await register(data.email, data.password);
+        } catch (error) {
+            if (error instanceof ApiError && error.status === EMAIL_TAKEN_STATUS) {
+                setFormFieldError(form.elements.email, error.message);
+                form.elements.email.focus();
+                return false;
+            }
+
+            throw error;
+        }
+
+        data.registered = true;
         return true;
     },
 };

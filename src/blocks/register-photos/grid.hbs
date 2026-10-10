@@ -1,12 +1,12 @@
 <div class="register-photos__grid">
     {{#each slots}}
         {{#if url}}
-            <div class="register-photos__slot">
-                <img class="register-photos__image" src="{{url}}" alt="">
+            <div class="register-photos__slot register-photos__slot_filled" draggable="true" data-index="{{index}}" data-id="{{id}}">
+                <img class="register-photos__image" src="{{url}}" alt="" draggable="false">
                 {{#if main}}
                     <span class="register-photos__badge">Главное</span>
                 {{/if}}
-                <button class="register-photos__remove" type="button" data-index="{{index}}">{{{@root.closeIcon}}}</button>
+                <button class="register-photos__remove" type="button" data-id="{{id}}">{{{@root.closeIcon}}}</button>
             </div>
         {{else}}
             <button class="register-photos__slot register-photos__slot_empty" type="button">
