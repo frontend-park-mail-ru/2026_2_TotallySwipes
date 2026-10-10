@@ -2,12 +2,13 @@ import { setFormFieldError } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
 import { INTERESTS_MAX_COUNT, validateInterestsCount } from '../../validation.js';
 import { INTERESTS, interestIconUrl } from '../../interests.js';
+import { updateProfile } from '../../api/api.js';
 
 const ACCENTS = ['mint', 'sun', 'pink', 'sky', 'lilac'];
 
 /**
  * Шаг 5: интересы. Сохраняет в data: interests - массив ключей тегов бэкенда.
- * Интересы необязательны, поэтому validate нет.
+ * Интересы необязательны, поэтому validate нет; отправка заменяет теги анкеты.
  */
 export const interestsStep = {
     template() {
@@ -60,5 +61,10 @@ export const interestsStep = {
 
             sync();
         });
+    },
+
+    async submit(form, data) {
+        await updateProfile({ tags: data.interests ?? [] });
+        return true;
     },
 };

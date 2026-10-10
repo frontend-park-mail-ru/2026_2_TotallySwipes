@@ -2,6 +2,7 @@ import { setFormFieldError, validateFormFields } from '../form-field/form-field.
 import { chipsTemplate } from '../chips/chips.js';
 import { validateSearchAge, validateSearchSex, validateDatingGoal } from '../../validation.js';
 import { DATING_GOALS } from '../../dating-goals.js';
+import { updateProfile, setSearchFilter } from '../../api/api.js';
 
 const SEARCH_SEX_OPTIONS = [
     { value: 'female', label: 'Девушек' },
@@ -65,6 +66,16 @@ export const searchStep = {
 
         this.save(form, data);
 
+        return true;
+    },
+
+    async submit(form, data) {
+        await updateProfile({ dating_goal: data.datingGoal });
+        await setSearchFilter({
+            sex: data.searchSex,
+            age_from: Number(data.searchAgeFrom),
+            age_to: Number(data.searchAgeTo),
+        });
         return true;
     },
 };

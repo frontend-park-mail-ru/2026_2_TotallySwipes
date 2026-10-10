@@ -10,9 +10,13 @@ import {
     validatePassword,
     validatePasswordConfirm,
 } from '../../validation.js';
+import { register, ApiError } from '../../api/api.js';
+
+const EMAIL_TAKEN_STATUS = 409;
 
 /**
  * Шаг 1: данные для входа. Сохраняет в data: email, password.
+ * Отправка создаёт аккаунт с пустой анкетой и ставит data.registered.
  */
 export const accountStep = {
     template() {
@@ -84,6 +88,27 @@ export const accountStep = {
         data.email = email.value.trim();
         data.password = password.value;
 
+        return true;
+    },
+
+    async submit(form, data) {
+        if (data.registered) {
+            return true;
+        }
+
+        try {
+            await register(data.email, data.password);
+        } catch (error) {
+            if (error instanceof ApiError && error.status === EMAIL_TAKEN_STATUS) {
+                setFormFieldError(form.elements.email, error.message);
+                form.elements.email.focus();
+                return false;
+            }
+
+            throw error;
+        }
+
+        data.registered = true;
         return true;
     },
 };

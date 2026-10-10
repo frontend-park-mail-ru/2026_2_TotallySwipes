@@ -11,6 +11,7 @@ import {
     toIsoDate,
     validateSex,
 } from '../../validation.js';
+import { updateProfile } from '../../api/api.js';
 
 const MONTHS = [
     'января',
@@ -91,6 +92,11 @@ export const profileStep = {
         data.name = normalizeName(data.name);
         data.birthDate = toIsoDate(data.birthDay, data.birthMonth, data.birthYear);
 
+        return true;
+    },
+
+    async submit(form, data) {
+        await updateProfile({ name: data.name, birth_date: data.birthDate, sex: data.sex });
         return true;
     },
 };
