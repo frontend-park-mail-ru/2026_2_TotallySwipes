@@ -1,24 +1,25 @@
 import { loginFormTemplate, initLoginForm } from '../login-form/login-form.js';
 import { registerFormTemplate, initRegisterForm } from '../register-form/register-form.js';
 import { pillTemplate } from '../pill/pill.js';
+import authHbs from './auth.hbs';
 
 const PILLS = [
     {
         text: 'Тест совместимости',
         color: 'lilac',
-        icon: '/public/icons/sparkles.svg',
+        icon: '/icons/sparkles.svg',
         mix: 'auth__pill auth__pill_test',
     },
     {
         text: 'Анкеты рядом',
         color: 'sky',
-        icon: '/public/icons/pin.svg',
+        icon: '/icons/pin.svg',
         mix: 'auth__pill auth__pill_nearby',
     },
     {
         text: 'Взаимные симпатии',
         color: 'pink',
-        icon: '/public/icons/heart.svg',
+        icon: '/icons/heart.svg',
         mix: 'auth__pill auth__pill_matches',
     },
 ];
@@ -32,7 +33,7 @@ const PILLS = [
  * @param {string} params.form - HTML формы.
  */
 function renderAuthShell(root, { activeTab, form }) {
-    root.innerHTML = Handlebars.templates['auth/auth']({
+    root.innerHTML = authHbs({
         pills: PILLS.map(({ mix, ...pill }) => pillTemplate(pill, mix)).join(''),
         form,
         isLogin: activeTab === 'login',

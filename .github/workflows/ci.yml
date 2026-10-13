@@ -17,8 +17,8 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run build:templates
       - run: npm run lint
+      - run: npm run build
 
   docker:
     runs-on: ubuntu-latest

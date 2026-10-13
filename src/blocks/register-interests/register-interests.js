@@ -2,6 +2,7 @@ import { setFormFieldError } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
 import { INTERESTS_MAX_COUNT, validateInterestsCount } from '../../validation.js';
 import { INTERESTS, interestIconUrl } from '../../interests.js';
+import registerInterestsHbs from './register-interests.hbs';
 
 const ACCENTS = ['mint', 'sun', 'pink', 'sky', 'lilac'];
 
@@ -18,7 +19,7 @@ export const interestsStep = {
             accent: ACCENTS[index % ACCENTS.length],
         }));
 
-        return Handlebars.templates['register-interests/register-interests']({
+        return registerInterestsHbs({
             chips: chipsTemplate({
                 type: 'checkbox',
                 name: 'interests',

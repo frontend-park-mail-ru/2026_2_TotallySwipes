@@ -32,19 +32,19 @@
 
     <div class="test__nav">
         <button type="button" class="button button_view_outline button_size_l test__prev">
-            <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-left.svg')"></span>
+            <span class="button__icon button__icon_mask" style="--icon: url('/icons/arrow-left.svg')"></span>
             <span class="button__text">Предыдущее</span>
         </button>
 
         {{#if allAnswered}}
             <button type="button" class="button button_view_primary button_size_l test__submit" {{#if isSubmitting}}disabled{{/if}}>
                 <span class="button__text">Узнать результат</span>
-                <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-right.svg')"></span>
+                <span class="button__icon button__icon_mask" style="--icon: url('/icons/arrow-right.svg')"></span>
             </button>
         {{else}}
             <button type="button" class="button button_view_primary button_size_l test__next" {{#unless canNext}}disabled{{/unless}}>
                 <span class="button__text">Следующее</span>
-                <span class="button__icon button__icon_mask" style="--icon: url('/public/icons/arrow-right.svg')"></span>
+                <span class="button__icon button__icon_mask" style="--icon: url('/icons/arrow-right.svg')"></span>
             </button>
         {{/if}}
     </div>
@@ -52,7 +52,7 @@
 
 <footer class="test__footer">
     <p class="test__note">
-        <img class="test__note-icon" src="/public/icons/info.svg" alt="">
+        <img class="test__note-icon" src="/icons/info.svg" alt="">
         Ответы видите только вы.
     </p>
 

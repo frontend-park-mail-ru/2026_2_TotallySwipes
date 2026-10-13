@@ -22,5 +22,5 @@ export const INTERESTS = [
 export function interestIconUrl(label) {
     const interest = INTERESTS.find((item) => item.label === label);
 
-    return interest ? `/public/icons/${interest.icon}.svg` : null;
+    return interest ? `/icons/${interest.icon}.svg` : null;
 }

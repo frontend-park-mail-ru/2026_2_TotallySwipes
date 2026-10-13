@@ -11,6 +11,7 @@ import {
     validatePasswordConfirm,
 } from '../../validation.js';
 import { checkEmailAvailable, ApiError } from '../../api/api.js';
+import registerAccountHbs from './register-account.hbs';
 
 const EMAIL_TAKEN_MESSAGE = 'Почта уже занята';
 
@@ -47,7 +48,7 @@ async function isEmailFree(input) {
  */
 export const accountStep = {
     template() {
-        return Handlebars.templates['register-account/register-account']({
+        return registerAccountHbs({
             email: formFieldTemplate({
                 id: 'register-email',
                 name: 'email',
