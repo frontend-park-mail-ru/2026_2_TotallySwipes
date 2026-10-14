@@ -39,14 +39,72 @@ export function checkAccess(pathname) {
 }
 
 const MAX_PHOTOS = 6;
+const PROFILE_KEY = 'mock-profile';
 
-let mockPhotos = [];
-let nextPhotoId = 100;
+const ADMIN_PROFILE = {
+    user_id: 1,
+    name: 'User',
+    birth_date: '2002-05-01',
+    sex: 'female',
+    dating_goal: 'relationship',
+    tags: [],
+    photos: [{ id: 1, url: '/public/img/1.jpg' }],
+    filter: { sex: 'all', age_from: 18, age_to: 100 },
+};
 
-const photosResponse = (status) => ({
-    status,
-    body: { photos: mockPhotos.map(({ id, url }) => ({ id, url })) },
+const NEW_PROFILE = {
+    user_id: 2,
+    name: null,
+    birth_date: null,
+    sex: null,
+    dating_goal: null,
+    tags: [],
+    photos: [],
+    filter: null,
+};
+
+const DEFAULT_FILTER = { sex: 'all', age_from: 18, age_to: 100 };
+
+// Анкета живёт в localStorage, чтобы переживать обновление страницы.
+// URL загруженных фото после обновления уже не открываются.
+let mockProfile = JSON.parse(localStorage.getItem(PROFILE_KEY)) ?? ADMIN_PROFILE;
+
+const saveProfile = (changes) => {
+    mockProfile = { ...mockProfile, ...changes };
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(mockProfile));
+};
+
+/**
+ * @returns {string[]} Незаполненные обязательные поля мок-анкеты.
+ */
+function missingFields() {
+    const fields = ['name', 'birth_date', 'sex', 'dating_goal'].filter(
+        (field) => mockProfile[field] === null,
+    );
+
+    if (!mockProfile.filter) {
+        fields.push('search_filter');
+    }
+
+    if (mockProfile.photos.length === 0) {
+        fields.push('photos');
+    }
+
+    return fields;
+}
+
+// filter: undefined - фильтр в анкету не входит, JSON его не сохранит.
+const profileResponse = () => ({
+    status: 200,
+    body: { ...mockProfile, filter: undefined, missing: missingFields() },
 });
+
+const authResponse = (status) => ({
+    status,
+    body: { user_id: mockProfile.user_id, missing: missingFields() },
+});
+
+const photosResponse = (status) => ({ status, body: { photos: mockProfile.photos } });
 
 const FEED_ITEMS = [
     {
@@ -156,10 +214,17 @@ function feedPage(url) {
 }
 
 export const MOCK_ROUTES = {
-    'GET /api/v1/profile/me/short': {
+    'GET /api/v1/profile/me/short': () => ({
         status: 200,
-        body: { user_id: 1, name: 'User', photo_url: null, age: 24 },
-    },
+        body: {
+            user_id: mockProfile.user_id,
+            name: mockProfile.name,
+            age: mockProfile.birth_date ? 24 : null,
+            photo_url: mockProfile.photos[0]?.url ?? null,
+            missing: missingFields(),
+        },
+    }),
+    'GET /api/v1/profile/me': profileResponse,
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
@@ -215,43 +280,50 @@ export const MOCK_ROUTES = {
         }
 
         startSession();
-        mockPhotos = [];
+        saveProfile(NEW_PROFILE);
 
-        return {
-            status: 201,
-            body: {
-                user_id: 2,
-                missing: ['name', 'birth_date', 'sex', 'dating_goal', 'search_filter', 'photos'],
-            },
-        };
+        return authResponse(201);
     },
-    'PATCH /api/v1/profile/me': (url, { body }) => ({ status: 200, body: { user_id: 2, ...body } }),
-    'PUT /api/v1/filters/me': (url, { body }) => ({ status: 200, body }),
+    'PATCH /api/v1/profile/me': (url, { body }) => {
+        saveProfile(body);
+
+        return profileResponse();
+    },
+    'GET /api/v1/filters/me': () => ({ status: 200, body: mockProfile.filter ?? DEFAULT_FILTER }),
+    'PUT /api/v1/filters/me': (url, { body }) => {
+        saveProfile({ filter: body });
+
+        return { status: 200, body };
+    },
     'POST /api/v1/profile/me/photos': (url, { body }) => {
-        if (mockPhotos.length >= MAX_PHOTOS) {
+        const { photos } = mockProfile;
+
+        if (photos.length >= MAX_PHOTOS) {
             return error(409, 'PHOTO_LIMIT', 'Можно загрузить не больше 6 фотографий');
         }
 
-        mockPhotos.push({ id: nextPhotoId++, url: URL.createObjectURL(body.photo) });
+        const id = Math.max(0, ...photos.map((photo) => photo.id)) + 1;
+        saveProfile({ photos: [...photos, { id, url: URL.createObjectURL(body.photo) }] });
 
         return photosResponse(201);
     },
     'DELETE /api/v1/profile/me/photos/{id}': (url) => {
         const id = Number(url.pathname.split('/').pop());
-        mockPhotos = mockPhotos.filter((photo) => photo.id !== id);
+        saveProfile({ photos: mockProfile.photos.filter((photo) => photo.id !== id) });
 
         return photosResponse(200);
     },
     'PUT /api/v1/profile/me/photos/order': (url, { body }) => {
+        const { photos } = mockProfile;
         const ids = body?.photo_ids ?? [];
         const sameSet =
-            ids.length === mockPhotos.length && mockPhotos.every((photo) => ids.includes(photo.id));
+            ids.length === photos.length && photos.every((photo) => ids.includes(photo.id));
 
         if (!sameSet) {
             return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
         }
 
-        mockPhotos = ids.map((id) => mockPhotos.find((photo) => photo.id === id));
+        saveProfile({ photos: ids.map((id) => photos.find((photo) => photo.id === id)) });
 
         return photosResponse(200);
     },
@@ -261,8 +333,9 @@ export const MOCK_ROUTES = {
         }
 
         startSession();
+        saveProfile(ADMIN_PROFILE);
 
-        return { status: 200, body: { user_id: 1, missing: [] } };
+        return authResponse(200);
     },
     'POST /api/v1/auth/logout': () => {
         endSession();

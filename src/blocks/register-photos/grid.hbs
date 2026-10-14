@@ -1,15 +1,15 @@
-<div class="register-photos__grid">
+<div class="register-photos__grid{{#if locked}} register-photos__grid_locked{{/if}}">
     {{#each slots}}
         {{#if url}}
-            <div class="register-photos__slot register-photos__slot_filled" draggable="true" data-index="{{index}}" data-id="{{id}}">
+            <div class="register-photos__slot register-photos__slot_filled{{#if @root.locked}} register-photos__slot_locked{{/if}}" draggable="{{#if @root.locked}}false{{else}}true{{/if}}" data-index="{{index}}" data-id="{{id}}">
                 <img class="register-photos__image" src="{{url}}" alt="" draggable="false">
                 {{#if main}}
                     <span class="register-photos__badge">Главное</span>
                 {{/if}}
-                <button class="register-photos__remove" type="button" data-id="{{id}}">{{{@root.closeIcon}}}</button>
+                <button class="register-photos__remove" type="button" data-id="{{id}}"{{#if @root.locked}} disabled{{/if}}>{{{@root.closeIcon}}}</button>
             </div>
         {{else}}
-            <button class="register-photos__slot register-photos__slot_empty" type="button">
+            <button class="register-photos__slot register-photos__slot_empty{{#if @root.locked}} register-photos__slot_locked{{/if}}" type="button"{{#if @root.locked}} disabled{{/if}}>
                 {{{@root.plusIcon}}}
                 <span class="register-photos__add">Добавить</span>
             </button>

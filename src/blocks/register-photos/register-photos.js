@@ -13,9 +13,10 @@ const NETWORK_ERROR_MESSAGE =
 
 /**
  * @param {{id: number, url: string}[]} photos
+ * @param {boolean} locked - Идёт сохранение: удалять, добавлять и переставлять фото нельзя.
  * @returns {string} HTML сетки из PHOTO_MAX_COUNT слотов.
  */
-function gridTemplate(photos) {
+function gridTemplate(photos, locked) {
     const slots = Array.from({ length: PHOTO_MAX_COUNT }, (_, index) => {
         const photo = photos[index];
 
@@ -24,6 +25,7 @@ function gridTemplate(photos) {
 
     return Handlebars.templates['register-photos/grid']({
         slots,
+        locked,
         plusIcon: icons.plus,
         closeIcon: icons.close,
     });
@@ -103,9 +105,13 @@ function initPhotoDrag(form, onMove) {
         }
 
         event.preventDefault();
+        const start = from;
         const to = Number(slot.dataset.index);
-        if (to !== from) {
-            onMove(from, to);
+
+        // onMove перерисовывает сетку, и dragend удалённого слота до form уже не дойдёт.
+        from = null;
+        if (to !== start) {
+            onMove(start, to);
         }
     });
 
@@ -120,24 +126,30 @@ function initPhotoDrag(form, onMove) {
 
 /**
  * Шаг 4: фото. Каждое действие сразу уходит на бэкенд: загрузка при выборе, удаление
- * и перестановка перетаскиванием. Действия выполняются по очереди в data.photosPending.
+ * и перестановка перетаскиванием. Действия выполняются по очереди в data.photosPending,
+ * data.photosSaving - сколько из них ещё не завершилось. Пока они есть, сетка заблокирована,
+ * чтобы следующее действие строилось по актуальному списку фото.
  * Сохраняет в data: photos - актуальный список фото с бэкенда, первое главное.
  */
 export const photosStep = {
     template(data) {
         return Handlebars.templates['register-photos/register-photos']({
             accept: PHOTO_TYPES.join(','),
-            grid: gridTemplate(data.photos ?? []),
+            grid: gridTemplate(data.photos ?? [], data.photosSaving > 0),
         });
     },
 
     init(form, data) {
         data.photos ??= [];
         data.photosPending ??= Promise.resolve();
+        data.photosSaving ??= 0;
 
         const fileInput = form.querySelector('.register-photos__file');
         const renderGrid = () => {
-            form.querySelector('.register-photos__grid').outerHTML = gridTemplate(data.photos);
+            form.querySelector('.register-photos__grid').outerHTML = gridTemplate(
+                data.photos,
+                data.photosSaving > 0,
+            );
         };
 
         /**
@@ -147,6 +159,9 @@ export const photosStep = {
          * @param {function(): Promise<?{photos: Object[]}>} action
          */
         const enqueue = (action) => {
+            data.photosSaving += 1;
+            renderGrid();
+
             data.photosPending = data.photosPending.then(async () => {
                 try {
                     const response = await action();
@@ -157,11 +172,21 @@ export const photosStep = {
                     setFormFieldError(fileInput, photoErrorMessage(error));
                 }
 
+                data.photosSaving -= 1;
                 if (form.isConnected) {
                     renderGrid();
                 }
             });
         };
+
+        // Вернулись на шаг во время сохранения: очередь перерисует старую форму, а эту - здесь.
+        if (data.photosSaving > 0) {
+            data.photosPending.then(() => {
+                if (form.isConnected) {
+                    renderGrid();
+                }
+            });
+        }
 
         form.addEventListener('click', (event) => {
             const removeButton = event.target.closest('.register-photos__remove');

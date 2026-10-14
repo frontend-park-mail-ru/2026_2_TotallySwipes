@@ -45,7 +45,7 @@ function renderAuthShell(root, { activeTab, form }) {
  *
  * @param {HTMLElement} root
  * @param {Object} params
- * @param {Function} params.onLogin - Вызывается после успешного входа.
+ * @param {Function} params.onLogin - Получает ответ бэкенда на вход.
  */
 export function renderAuthPage(root, { onLogin }) {
     renderAuthShell(root, { activeTab: 'login', form: loginFormTemplate() });
@@ -58,10 +58,11 @@ export function renderAuthPage(root, { onLogin }) {
  *
  * @param {HTMLElement} root
  * @param {Object} [params]
+ * @param {boolean} [params.resume=false] - Аккаунт уже создан, продолжить заполнение анкеты.
  * @param {Function} [params.onRegistered] - Вызывается после успешной регистрации.
  */
-export function renderRegisterPage(root, { onRegistered } = {}) {
+export function renderRegisterPage(root, { resume = false, onRegistered } = {}) {
     renderAuthShell(root, { activeTab: 'register', form: registerFormTemplate() });
 
-    initRegisterForm(root.querySelector('.register-form'), { onRegistered });
+    initRegisterForm(root.querySelector('.register-form'), { resume, onRegistered });
 }

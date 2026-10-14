@@ -181,7 +181,7 @@ function toAsciiEmail(email) {
  *
  * @param {string} email
  * @param {string} password
- * @returns {Promise<*>}
+ * @returns {Promise<{user_id: number, missing: string[]}>}
  */
 export function login(email, password) {
     return request('/auth/login', {
@@ -206,6 +206,15 @@ export function register(email, password) {
 }
 
 /**
+ * Загружает свою анкету целиком. Незаполненные поля - null.
+ *
+ * @returns {Promise<Object>} Анкета с photos и missing - списком незаполненных обязательных полей.
+ */
+export function getProfile() {
+    return request('/profile/me');
+}
+
+/**
  * Меняет присланные поля анкеты, остальные остаются как были.
  *
  * @param {Object} fields - Поля в формате API: name, birth_date, sex, dating_goal, tags и т. д.
@@ -213,6 +222,15 @@ export function register(email, password) {
  */
 export function updateProfile(fields) {
     return request('/profile/me', { method: 'PATCH', body: fields });
+}
+
+/**
+ * Загружает фильтр ленты. Пока он не задан, бэкенд отдаёт значения по умолчанию.
+ *
+ * @returns {Promise<{sex: string, age_from: number, age_to: number}>}
+ */
+export function getSearchFilter() {
+    return request('/filters/me');
 }
 
 /**
@@ -272,18 +290,10 @@ export function logout() {
 }
 
 /**
- * Обновляет сессию по refresh-токену.
- *
- * @returns {Promise<*>}
- */
-export function refreshSession() {
-    return refreshOnce();
-}
-
-/**
  * Загружает краткий профиль текущего пользователя.
  *
- * @returns {Promise<Object>}
+ * @returns {Promise<{user_id: number, name: ?string, age: ?number, photo_url: ?string,
+ *     missing: string[]}>}
  */
 export function getCurrentUser() {
     return request('/profile/me/short');

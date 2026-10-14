@@ -88,6 +88,14 @@
     opacity: 0.4;
 }
 
+.register-photos__grid_locked {
+    cursor: progress;
+}
+
+.register-photos__slot_locked {
+    pointer-events: none;
+}
+
 .register-photos__slot_drop-target {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
