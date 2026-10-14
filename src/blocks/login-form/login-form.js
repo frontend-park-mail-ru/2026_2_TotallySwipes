@@ -51,7 +51,8 @@ export function loginFormTemplate() {
  *
  * @param {HTMLElement} root
  * @param {Object} params
- * @param {Function} params.onSuccess - Вызывается после успешного входа.
+ * @param {function({user_id: number, missing: string[]}): void} params.onSuccess - Вызывается
+ *     после успешного входа с ответом бэкенда.
  */
 export function initLoginForm(root, { onSuccess }) {
     initFormFieldToggles(root);
@@ -81,8 +82,10 @@ export function initLoginForm(root, { onSuccess }) {
         formError.hidden = true;
         submitButton.disabled = true;
 
+        let response;
+
         try {
-            await login(form.elements.email.value, form.elements.password.value);
+            response = await login(form.elements.email.value, form.elements.password.value);
         } catch (error) {
             formError.textContent = loginErrorMessage(error);
             formError.hidden = false;
@@ -90,8 +93,7 @@ export function initLoginForm(root, { onSuccess }) {
             return;
         }
 
-        // TODO: если profile_completed === false, отправлять на заполнение анкеты
-        onSuccess();
+        onSuccess(response);
     });
 
     form.addEventListener('input', (event) => {

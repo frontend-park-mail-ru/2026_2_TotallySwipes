@@ -332,7 +332,7 @@ export function validateSearchSex(value) {
  * @param {string} value
  * @returns {string|null} Текст ошибки или null.
  */
-export function validateDatingIntent(value) {
+export function validateDatingGoal(value) {
     return value === '' ? 'Выберите цель знакомства.' : null;
 }
 
