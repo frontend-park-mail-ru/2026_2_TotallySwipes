@@ -1,7 +1,7 @@
 import { mockFetch } from './mock-fetch.js';
 
-const USE_MOCKS = true;
-const API_URL = 'http://161.104.105.207:8080/api/v1';
+const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // TODO: раскомментировать при добавлении свайпа на бек
 // const SWIPE_ACTIONS = {
