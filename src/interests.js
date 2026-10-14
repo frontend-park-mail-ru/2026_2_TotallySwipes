@@ -33,5 +33,5 @@ export function interestLabel(key) {
 export function interestIconUrl(key) {
     const interest = INTERESTS.find((item) => item.key === key);
 
-    return interest ? `/public/icons/${interest.icon}.svg` : null;
+    return interest ? `/icons/${interest.icon}.svg` : null;
 }

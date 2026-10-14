@@ -1,13 +1,15 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default [
-    { ignores: ['src/templates.js'] },
+    { ignores: ['dist'] },
     js.configs.recommended,
+    ...tseslint.configs.recommended.map((config) => ({ ...config, files: ['**/*.ts'] })),
     {
-        files: ['src/**/*.js'],
+        files: ['src/**/*.{js,ts}'],
         languageOptions: {
-            globals: { ...globals.browser, Handlebars: 'readonly' },
+            globals: globals.browser,
         },
     },
     {

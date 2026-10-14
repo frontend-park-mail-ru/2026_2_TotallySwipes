@@ -7,6 +7,7 @@ import { interestsStep } from '../register-interests/register-interests.js';
 import { showModal } from '../modal/modal.js';
 import { ApiError, getProfile, getSearchFilter } from '../../api/api.js';
 import { icons } from '../../icons.js';
+import registerFormHbs from './register-form.hbs';
 
 const NEXT_LABEL = 'Продолжить';
 const FINISH_LABEL = 'Готово — к тесту';
@@ -168,7 +169,7 @@ export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
         const step = STEPS[index];
         const isLast = index === STEPS.length - 1;
 
-        root.innerHTML = Handlebars.templates['register-form/register-form']({
+        root.innerHTML = registerFormHbs({
             progress: stepProgressTemplate(index + 1, STEPS.length),
             title: step.title,
             subtitle: step.subtitle,

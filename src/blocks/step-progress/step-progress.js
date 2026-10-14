@@ -1,3 +1,5 @@
+import stepProgressHbs from './step-progress.hbs';
+
 /**
  * @param {number} current - Номер текущего шага, с 1.
  * @param {number} total
@@ -12,5 +14,5 @@ export function stepProgressTemplate(current, total) {
         return index + 1 === current ? 'current' : 'todo';
     });
 
-    return Handlebars.templates['step-progress/step-progress']({ current, total, segments });
+    return stepProgressHbs({ current, total, segments });
 }
