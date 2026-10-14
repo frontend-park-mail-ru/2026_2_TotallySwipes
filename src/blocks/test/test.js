@@ -10,19 +10,20 @@ import {
     sendTestResults,
 } from '../../api/api.js';
 import { saveDraft, loadDraft, clearDraft, saveResult } from '../../storage/test-storage.js';
+import testHbs from './test.hbs';
 
 const COLORS = ['sun', 'pink', 'sky', 'mint', 'lilac'];
 
 const STICKERS = {
-    sun: '/public/icons/sun.svg',
-    pink: '/public/icons/star-pink.svg',
-    sky: '/public/icons/star-sky.svg',
-    mint: '/public/icons/cloud.svg',
-    lilac: '/public/icons/star-lilac.svg',
+    sun: '/icons/sun.svg',
+    pink: '/icons/star-pink.svg',
+    sky: '/icons/star-sky.svg',
+    mint: '/icons/cloud.svg',
+    lilac: '/icons/star-lilac.svg',
 };
 
 const ERROR_MODAL = {
-    image: '/public/icons/mascot-error.svg',
+    image: '/icons/mascot-error.svg',
     title: 'Произошла ошибка',
     text: 'Похоже, что пропала связь. Попробуйте ещё раз.',
     buttonText: 'Повторить',
@@ -173,7 +174,7 @@ export function renderTestPage(root, router) {
         const answer = state.answers[question.id];
         const remaining = total() - answeredCount();
 
-        page.innerHTML = Handlebars.templates['test/test']({
+        page.innerHTML = testHbs({
             statement: question.body,
             sticker: STICKERS[color],
             total: total(),
@@ -184,7 +185,7 @@ export function renderTestPage(root, router) {
                 {
                     text: `Вопрос ${state.current + 1} из ${total()}`,
                     color,
-                    icon: '/public/icons/sparkles.svg',
+                    icon: '/icons/sparkles.svg',
                     size: 's',
                 },
                 'test__counter',
@@ -324,7 +325,7 @@ export function renderTestPage(root, router) {
 
     function confirmSkip() {
         showModal({
-            image: '/public/icons/skip-test-mascot.svg',
+            image: '/icons/skip-test-mascot.svg',
             title: 'Пропустить тест?',
             text: 'С тестом подбор анкет станет точнее: мы покажем, с кем у вас совпадают характер и ритм жизни.',
             buttonText: 'Вернуться к тесту',

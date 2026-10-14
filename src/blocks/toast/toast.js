@@ -1,3 +1,5 @@
+import toastHbs from './toast.hbs';
+
 const DEFAULT_DURATION_MS = 5000;
 
 let container = null;
@@ -23,7 +25,7 @@ function getContainer() {
  */
 export function showToast(message, duration = DEFAULT_DURATION_MS) {
     const wrapper = document.createElement('div');
-    wrapper.innerHTML = Handlebars.templates['toast/toast']({ message });
+    wrapper.innerHTML = toastHbs({ message });
 
     const toast = wrapper.firstElementChild;
     toast.style.setProperty('--toast-duration', `${duration}ms`);

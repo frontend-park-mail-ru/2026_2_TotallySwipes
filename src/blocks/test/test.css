@@ -140,5 +140,5 @@
     width: 16px;
     height: 16px;
     background-color: currentColor;
-    mask: url('/public/icons/check.svg') center / contain no-repeat;
+    mask: url('/icons/check.svg') center / contain no-repeat;
 }

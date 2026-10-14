@@ -11,6 +11,8 @@ import {
     validatePasswordConfirm,
 } from '../../validation.js';
 import { register, ApiError } from '../../api/api.js';
+// import { checkEmailAvailable, ApiError } from '../../api/api.js';
+import registerAccountHbs from './register-account.hbs';
 
 const EMAIL_TAKEN_STATUS = 409;
 
@@ -20,7 +22,7 @@ const EMAIL_TAKEN_STATUS = 409;
  */
 export const accountStep = {
     template() {
-        return Handlebars.templates['register-account/register-account']({
+        return registerAccountHbs({
             email: formFieldTemplate({
                 id: 'register-email',
                 name: 'email',

@@ -3,6 +3,8 @@ import { chipsTemplate } from '../chips/chips.js';
 import { validateSearchAge, validateSearchSex, validateDatingGoal } from '../../validation.js';
 import { DATING_GOALS } from '../../dating-goals.js';
 import { updateProfile, setSearchFilter } from '../../api/api.js';
+// import { validateSearchAge, validateSearchSex, validateDatingIntent } from '../../validation.js';
+import registerSearchHbs from './register-search.hbs';
 
 const SEARCH_SEX_OPTIONS = [
     { value: 'female', label: 'Девушек' },
@@ -17,7 +19,7 @@ const DATING_GOAL_OPTIONS = DATING_GOALS.map(({ key, label }) => ({ value: key, 
  */
 export const searchStep = {
     template() {
-        return Handlebars.templates['register-search/register-search']({
+        return registerSearchHbs({
             searchSex: chipsTemplate({
                 type: 'radio',
                 name: 'searchSex',

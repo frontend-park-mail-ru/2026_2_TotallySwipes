@@ -1,5 +1,6 @@
 import { locationTemplate } from '../location/location.js';
 import { pillTemplate } from '../pill/pill.js';
+import profileDetailsHbs from './profile-details.hbs';
 
 /**
  * @param {Object} profile - Анкета после toProfileView.
@@ -9,7 +10,7 @@ import { pillTemplate } from '../pill/pill.js';
 export function profileDetailsTemplate(profile, mix = '') {
     const { location, interests, ...rest } = profile;
 
-    return Handlebars.templates['profile-details/profile-details']({
+    return profileDetailsHbs({
         ...rest,
         mix,
         location: location ? locationTemplate('profile-details__location', location) : '',

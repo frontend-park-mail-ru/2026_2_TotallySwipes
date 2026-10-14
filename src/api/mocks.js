@@ -57,8 +57,8 @@ const FEED_ITEMS = [
         dating_goal: 'relationship',
         compatibility: 0.87,
         age: 24,
-        tags: ['books', 'bicycle', 'coffee', 'music', 'hiking'],
-        photos: [{ id: 1, url: '/public/img/1.jpg' }],
+        tags: ['книги', 'велосипед', 'кофе', 'музыка', 'походы'],
+        photos: [{ id: 1, url: '/img/1.jpg' }],
     },
     {
         user_id: 43,
@@ -67,8 +67,8 @@ const FEED_ITEMS = [
         dating_goal: 'relationship',
         compatibility: 0.82,
         age: 25,
-        tags: ['cooking', 'concerts', 'animals'],
-        photos: [{ id: 2, url: '/public/img/2.jpg' }],
+        tags: ['кулинария', 'концерты', 'животные'],
+        photos: [{ id: 2, url: '/img/2.jpg' }],
     },
     {
         user_id: 44,
@@ -77,8 +77,8 @@ const FEED_ITEMS = [
         dating_goal: 'casual',
         compatibility: 0.91,
         age: 26,
-        tags: ['running', 'board_games'],
-        photos: [{ id: 3, url: '/public/img/3.jpg' }],
+        tags: ['бег', 'настолки'],
+        photos: [{ id: 3, url: '/img/3.jpg' }],
     },
     {
         user_id: 45,
@@ -87,8 +87,8 @@ const FEED_ITEMS = [
         dating_goal: 'friendship',
         compatibility: 0.76,
         age: 27,
-        tags: ['photo', 'painting', 'travel'],
-        photos: [{ id: 4, url: '/public/img/1.jpg' }],
+        tags: ['фотография', 'рисование', 'путешествия'],
+        photos: [{ id: 4, url: '/img/1.jpg' }],
     },
     {
         user_id: 46,
@@ -97,8 +97,8 @@ const FEED_ITEMS = [
         dating_goal: 'relationship',
         compatibility: 0.64,
         age: 28,
-        tags: ['movies'],
-        photos: [{ id: 5, url: '/public/img/2.jpg' }],
+        tags: ['кино'],
+        photos: [{ id: 5, url: '/img/2.jpg' }],
     },
     {
         user_id: 47,
@@ -108,7 +108,7 @@ const FEED_ITEMS = [
         compatibility: null,
         age: 29,
         tags: [],
-        photos: [{ id: 6, url: '/public/img/3.jpg' }],
+        photos: [{ id: 6, url: '/img/3.jpg' }],
     },
 ];
 

@@ -5,6 +5,7 @@ import {
 } from '../form-field/form-field.js';
 import { validateEmail, validatePassword } from '../../validation.js';
 import { login, ApiError } from '../../api/api.js';
+import loginFormHbs from './login-form.hbs';
 
 const GENERIC_ERROR = 'Не удалось войти. Проверьте соединение и попробуйте ещё раз';
 
@@ -42,7 +43,7 @@ export function loginFormTemplate() {
         autocomplete: 'current-password',
     });
 
-    return Handlebars.templates['login-form/login-form']({ email, password });
+    return loginFormHbs({ email, password });
 }
 
 /**

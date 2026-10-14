@@ -12,6 +12,7 @@ import {
     validateSex,
 } from '../../validation.js';
 import { updateProfile } from '../../api/api.js';
+import registerProfileHbs from './register-profile.hbs';
 
 const MONTHS = [
     'января',
@@ -38,7 +39,7 @@ const SEX_OPTIONS = [
  */
 export const profileStep = {
     template() {
-        return Handlebars.templates['register-profile/register-profile']({
+        return registerProfileHbs({
             name: formFieldTemplate({
                 id: 'register-name',
                 name: 'name',

@@ -7,6 +7,8 @@ import {
 } from '../../validation.js';
 import { uploadPhoto, deletePhoto, reorderPhotos, ApiError } from '../../api/api.js';
 import { icons } from '../../icons.js';
+import gridHbs from './grid.hbs';
+import registerPhotosHbs from './register-photos.hbs';
 
 const NETWORK_ERROR_MESSAGE =
     'Не удалось сохранить фото. Проверьте соединение и попробуйте ещё раз.';
@@ -22,7 +24,7 @@ function gridTemplate(photos) {
         return photo ? { index, id: photo.id, url: photo.url, main: index === 0 } : { index };
     });
 
-    return Handlebars.templates['register-photos/grid']({
+    return gridHbs({
         slots,
         plusIcon: icons.plus,
         closeIcon: icons.close,
@@ -125,7 +127,7 @@ function initPhotoDrag(form, onMove) {
  */
 export const photosStep = {
     template(data) {
-        return Handlebars.templates['register-photos/register-photos']({
+        return registerPhotosHbs({
             accept: PHOTO_TYPES.join(','),
             grid: gridTemplate(data.photos ?? []),
         });
