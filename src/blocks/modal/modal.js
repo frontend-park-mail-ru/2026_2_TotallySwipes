@@ -1,3 +1,5 @@
+import modalHbs from './modal.hbs';
+
 /**
  * Показывает модальное окно и удаляет его после закрытия.
  *
@@ -13,7 +15,7 @@
 export function showModal({ image, title, text, buttonText = 'Ок', cancelText, onClose }) {
     document.body.insertAdjacentHTML(
         'beforeend',
-        Handlebars.templates['modal/modal']({ image, title, text, buttonText, cancelText }),
+        modalHbs({ image, title, text, buttonText, cancelText }),
     );
 
     const modal = document.body.lastElementChild;

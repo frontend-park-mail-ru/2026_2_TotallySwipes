@@ -6,6 +6,7 @@ import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
 import { interestIconUrl } from '../../interests.js';
+import feedHbs from './feed.hbs';
 
 const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 
@@ -17,7 +18,7 @@ const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 //     { label: 'Курение', value: 'Не курю' },
 // ];
 
-const PHOTO_PLACEHOLDER = '/public/icons/photo-placeholder.svg';
+const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
 
 const PILL_COLORS = ['pink', 'sky', 'lilac', 'mint', 'sun'];
 
@@ -79,10 +80,10 @@ function toProfileView(item) {
 }
 
 const ACTIONS = [
-    { type: 'undo', size: 's', icon: '/public/icons/undo.svg', label: 'Вернуть', disabled: true },
-    { type: 'dislike', size: 'l', icon: '/public/icons/x.svg', label: 'Не нравится' },
-    { type: 'super', size: 'm', icon: '/public/icons/star.svg', label: 'Суперлайк' },
-    { type: 'like', size: 'l', icon: '/public/icons/heart_filled.svg', label: 'Нравится' },
+    { type: 'undo', size: 's', icon: '/icons/undo.svg', label: 'Вернуть', disabled: true },
+    { type: 'dislike', size: 'l', icon: '/icons/x.svg', label: 'Не нравится' },
+    { type: 'super', size: 'm', icon: '/icons/star.svg', label: 'Суперлайк' },
+    { type: 'like', size: 'l', icon: '/icons/heart_filled.svg', label: 'Нравится' },
 ];
 
 const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];
@@ -90,13 +91,13 @@ const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];
 const PREFETCH_THRESHOLD = 4;
 
 const SWIPE_ERROR_MODAL = {
-    image: '/public/icons/mascot-error.svg',
+    image: '/icons/mascot-error.svg',
     title: 'Произошла ошибка',
     text: 'Свайп не отправился, похоже, что пропала связь. Анкета осталась на месте, попробуйте свайпнуть снова.',
 };
 
 const LOAD_ERROR_MODAL = {
-    image: '/public/icons/mascot-error.svg',
+    image: '/icons/mascot-error.svg',
     title: 'Произошла ошибка',
     text: 'Не удалось загрузить анкеты, похоже, что пропала связь. Попробуйте ещё раз.',
     buttonText: 'Повторить',
@@ -177,7 +178,7 @@ export function renderFeedPage(root) {
 
     const details = detailsHtml(state);
 
-    page.innerHTML = Handlebars.templates['feed/feed']({
+    page.innerHTML = feedHbs({
         details: details,
         actions: ACTIONS.map((action) => roundButtonTemplate(action)).join(''),
         emptyState: emptyStateLayout(),

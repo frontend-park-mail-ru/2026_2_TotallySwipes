@@ -1,3 +1,5 @@
+import chipsHbs from './chips.hbs';
+
 /**
  * Группа чипов для выбора вариантов.
  *
@@ -11,5 +13,5 @@
  * @returns {string}
  */
 export function chipsTemplate({ type, name, options, mix = '' }) {
-    return Handlebars.templates['chips/chips']({ type, name, options, mix });
+    return chipsHbs({ type, name, options, mix });
 }

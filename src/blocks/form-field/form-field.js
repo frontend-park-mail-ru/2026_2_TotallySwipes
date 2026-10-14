@@ -1,4 +1,5 @@
 import { icons } from '../../icons.js';
+import formFieldHbs from './form-field.hbs';
 
 /**
  * @param {Object} props - Атрибуты поля: id, name, type, label, placeholder, hint, autocomplete.
@@ -6,7 +7,7 @@ import { icons } from '../../icons.js';
  * @returns {string} HTML поля формы. У поля пароля есть кнопка показа.
  */
 export function formFieldTemplate(props, mix = '') {
-    return Handlebars.templates['form-field/form-field']({
+    return formFieldHbs({
         ...props,
         toggle: props.type === 'password' ? icons.eye : '',
         mix,

@@ -1,6 +1,8 @@
 .git
 .github
 node_modules
-src/templates.js
+dist
 Dockerfile
 .dockerignore
+.env.local
+.env.*.local

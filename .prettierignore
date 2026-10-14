@@ -1,7 +1,7 @@
 node_modules
 package.json
 package-lock.json
-src/templates.js
+dist
 src/variables.css
 public/svg
 *.hbs

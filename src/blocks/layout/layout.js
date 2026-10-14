@@ -1,4 +1,5 @@
 import { sidebarTemplate, loadSidebarUser, initSidebarLogout } from '../sidebar/sidebar.js';
+import layoutHbs from './layout.hbs';
 
 /**
  * Рендерит каркас с сайдбаром.
@@ -7,7 +8,7 @@ import { sidebarTemplate, loadSidebarUser, initSidebarLogout } from '../sidebar/
  * @returns {HTMLElement} Основная область для контента страницы.
  */
 export function renderLayout(root) {
-    root.innerHTML = Handlebars.templates['layout/layout']({
+    root.innerHTML = layoutHbs({
         sidebar: sidebarTemplate('layout__sidebar'),
     });
 

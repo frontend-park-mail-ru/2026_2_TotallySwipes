@@ -2,9 +2,10 @@ import { traitScaleTemplate } from '../trait-scale/trait-scale.js';
 import { showModal } from '../modal/modal.js';
 import { getCurrentUser } from '../../api/api.js';
 import { loadResult, clearResult, startDraft } from '../../storage/test-storage.js';
+import testResultHbs from './test-result.hbs';
 
 const ERROR_MODAL = {
-    image: '/public/icons/mascot-error.svg',
+    image: '/icons/mascot-error.svg',
     title: 'Произошла ошибка',
     text: 'Похоже, что пропала связь. Попробуйте ещё раз.',
     buttonText: 'Повторить',
@@ -111,7 +112,7 @@ function toResultView(result) {
  */
 function confirmRestart(router, userId) {
     showModal({
-        image: '/public/icons/clock-mascot.svg',
+        image: '/icons/clock-mascot.svg',
         title: 'Пройти тест заново?',
         text: 'Текущий результат и ответы сотрутся, а процент совместимости в анкетах пересчитается после нового прохождения. Это около двух минут.',
         buttonText: 'Пройти заново',
@@ -150,9 +151,7 @@ export function renderTestResultPage(root, router) {
             userId = user.user_id;
             const result = loadResult(userId);
 
-            page.innerHTML = Handlebars.templates['test-result/test-result'](
-                result ? toResultView(result) : { empty: true },
-            );
+            page.innerHTML = testResultHbs(result ? toResultView(result) : { empty: true });
         } catch (error) {
             console.error('Не удалось загрузить пользователя:', error);
 

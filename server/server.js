@@ -2,19 +2,14 @@ import express from 'express';
 import path from 'node:path';
 
 const PORT = process.env.PORT ?? 8000;
-const ROOT = path.resolve(import.meta.dirname, '..');
+const DIST = path.resolve(import.meta.dirname, '..', 'dist');
 
 const app = express();
 
-app.use('/public', express.static(path.join(ROOT, 'public')));
-app.use('/src', express.static(path.join(ROOT, 'src')));
-app.use(
-    '/vendor/handlebars',
-    express.static(path.join(ROOT, 'node_modules', 'handlebars', 'dist')),
-);
+app.use(express.static(DIST));
 
 app.use((req, res) => {
-    res.sendFile(path.join(ROOT, 'public', 'index.html'));
+    res.sendFile(path.join(DIST, 'index.html'));
 });
 
 app.listen(PORT, () => {

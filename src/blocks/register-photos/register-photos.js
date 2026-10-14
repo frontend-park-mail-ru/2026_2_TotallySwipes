@@ -6,6 +6,8 @@ import {
     validatePhotoCount,
 } from '../../validation.js';
 import { icons } from '../../icons.js';
+import gridHbs from './grid.hbs';
+import registerPhotosHbs from './register-photos.hbs';
 
 const previewUrls = new Map();
 
@@ -42,7 +44,7 @@ function gridTemplate(photos) {
         return file ? { index, url: previewUrl(file), main: index === 0 } : { index };
     });
 
-    return Handlebars.templates['register-photos/grid']({
+    return gridHbs({
         slots,
         plusIcon: icons.plus,
         closeIcon: icons.close,
@@ -83,7 +85,7 @@ function addPhotos(photos, files) {
  */
 export const photosStep = {
     template(data) {
-        return Handlebars.templates['register-photos/register-photos']({
+        return registerPhotosHbs({
             accept: PHOTO_TYPES.join(','),
             grid: gridTemplate(data.photos ?? []),
         });
