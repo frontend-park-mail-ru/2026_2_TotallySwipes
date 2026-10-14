@@ -1,6 +1,6 @@
 import { Router } from './router.js';
 import { logout, onUnauthorized } from './api/api.js';
-import { restoreSession, isAuthenticated, setAuthenticated } from './session.js';
+import { restoreSession, isAuthenticated, isProfileComplete, setAuthenticated } from './session.js';
 import { withLayout } from './blocks/layout/layout.js';
 import { setActiveMenuLink } from './blocks/menu/menu.js';
 import { renderFeedPage } from './blocks/feed/feed.js';
@@ -10,6 +10,7 @@ import { renderAuthPage, renderRegisterPage } from './blocks/auth/auth.js';
 import { showToast } from './blocks/toast/toast.js';
 
 const GUEST_PATHS = ['/login', '/register'];
+const ONBOARDING_PATH = '/register';
 const SERVER_ERROR_MESSAGE = 'Ошибка на сервере. Обновите страницу или повторите попытку позднее.';
 
 let sessionChecked = true;
@@ -29,13 +30,17 @@ function startApp() {
         router.go('/login', { replace: true });
     });
 
-    function handleLogin() {
-        setAuthenticated(true);
+    /**
+     * @param {{missing: string[]}} response - Ответ бэкенда на вход.
+     */
+    function handleLogin({ missing }) {
+        setAuthenticated(true, missing);
         router.go('/');
     }
 
     /**
      * После регистрации проверяет сессию и ведёт на тест или на вход.
+     * Если анкета всё ещё не заполнена, guard вернёт на регистрацию.
      */
     async function handleRegistered() {
         try {
@@ -65,7 +70,10 @@ function startApp() {
     router
         .register('/login', (root) => renderAuthPage(root, { onLogin: handleLogin }))
         .register('/register', (root) =>
-            renderRegisterPage(root, { onRegistered: handleRegistered }),
+            renderRegisterPage(root, {
+                resume: isAuthenticated(),
+                onRegistered: handleRegistered,
+            }),
         )
         .register('/logout', handleLogout)
         .register('/', withLayout(renderFeedPage))
@@ -80,15 +88,19 @@ function startApp() {
         .beforeEach((path) => {
             const isGuestPath = GUEST_PATHS.includes(path);
 
-            if (!isAuthenticated() && !isGuestPath) {
-                return '/login';
+            if (!isAuthenticated()) {
+                return isGuestPath ? null : '/login';
             }
 
-            if (isAuthenticated() && isGuestPath) {
-                return '/';
+            if (path === '/logout') {
+                return null;
             }
 
-            return null;
+            if (!isProfileComplete()) {
+                return path === ONBOARDING_PATH ? null : ONBOARDING_PATH;
+            }
+
+            return isGuestPath ? '/' : null;
         })
         .onChange(setActiveMenuLink);
 
