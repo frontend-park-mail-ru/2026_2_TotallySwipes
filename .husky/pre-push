@@ -1,0 +1,4 @@
+if ! git rev-parse --abbrev-ref HEAD | grep -qE "^(main|dev|ts-[0-9]+)$"; then
+    echo "Некорректное название ветки. Ветка должна называться в формате ts-<номер задачи из jira> или main/dev"
+    exit 1
+fi
