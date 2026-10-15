@@ -1,10 +1,12 @@
+import menuHbs from './menu.hbs';
+
 /**
  * @param {{href: string, text: string, icon: string, counter?: number, disabled?: boolean}[]} items
  * @param {string} [mix]
  * @returns {string}
  */
 export function menuTemplate(items, mix = '') {
-    return Handlebars.templates['menu/menu']({ items, mix });
+    return menuHbs({ items, mix });
 }
 
 /**

@@ -4,15 +4,21 @@ import { profileStep } from '../register-profile/register-profile.js';
 import { searchStep } from '../register-search/register-search.js';
 import { photosStep } from '../register-photos/register-photos.js';
 import { interestsStep } from '../register-interests/register-interests.js';
-import { setFormFieldError } from '../form-field/form-field.js';
-import { register, ApiError } from '../../api/api.js';
+import { showModal } from '../modal/modal.js';
+import { ApiError, getProfile, getSearchFilter } from '../../api/api.js';
 import { icons } from '../../icons.js';
+import registerFormHbs from './register-form.hbs';
 
 const NEXT_LABEL = 'Продолжить';
 const FINISH_LABEL = 'Готово — к тесту';
 const GENERIC_ERROR_MESSAGE =
-    'Не удалось завершить регистрацию. Проверьте соединение и попробуйте ещё раз.';
-const EMAIL_TAKEN_STATUS = 409;
+    'Не удалось сохранить данные. Проверьте соединение и попробуйте ещё раз.';
+const LOAD_ERROR_MODAL = {
+    image: '/public/icons/mascot-error.svg',
+    title: 'Произошла ошибка',
+    text: 'Похоже, что пропала связь. Попробуйте ещё раз.',
+    buttonText: 'Повторить',
+};
 
 /**
  * @param {*} error
@@ -32,12 +38,16 @@ function registerErrorMessage(error) {
  * @typedef {Object} RegisterStep
  * @property {string} title
  * @property {string} subtitle
+ * @property {string[]} [fields] - Поля из missing бэкенда, которые заполняет шаг.
  * @property {function(Object): string} [template] - HTML тела шага.
  * @property {function(HTMLFormElement, Object): void} [init] - Заполняет поля из data.
  * @property {function(HTMLFormElement, Object): void} [save] - Запоминает введённое без проверки,
  *     когда пользователь возвращается на шаг назад.
  * @property {function(HTMLFormElement, Object): (boolean|Promise<boolean>)} [validate] - При успехе
  *     сама сохраняет введённые значения в data и возвращает true. Может быть async.
+ * @property {function(HTMLFormElement, Object): Promise<boolean>} [submit] - Отправляет данные шага
+ *     на бэкенд после validate. false - остаться на шаге (ошибку шаг показал сам),
+ *     исключение - показать общую ошибку формы.
  */
 
 /** @type {RegisterStep[]} */
@@ -50,16 +60,20 @@ const STEPS = [
     {
         title: 'Расскажите о себе!',
         subtitle: 'Имя и возраст увидят в вашей анкете.',
+        fields: ['name', 'birth_date', 'sex'],
         ...profileStep,
     },
     {
         title: 'Кого вы ищете?',
         subtitle: 'Поменять можно в любой момент в фильтрах.',
+        fields: ['dating_goal', 'search_filter'],
         ...searchStep,
     },
     {
         title: 'Добавьте фото!',
-        subtitle: 'Хотя бы одно, где хорошо видно лицо. Первое станет главным.',
+        subtitle:
+            'Хотя бы одно, где хорошо видно лицо. Первое станет главным — порядок меняется перетаскиванием.',
+        fields: ['photos'],
         ...photosStep,
     },
     {
@@ -68,6 +82,34 @@ const STEPS = [
         ...interestsStep,
     },
 ];
+
+/**
+ * Переводит сохранённые на бэкенде анкету и фильтр в data шагов.
+ *
+ * @param {Object} profile - Ответ GET /profile/me.
+ * @param {{sex: string, age_from: number, age_to: number}} filter - Ответ GET /filters/me.
+ * @returns {Object} data для шагов, поля без значения - undefined.
+ */
+function profileToData(profile, filter) {
+    const [birthYear, birthMonth, birthDay] = profile.birth_date?.split('-') ?? [];
+    // Пока фильтр не задан, бэкенд отдаёт значения по умолчанию, а не выбор пользователя.
+    const hasFilter = !profile.missing.includes('search_filter');
+
+    return {
+        registered: true,
+        name: profile.name ?? undefined,
+        birthDay: birthDay && String(Number(birthDay)),
+        birthMonth: birthMonth && String(Number(birthMonth)),
+        birthYear,
+        sex: profile.sex ?? undefined,
+        datingGoal: profile.dating_goal ?? undefined,
+        searchSex: hasFilter ? filter.sex : undefined,
+        searchAgeFrom: hasFilter ? String(filter.age_from) : undefined,
+        searchAgeTo: hasFilter ? String(filter.age_to) : undefined,
+        photos: profile.photos,
+        interests: profile.tags,
+    };
+}
 
 /**
  * @returns {string} Контейнер формы, шаги рендерит initRegisterForm.
@@ -81,9 +123,11 @@ export function registerFormTemplate() {
  *
  * @param {HTMLElement} root
  * @param {Object} [params]
+ * @param {boolean} [params.resume=false] - Аккаунт уже создан: подтянуть анкету с бэкенда
+ *     и начать с первого шага, где не хватает данных.
  * @param {Function} [params.onRegistered] - Вызывается после успешной регистрации.
  */
-export function initRegisterForm(root, { onRegistered } = {}) {
+export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
     const data = {};
     let isSubmitting = false;
 
@@ -94,55 +138,43 @@ export function initRegisterForm(root, { onRegistered } = {}) {
     }
 
     /**
-     * Отправляет регистрацию. Если почта занята, возвращает на первый шаг.
+     * Проверяет и отправляет текущий шаг.
      *
+     * @param {RegisterStep} step
      * @param {HTMLFormElement} form
+     * @returns {Promise<boolean>} Можно ли идти дальше.
      */
-    async function submit(form) {
+    async function completeStep(step, form) {
         const formError = form.querySelector('.register-form__error');
-
-        isSubmitting = true;
         formError.hidden = true;
-        setActionsDisabled(form, true);
 
         try {
-            await register(data);
+            const isValid = (await step.validate?.(form, data)) ?? true;
+
+            return isValid && ((await step.submit?.(form, data)) ?? true);
         } catch (error) {
-            isSubmitting = false;
-
-            if (error instanceof ApiError && error.status === EMAIL_TAKEN_STATUS) {
-                showStep(0);
-
-                const email = root.querySelector('[name="email"]');
-                setFormFieldError(email, error.message);
-                email.focus();
-
-                return;
-            }
-
             formError.textContent = registerErrorMessage(error);
             formError.hidden = false;
-            setActionsDisabled(form, false);
 
-            return;
+            return false;
         }
-
-        onRegistered?.();
     }
 
     /**
+     * После создания аккаунта на шаг с почтой вернуться нельзя.
+     *
      * @param {number} index - Индекс шага в STEPS.
      */
     function showStep(index) {
         const step = STEPS[index];
         const isLast = index === STEPS.length - 1;
 
-        root.innerHTML = Handlebars.templates['register-form/register-form']({
+        root.innerHTML = registerFormHbs({
             progress: stepProgressTemplate(index + 1, STEPS.length),
             title: step.title,
             subtitle: step.subtitle,
             body: step.template?.(data) ?? '',
-            hasBack: index > 0,
+            hasBack: index > (data.registered ? 1 : 0),
             isFirst: index === 0,
             nextLabel: isLast ? FINISH_LABEL : NEXT_LABEL,
             arrow: icons.arrow,
@@ -158,20 +190,20 @@ export function initRegisterForm(root, { onRegistered } = {}) {
                 return;
             }
 
-            if (step.validate) {
-                setActionsDisabled(form, true);
+            isSubmitting = true;
+            setActionsDisabled(form, true);
 
-                const isValid = await step.validate(form, data);
+            const isDone = await completeStep(step, form);
 
+            isSubmitting = false;
+
+            if (!isDone) {
                 setActionsDisabled(form, false);
-
-                if (!isValid) {
-                    return;
-                }
+                return;
             }
 
             if (isLast) {
-                submit(form);
+                onRegistered?.();
                 return;
             }
 
@@ -192,5 +224,45 @@ export function initRegisterForm(root, { onRegistered } = {}) {
         });
     }
 
-    showStep(0);
+    /**
+     * Продолжает регистрацию уже созданного аккаунта, например после обновления страницы.
+     */
+    async function resumeRegistration() {
+        let profile;
+        let filter;
+
+        try {
+            [profile, filter] = await Promise.all([getProfile(), getSearchFilter()]);
+        } catch (error) {
+            console.error('Не удалось загрузить анкету:', error);
+
+            if (root.isConnected) {
+                showModal({ ...LOAD_ERROR_MODAL, onClose: resumeRegistration });
+            }
+            return;
+        }
+
+        if (!root.isConnected) {
+            return;
+        }
+
+        if (profile.missing.length === 0) {
+            onRegistered?.();
+            return;
+        }
+
+        Object.assign(data, profileToData(profile, filter));
+
+        const index = STEPS.findIndex((step) =>
+            step.fields?.some((field) => profile.missing.includes(field)),
+        );
+        // Незнакомое поле в missing: начинаем с первого шага анкеты.
+        showStep(index === -1 ? 1 : index);
+    }
+
+    if (resume) {
+        resumeRegistration();
+    } else {
+        showStep(0);
+    }
 }

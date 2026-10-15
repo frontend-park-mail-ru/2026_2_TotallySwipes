@@ -1,3 +1,5 @@
+import traitScaleHbs from './trait-scale.hbs';
+
 const MIN_SCORE = 1;
 const MAX_SCORE = 7;
 
@@ -9,7 +11,7 @@ const MAX_SCORE = 7;
 export function traitScaleTemplate(trait, mix = '') {
     const score = Math.min(Math.max(trait.score, MIN_SCORE), MAX_SCORE);
 
-    return Handlebars.templates['trait-scale/trait-scale']({
+    return traitScaleHbs({
         ...trait,
         mix,
         score,

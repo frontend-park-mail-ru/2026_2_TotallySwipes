@@ -3,6 +3,7 @@ import { getCurrentUser, logout } from '../../api/api.js';
 import { menuTemplate } from '../menu/menu.js';
 import { showModal } from '../modal/modal.js';
 import { userPreviewTemplate } from '../user-preview/user-preview.js';
+import sidebarHbs from './sidebar.hbs';
 
 const MENU_ITEMS = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
@@ -21,7 +22,7 @@ const MENU_ITEMS = [
  */
 export function sidebarTemplate(mix = '') {
     const menu = menuTemplate(MENU_ITEMS, 'sidebar__menu');
-    return Handlebars.templates['sidebar/sidebar']({ mix, menu });
+    return sidebarHbs({ mix, menu });
 }
 
 /**

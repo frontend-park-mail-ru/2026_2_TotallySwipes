@@ -2,23 +2,25 @@ import { setFormFieldError } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
 import { INTERESTS_MAX_COUNT, validateInterestsCount } from '../../validation.js';
 import { INTERESTS, interestIconUrl } from '../../interests.js';
+import { updateProfile } from '../../api/api.js';
+import registerInterestsHbs from './register-interests.hbs';
 
 const ACCENTS = ['mint', 'sun', 'pink', 'sky', 'lilac'];
 
 /**
- * Шаг 5: интересы. Сохраняет в data: interests - массив подписей (на бэкенд уходят как tags).
- * Интересы необязательны, поэтому validate нет.
+ * Шаг 5: интересы. Сохраняет в data: interests - массив ключей тегов бэкенда.
+ * Интересы необязательны, поэтому validate нет; отправка заменяет теги анкеты.
  */
 export const interestsStep = {
     template() {
-        const options = INTERESTS.map(({ label }, index) => ({
-            value: label,
+        const options = INTERESTS.map(({ key, label }, index) => ({
+            value: key,
             label,
-            icon: interestIconUrl(label),
+            icon: interestIconUrl(key),
             accent: ACCENTS[index % ACCENTS.length],
         }));
 
-        return Handlebars.templates['register-interests/register-interests']({
+        return registerInterestsHbs({
             chips: chipsTemplate({
                 type: 'checkbox',
                 name: 'interests',
@@ -60,5 +62,10 @@ export const interestsStep = {
 
             sync();
         });
+    },
+
+    async submit(form, data) {
+        await updateProfile({ tags: data.interests ?? [] });
+        return true;
     },
 };

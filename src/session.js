@@ -1,6 +1,7 @@
-import { refreshSession, ApiError } from './api/api.js';
+import { getCurrentUser, ApiError } from './api/api.js';
 
 let authenticated = false;
+let missing = [];
 
 /**
  * @returns {boolean} Вошёл ли пользователь.
@@ -10,28 +11,39 @@ export function isAuthenticated() {
 }
 
 /**
- * @param {boolean} value
+ * @returns {boolean} Заполнены ли все обязательные поля анкеты. Пока нет -
+ *     пользователя ведём на регистрацию дозаполнять анкету.
  */
-export function setAuthenticated(value) {
-    authenticated = value;
+export function isProfileComplete() {
+    return missing.length === 0;
 }
 
 /**
- * Проверяет сессию через refresh. 401 означает, что пользователь не вошёл.
+ * @param {boolean} value
+ * @param {string[]} [missingFields=[]] - Незаполненные поля анкеты из ответа бэкенда.
+ */
+export function setAuthenticated(value, missingFields = []) {
+    authenticated = value;
+    missing = value ? missingFields : [];
+}
+
+/**
+ * Проверяет сессию запросом краткой анкеты: при 401 api сам обновляет сессию через refresh.
+ * Итоговый 401 означает, что пользователь не вошёл.
  *
  * @returns {Promise<boolean>} Вошёл ли пользователь.
  * @throws {Error} При любой ошибке, кроме 401.
  */
 export async function restoreSession() {
     try {
-        await refreshSession();
-        authenticated = true;
+        const user = await getCurrentUser();
+        setAuthenticated(true, user.missing);
     } catch (error) {
         if (!(error instanceof ApiError && error.status === 401)) {
             throw error;
         }
 
-        authenticated = false;
+        setAuthenticated(false);
     }
 
     return authenticated;
