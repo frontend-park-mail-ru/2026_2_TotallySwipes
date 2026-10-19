@@ -1,0 +1,19 @@
+@use '../../variables' as v;
+
+.compatibility {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 18px 18px 16px 18px;
+    border-radius: 20px;
+    background-color: v.$color-bg-page;
+}
+
+.compatibility__percent {
+    @include v.text-style('heading-30-extrabold');
+}
+
+.compatibility__verdict {
+    @include v.text-style('body-16-regular');
+    color: v.$color-text-secondary;
+}

@@ -1,0 +1,60 @@
+@use '../../variables' as v;
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.profile-details__header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-details__name {
+    display: flex;
+    margin: 0;
+    @include v.text-style('heading-30-extrabold');
+    white-space: nowrap;
+}
+
+.profile-details__name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-details__age {
+    color: v.$color-text-secondary;
+}
+
+.profile-details__section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-details__section-title {
+    margin: 0;
+    @include v.text-style('caption-13-bold');
+    color: v.$color-text-secondary;
+}
+
+.profile-details__about {
+    margin: 0;
+    @include v.text-style('body-16-regular');
+}
+
+.profile-details__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+}
+
+.profile-details__tag:nth-child(odd) {
+    transform: rotate(-1.2deg);
+}
+
+.profile-details__tag:nth-child(even) {
+    transform: rotate(1.5deg);
+}

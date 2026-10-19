@@ -1,0 +1,161 @@
+@use 'sass:map';
+
+$color-bg-page: #f3f3f0;
+$color-bg-subtle: #fbfbfa;
+$color-bg-disabled: #c9c8c2;
+$color-surface: #ffffff;
+
+$color-text-primary: #141414;
+$color-text-secondary: #55554f;
+$color-text-disabled: #8c8c85;
+$color-text-placeholder: #7a7a73;
+
+$color-border-default: #e6e5e0;
+$color-border-strong: #d6d5cf;
+$color-border-hover: #b9b8b1;
+
+$color-primary: #141414;
+$color-primary-hover: #2b2b2b;
+$color-on-primary: #ffffff;
+$color-secondary: #ddd2ff;
+$color-on-secondary: #4a2ba5;
+
+$color-accent-mint: #cdf3ae;
+$color-accent-mint-ink: #1f5c24;
+$color-accent-sun: #ffe48f;
+$color-accent-sun-ink: #8a5100;
+$color-accent-pink: #ffc6ee;
+$color-accent-pink-ink: #ad1480;
+$color-accent-sky: #c9e4f8;
+$color-accent-sky-ink: #1c3f82;
+$color-accent-lilac: #ddd2ff;
+$color-accent-lilac-ink: #4a2ba5;
+
+$color-success-default: #1f5c24;
+$color-success-bg: #cdf3ae;
+$color-warning-default: #8a5100;
+$color-warning-bg: #ffe48f;
+$color-error-default: #ad1480;
+$color-error-hover: #8e1069;
+$color-error-bg: #ffe3f6;
+$color-error-ring: #ffe3f6;
+
+$color-online: #3ea84a;
+
+$color-backdrop: rgba(20, 20, 20, 0.48);
+
+$shadow-sticker: 0 10px 22px -10px rgba(20, 20, 20, 0.35);
+$shadow-panel:
+    0 1px 2px rgba(20, 20, 20, 0.04),
+    0 16px 40px -24px rgba(20, 20, 20, 0.25);
+$shadow-card: 0 24px 48px -24px rgba(20, 20, 20, 0.35);
+$shadow-dialog:
+    0 32px 64px -24px rgba(20, 20, 20, 0.45),
+    0 2px 4px rgba(20, 20, 20, 0.06);
+
+$font-family: 'Onest', sans-serif;
+
+$text-styles: (
+    'display-48-extrabold': (
+        weight: 800,
+        size: 48px,
+        line-height: 50px,
+        letter-spacing: -0.04em,
+    ),
+    'heading-30-extrabold': (
+        weight: 800,
+        size: 30px,
+        line-height: 33px,
+        letter-spacing: -0.03em,
+    ),
+    'body-16-regular': (
+        weight: 400,
+        size: 16px,
+        line-height: 24px,
+    ),
+    'body-16-semibold': (
+        weight: 600,
+        size: 16px,
+        line-height: 24px,
+    ),
+    'caption-13-regular': (
+        weight: 400,
+        size: 13px,
+        line-height: 18px,
+    ),
+    'caption-13-bold': (
+        weight: 700,
+        size: 13px,
+        line-height: 18px,
+    ),
+);
+
+@mixin text-style($name) {
+    $style: map.get($text-styles, $name);
+    font: map.get($style, weight) #{map.get($style, size)}/#{map.get($style, line-height)}
+        $font-family;
+    @if map.has-key($style, letter-spacing) {
+        letter-spacing: map.get($style, letter-spacing);
+    }
+}
+
+:root {
+    --color-bg-page: #f3f3f0;
+    --color-bg-subtle: #fbfbfa;
+    --color-bg-disabled: #c9c8c2;
+    --color-surface: #ffffff;
+
+    --color-text-primary: #141414;
+    --color-text-secondary: #55554f;
+    --color-text-disabled: #8c8c85;
+    --color-text-placeholder: #7a7a73;
+
+    --color-border-default: #e6e5e0;
+    --color-border-strong: #d6d5cf;
+    --color-border-hover: #b9b8b1;
+
+    --color-primary: #141414;
+    --color-primary-hover: #2b2b2b;
+    --color-on-primary: #ffffff;
+    --color-secondary: #ddd2ff;
+    --color-on-secondary: #4a2ba5;
+
+    --color-accent-mint: #cdf3ae;
+    --color-accent-mint-ink: #1f5c24;
+    --color-accent-sun: #ffe48f;
+    --color-accent-sun-ink: #8a5100;
+    --color-accent-pink: #ffc6ee;
+    --color-accent-pink-ink: #ad1480;
+    --color-accent-sky: #c9e4f8;
+    --color-accent-sky-ink: #1c3f82;
+    --color-accent-lilac: #ddd2ff;
+    --color-accent-lilac-ink: #4a2ba5;
+
+    --color-success-default: #1f5c24;
+    --color-success-bg: #cdf3ae;
+    --color-warning-default: #8a5100;
+    --color-warning-bg: #ffe48f;
+    --color-error-default: #ad1480;
+    --color-error-hover: #8e1069;
+    --color-error-bg: #ffe3f6;
+    --color-error-ring: #ffe3f6;
+
+    --color-online: #3ea84a;
+
+    --color-backdrop: rgba(20, 20, 20, 0.48);
+
+    --font-display-48-extrabold: 800 48px/50px 'Onest', sans-serif;
+    --font-heading-30-extrabold: 800 30px/33px 'Onest', sans-serif;
+    --font-body-16-regular: 400 16px/24px 'Onest', sans-serif;
+    --font-body-16-semibold: 600 16px/24px 'Onest', sans-serif;
+    --font-caption-13-regular: 400 13px/18px 'Onest', sans-serif;
+    --font-caption-13-bold: 700 13px/18px 'Onest', sans-serif;
+
+    --letter-spacing-display-48: -0.04em;
+    --letter-spacing-heading-30: -0.03em;
+
+    --shadow-sticker: 0 10px 22px -10px rgba(20, 20, 20, 0.35);
+    --shadow-panel: 0 1px 2px rgba(20, 20, 20, 0.04), 0 16px 40px -24px rgba(20, 20, 20, 0.25);
+    --shadow-card: 0 24px 48px -24px rgba(20, 20, 20, 0.35);
+    --shadow-dialog: 0 32px 64px -24px rgba(20, 20, 20, 0.45), 0 2px 4px rgba(20, 20, 20, 0.06);
+}

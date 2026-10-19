@@ -1,0 +1,102 @@
+@use '../../variables' as v;
+
+.button {
+    display: flex;
+    gap: 10px;
+    font: inherit;
+    cursor: pointer;
+    height: 44px;
+    padding: 0px 16px;
+    align-items: center;
+}
+
+.button_view_outline {
+    border: 1px solid v.$color-border-default;
+    background-color: v.$color-surface;
+    border-radius: 10px;
+}
+
+.button_view_outline:hover:not(:disabled) {
+    border-color: v.$color-border-hover;
+}
+
+.button__icon {
+    display: block;
+    flex-shrink: 0;
+}
+.button__icon_mask {
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
+    mask: var(--icon) center / contain no-repeat;
+}
+.button__text {
+    @include v.text-style('body-16-semibold');
+}
+.button__hint {
+    color: v.$color-text-secondary;
+    @include v.text-style('body-16-regular');
+}
+
+.button_view_ghost {
+    border: 2px solid v.$color-border-strong;
+    background-color: v.$color-bg-page;
+    border-radius: 10px;
+}
+
+.button_view_ghost:hover {
+    border-color: v.$color-border-hover;
+    background-color: v.$color-bg-page;
+}
+
+.button_view_soft {
+    border: 2px solid v.$color-border-strong;
+    background-color: v.$color-surface;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+.button_view_soft:hover {
+    background-color: v.$color-bg-page;
+}
+
+.button_view_primary {
+    border: 1px solid v.$color-primary;
+    background-color: v.$color-primary;
+    color: v.$color-on-primary;
+    border-radius: 10px;
+}
+
+.button_view_primary:hover:not(:disabled) {
+    border-color: v.$color-primary-hover;
+    background-color: v.$color-primary-hover;
+}
+
+.button_view_plain {
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+.button_view_plain:hover:not(:disabled) {
+    color: v.$color-text-primary;
+}
+
+.button_size_l {
+    gap: 8px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 14px;
+}
+
+.button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.button_view_primary:disabled {
+    border-color: v.$color-border-default;
+    background-color: v.$color-border-default;
+    color: v.$color-text-secondary;
+    opacity: 1;
+}

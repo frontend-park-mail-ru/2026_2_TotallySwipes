@@ -13,7 +13,7 @@ export default [
         },
     },
     {
-        files: ['server/**/*.js'],
+        files: ['server/**/*.{js,ts}'],
         languageOptions: { globals: globals.node },
     },
     {

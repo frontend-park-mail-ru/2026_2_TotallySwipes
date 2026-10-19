@@ -1,0 +1,57 @@
+@use '../../variables' as v;
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px 7px 11px;
+    border: 4px solid v.$color-surface;
+    border-radius: 12px;
+    background: var(--pill-bg);
+    box-shadow: v.$shadow-sticker;
+    color: var(--pill-ink);
+    @include v.text-style('body-16-semibold');
+    white-space: nowrap;
+}
+
+.pill__icon {
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    background-color: currentColor;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+.pill_size_s {
+    padding: 4px 16px 4px 12px;
+}
+
+.pill_size_s .pill__icon {
+    width: 16px;
+    height: 16px;
+}
+
+.pill_color_pink {
+    --pill-bg: #{v.$color-accent-pink};
+    --pill-ink: #{v.$color-accent-pink-ink};
+}
+
+.pill_color_sky {
+    --pill-bg: #{v.$color-accent-sky};
+    --pill-ink: #{v.$color-accent-sky-ink};
+}
+
+.pill_color_lilac {
+    --pill-bg: #{v.$color-accent-lilac};
+    --pill-ink: #{v.$color-accent-lilac-ink};
+}
+
+.pill_color_mint {
+    --pill-bg: #{v.$color-accent-mint};
+    --pill-ink: #{v.$color-accent-mint-ink};
+}
+
+.pill_color_sun {
+    --pill-bg: #{v.$color-accent-sun};
+    --pill-ink: #{v.$color-accent-sun-ink};
+}
