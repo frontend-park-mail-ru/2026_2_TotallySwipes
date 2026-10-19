@@ -1,0 +1,43 @@
+@use '../../variables' as v;
+
+.match-stamp {
+    display: grid;
+    width: 118px;
+    height: 118px;
+}
+
+.match-stamp__image,
+.match-stamp__value {
+    grid-area: 1 / 1;
+}
+
+.match-stamp__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.match-stamp__value {
+    place-self: center;
+    @include v.text-style('heading-30-extrabold');
+}
+
+.match-stamp_color_lilac {
+    color: v.$color-accent-lilac-ink;
+}
+
+.match-stamp_color_mint {
+    color: v.$color-accent-mint-ink;
+}
+
+.match-stamp_color_pink {
+    color: v.$color-accent-pink-ink;
+}
+
+.match-stamp_color_sky {
+    color: v.$color-accent-sky-ink;
+}
+
+.match-stamp_color_sun {
+    color: v.$color-accent-sun-ink;
+}

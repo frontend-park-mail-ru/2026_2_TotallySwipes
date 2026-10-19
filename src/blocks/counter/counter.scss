@@ -1,0 +1,15 @@
+@use '../../variables' as v;
+
+.counter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 24px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    background: v.$color-accent-pink;
+    color: v.$color-accent-pink-ink;
+    @include v.text-style('caption-13-bold');
+}

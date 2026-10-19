@@ -1,0 +1,10 @@
+@use '../../variables' as v;
+
+.logo {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    color: v.$color-text-primary;
+    text-decoration: none;
+}

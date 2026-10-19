@@ -1,0 +1,88 @@
+@use '../../variables' as v;
+
+.trait-scale {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.trait-scale_color_sun {
+    --trait-scale-color: #{v.$color-accent-sun};
+    --trait-scale-ink: #{v.$color-accent-sun-ink};
+}
+
+.trait-scale_color_pink {
+    --trait-scale-color: #{v.$color-accent-pink};
+    --trait-scale-ink: #{v.$color-accent-pink-ink};
+}
+
+.trait-scale_color_sky {
+    --trait-scale-color: #{v.$color-accent-sky};
+    --trait-scale-ink: #{v.$color-accent-sky-ink};
+}
+
+.trait-scale_color_mint {
+    --trait-scale-color: #{v.$color-accent-mint};
+    --trait-scale-ink: #{v.$color-accent-mint-ink};
+}
+
+.trait-scale_color_lilac {
+    --trait-scale-color: #{v.$color-accent-lilac};
+    --trait-scale-ink: #{v.$color-accent-lilac-ink};
+}
+
+.trait-scale__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.trait-scale__title {
+    @include v.text-style('body-16-semibold');
+}
+
+.trait-scale__value {
+    flex-shrink: 0;
+    @include v.text-style('caption-13-bold');
+    color: var(--trait-scale-ink);
+}
+
+.trait-scale__track {
+    display: flex;
+    height: 8px;
+    margin: 8px 0;
+    border-radius: 9999px;
+    background-color: v.$color-bg-page;
+}
+
+.trait-scale__bar {
+    position: relative;
+    width: var(--trait-scale-fill);
+    border-radius: 9999px;
+    background-color: var(--trait-scale-color);
+}
+
+.trait-scale__dot {
+    position: absolute;
+    top: 50%;
+    right: -16px;
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    border: 4px solid v.$color-surface;
+    border-radius: 50%;
+    background-color: var(--trait-scale-ink);
+    box-shadow:
+        0 1px 2px rgba(20, 20, 20, 0.08),
+        v.$shadow-sticker;
+    transform: translateY(-50%);
+}
+
+.trait-scale__poles {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    @include v.text-style('caption-13-regular');
+    color: v.$color-text-secondary;
+}

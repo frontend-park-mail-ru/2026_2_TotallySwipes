@@ -1,0 +1,135 @@
+@use '../../variables' as v;
+
+.feed {
+    --stack-height: clamp(360px, calc(100vh - 230px), 572px);
+
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    /* overflow: hidden; */
+}
+
+.feed__main {
+    display: flex;
+    flex-direction: column;
+    gap: 27px;
+    padding: 25px 40px; /*тут был падинг 34 на 40*/
+    border-right: 1px solid v.$color-border-default;
+}
+
+.feed__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.feed__title {
+    margin: 0;
+    margin-right: auto;
+    @include v.text-style('heading-30-extrabold');
+}
+
+.feed__stack {
+    position: relative;
+    height: var(--stack-height);
+    aspect-ratio: 400 / 572;
+    align-self: center;
+    z-index: 1;
+}
+
+.feed__card {
+    position: absolute;
+    inset: 0;
+    transition:
+        transform 0.5s,
+        opacity 0.5s;
+    transform-origin: bottom center;
+    box-shadow: v.$shadow-card;
+    user-select: none;
+}
+
+.feed__card_layer_1 {
+    transform: translateY(-5px);
+    cursor: grab;
+}
+
+.feed__card_layer_2 {
+    --match-stamp-visible: 0;
+    transform: rotate(-3deg);
+    pointer-events: none;
+}
+
+.feed__card_layer_3 {
+    --match-stamp-visible: 0;
+    transform: rotate(3deg);
+    pointer-events: none;
+}
+
+.feed__card_leaving_like {
+    transform: translateX(150%) rotate(20deg);
+    opacity: 0;
+}
+
+.feed__card_leaving_dislike {
+    transform: translateX(-150%) rotate(-20deg);
+    opacity: 0;
+}
+
+.feed__card_leaving_super {
+    transform: translateY(-150%);
+    opacity: 0;
+}
+
+.feed__card_dragging {
+    transition: none;
+    cursor: grabbing;
+}
+
+.feed__actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+}
+
+.feed__actions:hover {
+    position: relative;
+    z-index: 2;
+}
+
+.feed__empty {
+    display: none;
+    box-sizing: border-box;
+    height: var(--stack-height);
+    aspect-ratio: 400 / 572;
+    align-self: center;
+    padding: 32px;
+    border: 2px dashed v.$color-border-strong;
+    border-radius: 30px;
+}
+
+.feed_empty .feed__empty {
+    display: grid;
+}
+
+.feed_empty .feed__stack {
+    display: none;
+}
+
+.feed_empty .feed__actions {
+    display: none;
+}
+
+.feed__details {
+    height: 100vh;
+    overflow-y: auto;
+    align-self: start;
+    padding: 34px 32px 40px;
+    background-color: v.$color-surface;
+    box-sizing: border-box;
+}
+
+.feed__header_button:disabled {
+    cursor: not-allowed;
+}

@@ -1,0 +1,13 @@
+@use '../../variables' as v;
+
+.page {
+    margin: 0;
+    @include v.text-style('body-16-regular');
+    color: v.$color-text-primary;
+    background: v.$color-surface;
+}
+
+.page ::selection {
+    background-color: v.$color-secondary;
+    color: v.$color-on-secondary;
+}

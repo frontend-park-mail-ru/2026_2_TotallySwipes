@@ -1,0 +1,28 @@
+@use '../../variables' as v;
+
+.facts {
+    margin: 0;
+}
+
+.facts__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1px;
+    padding: 11px 0;
+    border-bottom: 1px solid v.$color-border-default;
+    @include v.text-style('body-16-regular');
+}
+
+.facts__row:last-child {
+    border-bottom: none;
+}
+
+.facts__label {
+    color: v.$color-text-secondary;
+}
+
+.facts__value {
+    margin: 0;
+    @include v.text-style('body-16-semibold');
+    text-align: right;
+}

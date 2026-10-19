@@ -1,0 +1,142 @@
+@use '../../variables' as v;
+
+.test {
+    display: grid;
+    grid-template-rows: 1fr auto auto 1fr;
+    justify-items: center;
+    gap: 32px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding: 24px 32px;
+}
+
+.test__header {
+    display: flex;
+    align-self: start;
+    justify-self: stretch;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.test__title {
+    margin: 0;
+    @include v.text-style('heading-30-extrabold');
+}
+
+.test__actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.test__skip {
+    color: v.$color-text-secondary;
+}
+
+.test__card {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 728px;
+    padding: 32px;
+    border-radius: 20px;
+    background-color: v.$color-surface;
+    box-shadow: v.$shadow-panel;
+}
+
+.test__steps {
+    margin-bottom: 32px;
+}
+
+.test__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.test__heading {
+    margin: 0;
+    @include v.text-style('heading-30-extrabold');
+}
+
+.test__lead {
+    display: block;
+    color: v.$color-text-secondary;
+}
+
+.test__statement {
+    display: block;
+}
+
+.test__hint {
+    margin: 12px 0 0;
+    color: v.$color-text-secondary;
+}
+
+.test__sticker {
+    flex-shrink: 0;
+    width: 112px;
+    height: 112px;
+    object-fit: scale-down;
+    filter: drop-shadow(0 1px 1px rgba(20, 20, 20, 0.08))
+        drop-shadow(0 8px 10px rgba(20, 20, 20, 0.16));
+}
+
+.test__scale {
+    margin-top: 32px;
+}
+
+.test__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 32px;
+}
+
+.test__prev {
+    padding-left: 16px;
+    color: v.$color-text-secondary;
+}
+
+.test__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 728px;
+}
+
+.test__note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: v.$color-text-secondary;
+    @include v.text-style('caption-13-regular');
+}
+
+.test__note-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.test__complete {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: v.$color-success-default;
+    @include v.text-style('caption-13-bold');
+}
+
+.test__complete-icon {
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    mask: url('/icons/check.svg') center / contain no-repeat;
+}
