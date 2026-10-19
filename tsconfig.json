@@ -12,7 +12,8 @@
         "skipLibCheck": true,
 
         "allowJs": true,
-        "checkJs": false
+        "checkJs": false,
+        "verbatimModuleSyntax": true,
     },
     "include": ["src", "env.d.ts"]
 }

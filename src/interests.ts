@@ -1,7 +1,13 @@
+export interface InterestData {
+    key: string;
+    label: string;
+    icon: string;
+}
+
 /**
  * Справочник интересов. key - ключ тега на бэкенде, label и icon хранит только фронтенд.
  */
-export const INTERESTS = [
+export const INTERESTS: InterestData[] = [
     { key: 'coffee', label: 'Кофе', icon: 'coffee' },
     { key: 'books', label: 'Книги', icon: 'book' },
     { key: 'music', label: 'Музыка', icon: 'music' },
@@ -22,7 +28,7 @@ export const INTERESTS = [
  * @param {string} key - Ключ тега с бэкенда.
  * @returns {string} Подпись интереса или сам ключ, если интерес неизвестен.
  */
-export function interestLabel(key) {
+export function interestLabel(key: string): string {
     return INTERESTS.find((item) => item.key === key)?.label ?? key;
 }
 
@@ -30,7 +36,7 @@ export function interestLabel(key) {
  * @param {string} key - Ключ тега с бэкенда.
  * @returns {string|null} Путь к иконке или null, если интерес неизвестен.
  */
-export function interestIconUrl(key) {
+export function interestIconUrl(key: string): string | null {
     const interest = INTERESTS.find((item) => item.key === key);
 
     return interest ? `/icons/${interest.icon}.svg` : null;

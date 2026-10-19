@@ -1,13 +1,47 @@
-const MOCK_ACCOUNT = { email: 'admin@swipes.ru', password: 'password1234' };
+import type {
+    Credentials,
+    DatingGoal,
+    MissingField,
+    Photo,
+    ReorderPhotosRequest,
+    SearchFilter,
+    Sex,
+    TagKey,
+    TestResult,
+    UpdateProfileRequest,
+} from './api.types.js';
+
+interface MockResponse {
+    status: number;
+    body?: unknown;
+}
+
+// Тело уже разобрано из JSON или FormData и не проверяется: обработчики приводят его к типу из API.
+type MockHandler = (url: URL, request: { body: unknown }) => MockResponse;
+
+type MockRoute = MockResponse | MockHandler;
+
+interface MockProfile {
+    user_id: number;
+    name: string | null;
+    birth_date: string | null;
+    sex: Sex | null;
+    dating_goal: DatingGoal | null;
+    tags: TagKey[];
+    photos: Photo[];
+    filter: SearchFilter | null;
+}
+
+const MOCK_ACCOUNT: Credentials = { email: 'admin@swipes.ru', password: 'password1234' };
 
 const SESSION_COOKIE = 'is_auth';
 const ACCESS_COOKIE = 'mock_access';
 
-const hasCookie = (name) => document.cookie.split('; ').includes(`${name}=1`);
-const setCookie = (name) => {
+const hasCookie = (name: string) => document.cookie.split('; ').includes(`${name}=1`);
+const setCookie = (name: string) => {
     document.cookie = `${name}=1; path=/`;
 };
-const removeCookie = (name) => {
+const removeCookie = (name: string) => {
     document.cookie = `${name}=0; path=/; max-age=0`;
 };
 
@@ -21,7 +55,10 @@ const endSession = () => {
     removeCookie(ACCESS_COOKIE);
 };
 
-const error = (status, code, message) => ({ status, body: { error: { code, message } } });
+const error = (status: number, code: string, message: string): MockResponse => ({
+    status,
+    body: { error: { code, message } },
+});
 const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
 
 /**
@@ -30,7 +67,7 @@ const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо во
  * @param {string} pathname
  * @returns {{status: number, body: Object}|null} Ответ-ошибка или null, если доступ есть.
  */
-export function checkAccess(pathname) {
+export function checkAccess(pathname: string): MockResponse | null {
     if (pathname.startsWith('/api/v1/auth/') || hasCookie(ACCESS_COOKIE)) {
         return null;
     }
@@ -41,7 +78,7 @@ export function checkAccess(pathname) {
 const MAX_PHOTOS = 6;
 const PROFILE_KEY = 'mock-profile';
 
-const ADMIN_PROFILE = {
+const ADMIN_PROFILE: MockProfile = {
     user_id: 1,
     name: 'User',
     birth_date: '2002-05-01',
@@ -52,7 +89,7 @@ const ADMIN_PROFILE = {
     filter: { sex: 'all', age_from: 18, age_to: 100 },
 };
 
-const NEW_PROFILE = {
+const NEW_PROFILE: MockProfile = {
     user_id: 2,
     name: null,
     birth_date: null,
@@ -63,13 +100,14 @@ const NEW_PROFILE = {
     filter: null,
 };
 
-const DEFAULT_FILTER = { sex: 'all', age_from: 18, age_to: 100 };
+const DEFAULT_FILTER: SearchFilter = { sex: 'all', age_from: 18, age_to: 100 };
 
 // Анкета живёт в localStorage, чтобы переживать обновление страницы.
 // URL загруженных фото после обновления уже не открываются.
-let mockProfile = JSON.parse(localStorage.getItem(PROFILE_KEY)) ?? ADMIN_PROFILE;
+let mockProfile: MockProfile =
+    JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? ADMIN_PROFILE;
 
-const saveProfile = (changes) => {
+const saveProfile = (changes: Partial<MockProfile> | UpdateProfileRequest) => {
     mockProfile = { ...mockProfile, ...changes };
     localStorage.setItem(PROFILE_KEY, JSON.stringify(mockProfile));
 };
@@ -77,8 +115,8 @@ const saveProfile = (changes) => {
 /**
  * @returns {string[]} Незаполненные обязательные поля мок-анкеты.
  */
-function missingFields() {
-    const fields = ['name', 'birth_date', 'sex', 'dating_goal'].filter(
+function missingFields(): MissingField[] {
+    const fields: MissingField[] = (['name', 'birth_date', 'sex', 'dating_goal'] as const).filter(
         (field) => mockProfile[field] === null,
     );
 
@@ -99,12 +137,12 @@ const profileResponse = () => ({
     body: { ...mockProfile, filter: undefined, missing: missingFields() },
 });
 
-const authResponse = (status) => ({
+const authResponse = (status: number) => ({
     status,
     body: { user_id: mockProfile.user_id, missing: missingFields() },
 });
 
-const photosResponse = (status) => ({ status, body: { photos: mockProfile.photos } });
+const photosResponse = (status: number) => ({ status, body: { photos: mockProfile.photos } });
 
 const FEED_ITEMS = [
     {
@@ -170,7 +208,7 @@ const FEED_ITEMS = [
     },
 ];
 
-const TEST_RESULT = {
+const TEST_RESULT: TestResult = {
     result_id: '1',
     test_id: '1',
     revision: 1,
@@ -198,7 +236,7 @@ const saveTestResult = () => localStorage.setItem(TEST_RESULT_KEY, '1');
  * @param {URL} url
  * @returns {{status: number, body: Object}}
  */
-function feedPage(url) {
+function feedPage(url: URL): MockResponse {
     const limit = Number(url.searchParams.get('limit') ?? 10);
     const cursor = url.searchParams.get('cursor');
 
@@ -213,7 +251,7 @@ function feedPage(url) {
     };
 }
 
-export const MOCK_ROUTES = {
+export const MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/profile/me/short': () => ({
         status: 200,
         body: {
@@ -271,11 +309,13 @@ export const MOCK_ROUTES = {
         return { status: 200, body: TEST_RESULT };
     },
     'POST /api/v1/auth/register': (url, { body }) => {
-        if (!body?.email || !body?.password) {
+        const credentials = body as Partial<Credentials> | null;
+
+        if (!credentials?.email || !credentials?.password) {
             return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
         }
 
-        if (body.email.trim().toLowerCase() === MOCK_ACCOUNT.email) {
+        if (credentials.email.trim().toLowerCase() === MOCK_ACCOUNT.email) {
             return error(409, 'EMAIL_ALREADY_EXISTS', 'Почта уже занята');
         }
 
@@ -285,15 +325,16 @@ export const MOCK_ROUTES = {
         return authResponse(201);
     },
     'PATCH /api/v1/profile/me': (url, { body }) => {
-        saveProfile(body);
+        saveProfile(body as UpdateProfileRequest);
 
         return profileResponse();
     },
     'GET /api/v1/filters/me': () => ({ status: 200, body: mockProfile.filter ?? DEFAULT_FILTER }),
     'PUT /api/v1/filters/me': (url, { body }) => {
-        saveProfile({ filter: body });
+        const filter = body as SearchFilter;
+        saveProfile({ filter });
 
-        return { status: 200, body };
+        return { status: 200, body: filter };
     },
     'POST /api/v1/profile/me/photos': (url, { body }) => {
         const { photos } = mockProfile;
@@ -303,7 +344,8 @@ export const MOCK_ROUTES = {
         }
 
         const id = Math.max(0, ...photos.map((photo) => photo.id)) + 1;
-        saveProfile({ photos: [...photos, { id, url: URL.createObjectURL(body.photo) }] });
+        const { photo } = body as { photo: File };
+        saveProfile({ photos: [...photos, { id, url: URL.createObjectURL(photo) }] });
 
         return photosResponse(201);
     },
@@ -315,7 +357,7 @@ export const MOCK_ROUTES = {
     },
     'PUT /api/v1/profile/me/photos/order': (url, { body }) => {
         const { photos } = mockProfile;
-        const ids = body?.photo_ids ?? [];
+        const ids = (body as ReorderPhotosRequest | null)?.photo_ids ?? [];
         const sameSet =
             ids.length === photos.length && photos.every((photo) => ids.includes(photo.id));
 
@@ -323,12 +365,18 @@ export const MOCK_ROUTES = {
             return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
         }
 
-        saveProfile({ photos: ids.map((id) => photos.find((photo) => photo.id === id)) });
+        saveProfile({
+            photos: ids
+                .map((id) => photos.find((photo) => photo.id === id))
+                .filter((photo) => photo !== undefined),
+        });
 
         return photosResponse(200);
     },
     'POST /api/v1/auth/login': (url, { body }) => {
-        if (body.email !== MOCK_ACCOUNT.email || body.password !== MOCK_ACCOUNT.password) {
+        const { email, password } = body as Credentials;
+
+        if (email !== MOCK_ACCOUNT.email || password !== MOCK_ACCOUNT.password) {
             return error(401, 'INVALID_CREDENTIALS', 'Неверная почта или пароль.');
         }
 

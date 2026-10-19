@@ -1,4 +1,4 @@
-import { SwipeAction } from '../../../api/api.types';
+import { type SwipeAction } from '../../../api/api.types';
 
 const SWIPE_THRESHOLD = 120;
 const ROTATION_COEF = 0.05;

@@ -1,6 +1,6 @@
 import { icons } from '../../icons.js';
 import { getCurrentUser, logout } from '../../api/api.js';
-import { MenuItem, menuTemplate } from '../menu/menu.js';
+import { type MenuItem, menuTemplate } from '../menu/menu.js';
 import { showModal } from '../modal/modal.js';
 import { userPreviewTemplate } from '../user-preview/user-preview.js';
 import sidebarHbs from './sidebar.hbs';
