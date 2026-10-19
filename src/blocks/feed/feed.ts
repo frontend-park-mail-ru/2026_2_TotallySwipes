@@ -9,6 +9,7 @@ import { interestIconUrl, interestLabel } from '../../interests.js';
 import feedHbs from './feed.hbs';
 import { FeedCursor, FeedItem, SwipeAction } from '../../api/api.types.js';
 import { getElement } from '../../dom.js';
+import { datingGoalFact } from '../../dating-goals.js';
 const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 
 // TODO: заполнять, когда будет профиль
@@ -30,6 +31,11 @@ export interface PillData {
     size?: string;
 }
 
+export interface FactData {
+    label: string;
+    value: string | null;
+}
+
 export interface ProfileData {
     id: number;
     name: string;
@@ -41,6 +47,7 @@ export interface ProfileData {
     compatibility: number | null;
     compatibilityVerdict: string | null;
     interests: PillData[];
+    facts: FactData[];
 }
 
 export interface FeedState {
@@ -82,8 +89,8 @@ function toInterest(tag: string, index: number): PillData {
  * @returns {Object}
  */
 function toProfileView(item: FeedItem): ProfileData {
-    const compatibility = item.compatibility ? Math.round(item.compatibility * 100) : null;
-    const hasCompatibility = !!compatibility;
+    const compatibility = item.compatibility !== null ? Math.round(item.compatibility * 100) : null;
+    const hasCompatibility = compatibility !== null;
 
     return {
         id: item.user_id,
@@ -96,9 +103,9 @@ function toProfileView(item: FeedItem): ProfileData {
         compatibility,
         compatibilityVerdict: hasCompatibility ? compatibilityVerdict(compatibility) : null,
         interests: item.tags.map(toInterest),
-        // facts: [{ label: 'Цель', value: datingGoalFact(item.dating_goal) }].filter(
-        //     (fact) => fact.value,
-        // ),
+        facts: [{ label: 'Цель', value: datingGoalFact(item.dating_goal) }].filter(
+            (fact) => fact.value,
+        ),
         // TODO: расскоментировать когда убдет профиль
         // facts: [{ label: 'Цель', value: datingGoalFact(item.dating_goal) }, ...STATIC_FACTS].filter(
         //     (fact) => fact.value,
