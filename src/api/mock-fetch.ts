@@ -6,13 +6,13 @@ import { MOCK_ROUTES, checkAccess } from './mocks.js';
  * @param {FormData|string|undefined} body
  * @returns {Object|null}
  */
-function parseBody(body) {
+function parseBody(body: RequestInit['body']): unknown {
     if (body instanceof FormData) {
         return Object.fromEntries(body);
     }
 
     // TODO: Сделать валидацию JSON-а.
-    return body ? JSON.parse(body) : null;
+    return typeof body === 'string' ? JSON.parse(body) : null;
 }
 
 /**
@@ -22,7 +22,7 @@ function parseBody(body) {
  * @param {RequestInit} [options]
  * @returns {Promise<Response>}
  */
-export async function mockFetch(url, options = {}) {
+export async function mockFetch(url: string, options: RequestInit = {}): Promise<Response> {
     const method = (options.method ?? 'GET').toUpperCase();
     const parsedUrl = new URL(url, location.origin);
 
@@ -51,7 +51,7 @@ export async function mockFetch(url, options = {}) {
  * @param {number} status
  * @returns {Response} JSON-ответ, при статусе 204 - без тела.
  */
-function jsonResponse(body, status) {
+function jsonResponse(body: unknown, status: number): Response {
     if (status === 204) {
         return new Response(null, { status });
     }

@@ -1,5 +1,7 @@
 import { Router } from './router.js';
+import { getElement } from './dom.js';
 import { logout, onUnauthorized } from './api/api.js';
+import type { AuthResponse } from './api/api.types.js';
 import { restoreSession, isAuthenticated, isProfileComplete, setAuthenticated } from './session.js';
 import { withLayout } from './blocks/layout/layout.js';
 import { setActiveMenuLink } from './blocks/menu/menu.js';
@@ -19,7 +21,7 @@ let sessionChecked = true;
  * Создаёт роутер, регистрирует страницы и запускает приложение.
  */
 function startApp() {
-    const router = new Router(document.getElementById('root'));
+    const router = new Router(getElement(document, '#root'));
 
     onUnauthorized(() => {
         if (!isAuthenticated()) {
@@ -33,7 +35,7 @@ function startApp() {
     /**
      * @param {{missing: string[]}} response - Ответ бэкенда на вход.
      */
-    function handleLogin({ missing }) {
+    function handleLogin({ missing }: AuthResponse) {
         setAuthenticated(true, missing);
         router.go('/');
     }

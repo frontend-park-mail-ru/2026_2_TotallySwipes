@@ -1,9 +1,7 @@
 import { getElement } from '../../dom.js';
-import { Router } from '../../router.js';
+import { type PageRender } from '../../router.js';
 import { sidebarTemplate, loadSidebarUser, initSidebarLogout } from '../sidebar/sidebar.js';
 import layoutHbs from './layout.hbs';
-
-export type RenderFunction = (root: HTMLElement, router: Router) => void;
 
 /**
  * Рендерит каркас с сайдбаром.
@@ -29,7 +27,7 @@ export function renderLayout(root: HTMLElement) {
  * @param {function(HTMLElement, Router): void} renderPage
  * @returns {function(HTMLElement, Router): void}
  */
-export function withLayout(renderPage: RenderFunction): RenderFunction {
+export function withLayout(renderPage: PageRender): PageRender {
     return (root, router) => {
         let main = root.querySelector('.layout__main');
 

@@ -1,4 +1,4 @@
-import { ProfileData } from '../feed/feed.js';
+import { type ProfileData } from '../feed/feed.js';
 import { locationTemplate } from '../location/location.js';
 import { pillTemplate } from '../pill/pill.js';
 import profileDetailsHbs from './profile-details.hbs';

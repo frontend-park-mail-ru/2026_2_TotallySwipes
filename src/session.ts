@@ -1,7 +1,8 @@
 import { getCurrentUser, ApiError } from './api/api.js';
+import type { MissingField } from './api/api.types.js';
 
 let authenticated = false;
-let missing = [];
+let missing: MissingField[] = [];
 
 /**
  * @returns {boolean} Вошёл ли пользователь.
@@ -22,7 +23,7 @@ export function isProfileComplete() {
  * @param {boolean} value
  * @param {string[]} [missingFields=[]] - Незаполненные поля анкеты из ответа бэкенда.
  */
-export function setAuthenticated(value, missingFields = []) {
+export function setAuthenticated(value: boolean, missingFields: MissingField[] = []) {
     authenticated = value;
     missing = value ? missingFields : [];
 }

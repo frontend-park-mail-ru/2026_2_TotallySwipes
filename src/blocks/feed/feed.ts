@@ -7,7 +7,7 @@ import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
 import { interestIconUrl, interestLabel } from '../../interests.js';
 import feedHbs from './feed.hbs';
-import { FeedCursor, FeedItem, SwipeAction } from '../../api/api.types.js';
+import { type FeedCursor, type FeedItem, type SwipeAction } from '../../api/api.types.js';
 import { getElement } from '../../dom.js';
 import { datingGoalFact } from '../../dating-goals.js';
 const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
@@ -198,7 +198,7 @@ function detailsHtml(state: FeedState): string {
  *
  * @param {HTMLElement} root
  */
-export function renderFeedPage(root: HTMLDivElement) {
+export function renderFeedPage(root: HTMLElement) {
     const state: FeedState = {
         profiles: [],
         index: 0,

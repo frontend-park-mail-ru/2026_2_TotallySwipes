@@ -1,16 +1,19 @@
+export type PageRender = (root: HTMLElement, router: Router) => void;
+type RouteGuard = (path: string) => string | null;
+
 /**
  * SPA-роутер на History API.
  */
 export class Router {
-    #root;
-    #routes = new Map();
-    #onChange = () => {};
-    #guard = () => null;
+    #root: HTMLElement;
+    #routes = new Map<string, PageRender>();
+    #onChange: (path: string) => void = () => {};
+    #guard: RouteGuard = () => null;
 
     /**
      * @param {HTMLElement} root - Контейнер, в который рендерятся страницы.
      */
-    constructor(root) {
+    constructor(root: HTMLElement) {
         this.#root = root;
     }
 
@@ -21,7 +24,7 @@ export class Router {
      * @param {function(HTMLElement, Router): void} render
      * @returns {Router}
      */
-    register(path, render) {
+    register(path: string, render: PageRender) {
         this.#routes.set(path, render);
         return this;
     }
@@ -30,7 +33,7 @@ export class Router {
      * @param {function(string): void} callback - Вызывается после каждого перехода.
      * @returns {Router}
      */
-    onChange(callback) {
+    onChange(callback: (path: string) => void) {
         this.#onChange = callback;
         return this;
     }
@@ -41,7 +44,7 @@ export class Router {
      * @param {function(string): (string|null)} guard - Возвращает путь для редиректа или null.
      * @returns {Router}
      */
-    beforeEach(guard) {
+    beforeEach(guard: RouteGuard) {
         this.#guard = guard;
         return this;
     }
@@ -53,8 +56,12 @@ export class Router {
         window.addEventListener('popstate', () => this.#render(location.pathname));
 
         document.addEventListener('click', (event) => {
-            const link = event.target.closest('a[data-link]');
-            if (!link) {
+            if (!(event.target instanceof Element)) {
+                return;
+            }
+
+            const href = event.target.closest('a[data-link]')?.getAttribute('href');
+            if (!href) {
                 return;
             }
 
@@ -69,7 +76,7 @@ export class Router {
             }
 
             event.preventDefault();
-            this.go(link.getAttribute('href'));
+            this.go(href);
         });
 
         this.#render(location.pathname);
@@ -82,7 +89,7 @@ export class Router {
      * @param {Object} [options]
      * @param {boolean} [options.replace=false] - Заменить запись в истории вместо добавления.
      */
-    go(path, { replace = false } = {}) {
+    go(path: string, { replace = false }: { replace?: boolean } = {}) {
         if (replace) {
             history.replaceState(null, '', path);
         } else {
@@ -92,7 +99,7 @@ export class Router {
         this.#render(path);
     }
 
-    #render(path) {
+    #render(path: string) {
         const redirect = this.#guard(path);
         if (redirect) {
             history.replaceState(null, '', redirect);
@@ -101,6 +108,10 @@ export class Router {
         }
 
         const render = this.#routes.get(path) ?? this.#routes.get('*');
+        if (!render) {
+            throw new Error(`Страница для ${path} не зарегистрирована`);
+        }
+
         render(this.#root, this);
         this.#onChange(path);
     }
