@@ -10,3 +10,16 @@ export function getElement<T extends Element = HTMLElement>(
 
     return element;
 }
+
+export function getAllElements<T extends Element = HTMLElement>(
+    parent: ParentNode,
+    selector: string,
+): NodeListOf<T> {
+    const elements = parent.querySelectorAll<T>(selector);
+
+    if (elements.length === 0) {
+        throw new Error(`Элементы по селектору "${selector}" не найдены`);
+    }
+
+    return elements;
+}

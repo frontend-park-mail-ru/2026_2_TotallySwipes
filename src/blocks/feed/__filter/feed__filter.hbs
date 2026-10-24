@@ -1,0 +1,20 @@
+<div class="feed__filter">
+    <button class="button button_view_outline feed__filter-button" type="button" aria-expanded="false" aria-controls="feed-filter-panel">
+        <img class="button__icon" src="/icons/sliders.svg" alt="">
+        <span class="button__text">{{label}}</span>
+        <span class="button__hint"{{#unless hint}} hidden{{/unless}}>· {{hint}}</span>
+    </button>
+
+    <form class="feed__filter-panel" id="feed-filter-panel" novalidate hidden>
+        {{{searchFilter}}}
+
+        <div class="feed__filter-actions">
+            <button class="button button_view_outline button_size_l feed__filter-reset" type="button">
+                <span class="button__text">Сбросить</span>
+            </button>
+            <button class="button button_view_primary button_size_l feed__filter-submit" type="submit">
+                <span class="button__text">Показать анкеты</span>
+            </button>
+        </div>
+    </form>
+</div>

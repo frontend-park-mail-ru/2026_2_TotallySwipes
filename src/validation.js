@@ -272,7 +272,7 @@ export function validateSearchAge(from, to) {
     }
 
     if (max < min) {
-        return 'Возраст "от" должен быть меньше возраста "до".';
+        return 'Возраст «от» не может быть больше «до»';
     }
 
     return null;

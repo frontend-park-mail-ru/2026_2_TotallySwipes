@@ -1,0 +1,23 @@
+@use '../../variables' as v;
+
+.search-filter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--search-filter-gap, 16px);
+}
+
+.search-filter__age {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-filter__age-text {
+    @include v.text-style('body-16-regular');
+    color: v.$color-text-secondary;
+}
+
+.search-filter__age-input {
+    width: 88px;
+    text-align: center;
+}

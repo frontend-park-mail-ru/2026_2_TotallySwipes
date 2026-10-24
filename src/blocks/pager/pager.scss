@@ -1,0 +1,25 @@
+@use '../../variables' as v;
+
+.pager {
+    padding: 8px;
+}
+
+.pager__bar {
+    display: flex;
+    gap: 8px;
+}
+
+.pager__segment {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: v.$color-border-default;
+}
+
+.pager__segment_done {
+    background: var(--color-text-secondary);
+}
+
+.pager__segment_current {
+    background: var(--color-text-primary);
+}

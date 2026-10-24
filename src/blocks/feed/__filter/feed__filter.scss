@@ -1,0 +1,38 @@
+@use '../../../variables.scss' as v;
+
+.feed__filter {
+    position: relative;
+    z-index: 3;
+}
+
+.feed__filter-panel {
+    --search-filter-gap: 24px;
+
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    box-sizing: border-box;
+    width: 452px;
+    padding: 32px;
+    border: 1px solid v.$color-border-default;
+    border-radius: 20px;
+    background-color: v.$color-surface;
+    box-shadow: v.$shadow-popover;
+}
+
+.feed__filter-panel[hidden] {
+    display: none;
+}
+
+.feed__filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.feed__filter-submit {
+    flex: 1;
+    justify-content: center;
+}

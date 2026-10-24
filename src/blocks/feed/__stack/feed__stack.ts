@@ -1,6 +1,7 @@
 import { type SwipeAction } from '../../../api/api.types';
 
 const SWIPE_THRESHOLD = 120;
+const TAP_THRESHOLD = 5;
 const ROTATION_COEF = 0.05;
 
 interface DragInfo {
@@ -11,8 +12,11 @@ interface DragInfo {
     dy: number;
 }
 
+type StackAction = SwipeAction | 'tap';
+
 interface StackOptions {
     onSwipe: (direction: SwipeAction) => void;
+    onTap: (card: HTMLElement, clientX: number, clientY: number) => void;
 }
 
 function clamp01(value: number): number {
@@ -51,7 +55,7 @@ function resetCard(card: HTMLElement) {
  *     как карточка улетела.
  * @returns {{swipe: function(string): void}}
  */
-export function initStack(stackElement: HTMLElement, { onSwipe }: StackOptions) {
+export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOptions) {
     let isAnimating = false;
     let drag: DragInfo | null = null;
 
@@ -92,12 +96,12 @@ export function initStack(stackElement: HTMLElement, { onSwipe }: StackOptions) 
         setStamps(drag.card, drag.dx, drag.dy);
     });
 
-    stackElement.addEventListener('pointerup', () => {
+    stackElement.addEventListener('pointerup', (event) => {
         if (!drag) return;
 
         drag.card.classList.remove('feed__card_dragging');
 
-        let direction: SwipeAction | null = null;
+        let direction: StackAction | null = null;
 
         if (Math.abs(drag.dx) > Math.abs(drag.dy)) {
             if (Math.abs(drag.dx) > SWIPE_THRESHOLD) {
@@ -111,8 +115,17 @@ export function initStack(stackElement: HTMLElement, { onSwipe }: StackOptions) 
             direction = 'super';
         }
 
+        if (Math.abs(drag.dx) < TAP_THRESHOLD && Math.abs(drag.dy) < TAP_THRESHOLD) {
+            direction = 'tap';
+        }
+
         if (direction) {
-            swipe(direction);
+            if (direction === 'tap') {
+                onTap(drag.card, event.clientX, event.clientY);
+                resetCard(drag.card);
+            } else {
+                swipe(direction);
+            }
         } else {
             resetCard(drag.card);
         }
@@ -126,6 +139,13 @@ export function initStack(stackElement: HTMLElement, { onSwipe }: StackOptions) 
         drag.card.classList.remove('feed__card_dragging');
         drag = null;
     });
+
+    /**
+     * @returns {boolean} Идёт ли сейчас анимация карточки.
+     */
+    function isStackAnimating() {
+        return isAnimating;
+    }
 
     /**
      * Анимирует уход верхней карточки и удаляет её.
@@ -157,5 +177,31 @@ export function initStack(stackElement: HTMLElement, { onSwipe }: StackOptions) 
         });
     }
 
-    return { swipe };
+    /**
+     * Анимирует возврат уже вставленной карточки оттуда, куда она улетела.
+     *
+     * @param {HTMLElement} card - Карточка, только что вставленная наверх стопки.
+     * @param {'like'|'dislike'|'super'} direction - Куда карточка улетала.
+     */
+    function unswipe(card: HTMLElement, direction: SwipeAction) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        card.style.setProperty(`--swipe-${direction}`, '1');
+        card.classList.add(`feed__card_leaving_${direction}`);
+
+        // рефлоу чтобы браузер запомнил стартовое положение за экраном
+        void card.offsetWidth;
+
+        card.style.setProperty(`--swipe-${direction}`, '0');
+        card.classList.remove(`feed__card_leaving_${direction}`);
+
+        card.addEventListener('transitionend', (event) => {
+            if (event.target !== card || event.propertyName !== 'transform') return;
+
+            isAnimating = false;
+        });
+    }
+
+    return { swipe, unswipe, isStackAnimating };
 }

@@ -19,10 +19,17 @@
     height: 100%;
     object-fit: cover;
     border-radius: 22px;
+    display: none;
+}
+.profile-card__photo_visible {
     display: block;
 }
 
 .profile-card__pager {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    left: 0;
 }
 
 .profile-card__stamp {

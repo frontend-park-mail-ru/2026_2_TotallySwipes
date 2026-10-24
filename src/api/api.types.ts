@@ -63,23 +63,19 @@ export interface ProfileShort {
     user_id: number;
     name: string | null;
     age: number | null;
+    city: string | null;
     photo_url: Photo['url'] | null;
     missing: MissingField[];
 }
 
-export interface Profile {
+export interface Profile extends UserFacts {
     user_id: number;
     name: string | null;
     birth_date: string | null;
     age: number | null;
     sex: Sex | null;
-    dating_goal: DatingGoal | null;
     about_me: string | null;
     education: Education | null;
-    work: string | null;
-    smoking: Attitude | null;
-    alcohol: Attitude | null;
-    height: number | null;
     tags: TagKey[];
     photos: Photo[];
     missing: MissingField[];
@@ -112,17 +108,21 @@ export interface FeedParams {
     cursor?: FeedCursor;
 }
 
-export interface FeedItem {
-    user_id: number;
-    name: string;
-    age: number;
-    about_me: string | null;
+export interface UserFacts {
     education: Education | null;
     work: string | null;
     smoking: Attitude | null;
     alcohol: Attitude | null;
     height: number | null;
     dating_goal: DatingGoal;
+}
+
+export interface FeedItem extends UserFacts {
+    user_id: number;
+    name: string;
+    age: number;
+    city: string | null;
+    about_me: string | null;
     compatibility: number | null;
     tags: TagKey[];
     photos: Photo[];

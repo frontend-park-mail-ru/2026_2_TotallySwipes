@@ -9,6 +9,7 @@
 @use './blocks/counter/counter';
 @use './blocks/user-preview/user-preview';
 @use './blocks/feed/feed';
+@use './blocks/feed/__filter/feed__filter';
 @use './blocks/profile-details/profile-details';
 @use './blocks/compatibility/compatibility';
 @use './blocks/facts/facts';
@@ -34,7 +35,7 @@
 @use './blocks/step-progress/step-progress';
 @use './blocks/register-form/register-form';
 @use './blocks/register-profile/register-profile';
-@use './blocks/register-search/register-search';
+@use './blocks/search-filter/search-filter';
 @use './blocks/register-photos/register-photos';
 @use './blocks/register-interests/register-interests';
 @use './blocks/auth/auth';
