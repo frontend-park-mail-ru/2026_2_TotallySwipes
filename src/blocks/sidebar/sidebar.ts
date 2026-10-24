@@ -15,7 +15,6 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 // TODO: брать счётчики с бэкенда
-// TODO: убрать disabled, когда разделы будут готовы
 
 /**
  * @param {string} [mix]

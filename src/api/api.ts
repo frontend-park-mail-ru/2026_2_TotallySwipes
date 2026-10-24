@@ -17,12 +17,11 @@ import { mockFetch } from './mock-fetch.js';
 const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true';
 const API_URL = import.meta.env.VITE_API_URL;
 
-// TODO: раскомментировать при добавлении свайпа на бек
-// const SWIPE_ACTIONS = {
-//     like: 'like',
-//     dislike: 'dislike',
-//     super: 'like',
-// };
+const SWIPE_ACTIONS = {
+    like: 'like',
+    dislike: 'dislike',
+    super: 'like',
+};
 
 type QueryParams = Record<string, string | number | null | undefined>;
 
@@ -388,12 +387,9 @@ export function sendTestResults(
  *
  * @returns {Promise<void>}
  */
-// TODO: включить запрос, когда свайп понадобится
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function sendSwipe(targetUserId: number, direction: SwipeAction) {
-    return Promise.resolve();
-    // return request('/feed/swipe', {
-    //     method: 'POST',
-    //     body: { target_user_id: targetUserId, action: SWIPE_ACTIONS[direction] },
-    // });
+    return request('/feed/swipe', {
+        method: 'POST',
+        body: { target_user_id: targetUserId, action: SWIPE_ACTIONS[direction] },
+    });
 }
