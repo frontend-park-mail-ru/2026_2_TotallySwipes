@@ -2,13 +2,14 @@ import { profileCardTemplate } from '../profile-card/profile-card.js';
 import { profileDetailsTemplate } from '../profile-details/profile-details.js';
 import { initStack } from './__stack/feed__stack.js';
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button.js';
+import { ACCENT_COLORS, type AccentColor } from '../../colors.js';
 import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
 import { interestIconUrl, interestLabel } from '../../interests.js';
 import feedHbs from './feed.hbs';
 import { type FeedCursor, type FeedItem, type SwipeAction } from '../../api/api.types.js';
-import { getElement } from '../../dom.js';
+import { getElement } from '../../utils/dom.js';
 import { datingGoalFact } from '../../dating-goals.js';
 const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 
@@ -22,13 +23,18 @@ const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 
 const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
 
-const PILL_COLORS = ['pink', 'sky', 'lilac', 'mint', 'sun'];
-
+/**
+ * Данные блока "Пилюля".
+ */
 export interface PillData {
-    text: string;
+    /** Путь к иконке в формате SVG. Если иконка не нужна, передать `null`. */
     icon: string | null;
-    color: string;
-    size?: string;
+    /** Текст. */
+    text: string;
+    /** Размер. Если не указан, используется размер по умолчанию. */
+    size?: 's';
+    /** Цвет. */
+    color: AccentColor;
 }
 
 export interface FactData {
@@ -78,7 +84,7 @@ function toInterest(tag: string, index: number): PillData {
     return {
         text: interestLabel(tag),
         icon: interestIconUrl(tag),
-        color: PILL_COLORS[index % PILL_COLORS.length],
+        color: ACCENT_COLORS[index % ACCENT_COLORS.length],
     };
 }
 
@@ -120,7 +126,7 @@ const ACTIONS: RoundButtonData[] = [
     { type: 'like', size: 'l', icon: '/icons/heart_filled.svg', label: 'Нравится' },
 ];
 
-const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];
+const MATCH_COLORS: readonly AccentColor[] = ['lilac', 'mint', 'pink', 'sky', 'sun'];
 
 const PREFETCH_THRESHOLD = 4;
 

@@ -1,4 +1,4 @@
-import { getElement } from '../../dom.js';
+import { getElement } from '../../utils/dom.js';
 import { type PageRender } from '../../router.js';
 import { sidebarTemplate, loadSidebarUser, initSidebarLogout } from '../sidebar/sidebar.js';
 import layoutHbs from './layout.hbs';

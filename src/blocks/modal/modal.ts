@@ -19,7 +19,7 @@ export interface ModalData {
  * @param {string} [params.buttonText='Ок']
  * @param {string} [params.cancelText] - Текст второй кнопки. Без него кнопка одна.
  * @param {function(string): void} [params.onClose] - Получает returnValue диалога:
- *     'confirm' или 'cancel'.
+ *     'confirm' или 'cancel'; при закрытии по Esc - пустая строка.
  */
 export function showModal({
     image,

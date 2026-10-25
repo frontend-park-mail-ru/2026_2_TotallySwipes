@@ -15,6 +15,8 @@ export function profileDetailsTemplate(profile: ProfileData, mix: string = '') {
         ...rest,
         mix,
         location: location ? locationTemplate('profile-details__location', location) : '',
-        tags: interests.map((interest) => pillTemplate(interest, 'profile-details__tag')).join(''),
+        tags: interests
+            .map((interest) => pillTemplate({ ...interest, mix: 'profile-details__tag' }))
+            .join(''),
     });
 }

@@ -4,7 +4,7 @@ import { type MenuItem, menuTemplate } from '../menu/menu.js';
 import { showModal } from '../modal/modal.js';
 import { userPreviewTemplate } from '../user-preview/user-preview.js';
 import sidebarHbs from './sidebar.hbs';
-import { getElement } from '../../dom.js';
+import { getElement } from '../../utils/dom.js';
 
 const MENU_ITEMS: MenuItem[] = [
     { href: '/', text: 'Анкеты', icon: icons.cards },

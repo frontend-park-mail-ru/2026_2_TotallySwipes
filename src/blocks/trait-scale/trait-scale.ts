@@ -1,4 +1,5 @@
 import traitScaleHbs from './trait-scale.hbs';
+import type { AccentColor } from '../../colors.js';
 
 const MIN_SCORE = 1;
 const MAX_SCORE = 7;
@@ -7,12 +8,12 @@ export interface TraitScaleData {
     title: string;
     low: string;
     high: string;
-    color: string;
+    color: AccentColor;
     score: number;
 }
 
 /**
- * @param {{title: string, low: string, high: string, color: string, score: number}} trait
+ * @param {TraitScaleData} trait
  * @param {string} [mix]
  * @returns {string} HTML шкалы черты. Балл ограничивается MIN_SCORE..MAX_SCORE.
  */
