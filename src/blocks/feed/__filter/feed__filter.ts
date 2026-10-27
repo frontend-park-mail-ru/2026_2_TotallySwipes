@@ -188,8 +188,10 @@ export function initFeedFilter(root: HTMLElement, { onApply }: FeedFilterParams)
         .then(([filter, profile]) => {
             if (!root.isConnected) return;
 
-            current = filter;
-            label.textContent = filterLabel(filter);
+            if (current === null) {
+                current = filter;
+                label.textContent = filterLabel(filter);
+            }
 
             const goal = datingGoalHint(profile.dating_goal);
             hint.textContent = `· ${goal}`;

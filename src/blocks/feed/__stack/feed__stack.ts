@@ -15,7 +15,7 @@ interface DragInfo {
 type StackAction = SwipeAction | 'tap';
 
 interface StackOptions {
-    onSwipe: (direction: SwipeAction) => void;
+    onSwipe: (card: HTMLElement, direction: SwipeAction) => void;
     onTap: (card: HTMLElement, clientX: number, clientY: number) => void;
 }
 
@@ -124,7 +124,7 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
                 onTap(drag.card, event.clientX, event.clientY);
                 resetCard(drag.card);
             } else {
-                swipe(direction);
+                swipe(drag.card, direction);
             }
         } else {
             resetCard(drag.card);
@@ -152,7 +152,7 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
      *
      * @param {'like'|'dislike'|'super'} direction
      */
-    function swipe(direction: SwipeAction) {
+    function swipe(card: HTMLElement, direction: SwipeAction) {
         if (isAnimating) return;
         isAnimating = true;
 
@@ -170,8 +170,7 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
             if (event.target !== top || event.propertyName !== 'transform') return;
 
             top.remove();
-
-            onSwipe(direction);
+            onSwipe(card, direction);
 
             isAnimating = false;
         });

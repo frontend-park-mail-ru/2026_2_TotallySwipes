@@ -50,6 +50,12 @@ export interface FeedState {
     isLoading: boolean;
 }
 
+interface LastSwipe {
+    profile: ProfileData;
+    direction: SwipeAction;
+    isPending: boolean;
+}
+
 /**
  * @param {number} percent - Совместимость в процентах.
  * @returns {string} Словесная оценка совместимости.
@@ -196,7 +202,7 @@ export function renderFeedPage(root: HTMLElement) {
         isLoading: false,
     };
 
-    let lastSwipe: SwipeAction | null = null;
+    let lastSwipe: LastSwipe | null = null;
 
     const page: HTMLElement = document.createElement('section');
     page.className = 'feed';
@@ -218,26 +224,44 @@ export function renderFeedPage(root: HTMLElement) {
     const detailsElement = getElement(page, '.feed__details');
 
     const stack = initStack(stackElement, {
-        onSwipe(direction: SwipeAction) {
-            const swiped = state.profiles[state.index];
-            lastSwipe = direction;
-            sendSwipe(swiped.id, direction).catch((error) => {
-                console.error('Не удалось отправить свайп:', error);
-                if (!page.isConnected) return;
+        onSwipe(card: HTMLElement, direction: SwipeAction) {
+            const swiped = state.profiles.find((profile) => profile.id === Number(card.dataset.id));
+            // const swiped = state.profiles[state.index];
+            if (!swiped) return;
+            // lastSwipe = direction;
+            const current: LastSwipe = {
+                direction: direction,
+                profile: swiped,
+                isPending: true,
+            };
 
-                state.profiles.splice(state.index, 0, swiped);
-                const html = cardHtml(state.index, state);
-                stackElement.insertAdjacentHTML('beforeend', html);
-                if (stackElement.children.length > 3) {
-                    stackElement.firstElementChild?.remove();
-                }
-                updateLayers(stackElement);
-                updateEmpty();
-                detailsElement.innerHTML = detailsHtml(state);
-                lastSwipe = null;
-                updateUndo();
-                showModal(SWIPE_ERROR_MODAL);
-            });
+            lastSwipe = current;
+            updateUndo();
+
+            sendSwipe(swiped.id, direction)
+                .then(() => {
+                    current.isPending = false;
+                    updateUndo();
+                })
+                .catch((error) => {
+                    console.error('Не удалось отправить свайп:', error);
+                    if (!page.isConnected) return;
+
+                    state.profiles.splice(state.index, 0, swiped);
+                    const html = cardHtml(state.index, state);
+                    stackElement.insertAdjacentHTML('beforeend', html);
+                    if (stackElement.children.length > 3) {
+                        stackElement.firstElementChild?.remove();
+                    }
+                    updateLayers(stackElement);
+                    updateEmpty();
+                    detailsElement.innerHTML = detailsHtml(state);
+
+                    if (lastSwipe === current) lastSwipe = null;
+
+                    updateUndo();
+                    showModal(SWIPE_ERROR_MODAL);
+                });
 
             state.index++;
             if (state.profiles.length - state.index <= PREFETCH_THRESHOLD) {
@@ -263,8 +287,11 @@ export function renderFeedPage(root: HTMLElement) {
 
         const action = button.dataset.action;
 
-        if (action === 'like' || action === 'dislike' || action === 'super') {
-            stack.swipe(action);
+        if (
+            (action === 'like' || action === 'dislike' || action === 'super') &&
+            stackElement.lastElementChild instanceof HTMLElement
+        ) {
+            stack.swipe(stackElement.lastElementChild, action);
         } else if (action === 'undo') {
             undo();
         }
@@ -360,15 +387,15 @@ export function renderFeedPage(root: HTMLElement) {
     }
 
     function updateUndo() {
-        const isDisabled = lastSwipe === null;
+        const isDisabled = lastSwipe === null || lastSwipe?.isPending;
         undoButton.disabled = isDisabled;
         feedEmptyUndoButton.disabled = isDisabled;
     }
 
     function undo() {
-        if (!lastSwipe || stack.isStackAnimating()) return;
+        if (!lastSwipe || stack.isStackAnimating() || lastSwipe.isPending) return;
 
-        const direction = lastSwipe;
+        const { direction } = lastSwipe;
         lastSwipe = null;
         updateUndo();
 
