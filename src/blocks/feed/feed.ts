@@ -2,6 +2,7 @@ import { profileCardTemplate } from '../profile-card/profile-card.js';
 import { profileDetailsTemplate } from '../profile-details/profile-details.js';
 import { initStack } from './__stack/feed__stack.js';
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button.js';
+import type { PillProps } from '../pill/pill.js';
 import { ACCENT_COLORS, type AccentColor } from '../../colors.js';
 import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
@@ -23,20 +24,6 @@ const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
 
 const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
 
-/**
- * Данные блока "Пилюля".
- */
-export interface PillData {
-    /** Путь к иконке в формате SVG. Если иконка не нужна, передать `null`. */
-    icon: string | null;
-    /** Текст. */
-    text: string;
-    /** Размер. Если не указан, используется размер по умолчанию. */
-    size?: 's';
-    /** Цвет. */
-    color: AccentColor;
-}
-
 export interface FactData {
     label: string;
     value: string | null;
@@ -52,7 +39,7 @@ export interface ProfileData {
     hasCompatibility: boolean;
     compatibility: number | null;
     compatibilityVerdict: string | null;
-    interests: PillData[];
+    interests: PillProps[];
     facts: FactData[];
 }
 
@@ -80,7 +67,7 @@ function compatibilityVerdict(percent: number): string {
  * @param {number} index
  * @returns {{text: string, icon: string|null, color: string}} Данные для пилюли интереса.
  */
-function toInterest(tag: string, index: number): PillData {
+function toInterest(tag: string, index: number): PillProps {
     return {
         text: interestLabel(tag),
         icon: interestIconUrl(tag),
