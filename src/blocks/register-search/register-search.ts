@@ -25,7 +25,7 @@ interface SearchStepData {
     datingGoal?: string;
 }
 
-const DATING_GOAL_OPTIONS = DATING_GOALS.map(({ key, label }) => ({ value: key, label }));
+const DATING_GOAL_OPTIONS = DATING_GOALS.map(({ key, label }) => ({ value: key, text: label }));
 
 /**
  * @param {SearchStepData} data - data шагов регистрации.
@@ -53,7 +53,7 @@ export const searchStep = {
             datingGoal: chipsTemplate({
                 type: 'radio',
                 name: 'datingGoal',
-                options: DATING_GOAL_OPTIONS,
+                chips: DATING_GOAL_OPTIONS,
             }),
         });
     },

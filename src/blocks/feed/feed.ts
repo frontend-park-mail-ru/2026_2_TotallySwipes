@@ -3,24 +3,17 @@ import { profileDetailsTemplate } from '../profile-details/profile-details.js';
 import { initStack } from './__stack/feed__stack.js';
 import { feedFilterTemplate, initFeedFilter } from './__filter/feed__filter.js';
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button.js';
+import type { PillProps } from '../pill/pill.js';
+import { ACCENT_COLORS } from '../../colors.js';
 import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
 import { interestIconUrl, interestLabel } from '../../interests.js';
 import feedHbs from './feed.hbs';
 import { type Cursor, type FeedItem, type Photo, type SwipeAction } from '../../api/api.types.js';
-import { getElement } from '../../dom.js';
+import { getElement } from '../../utils/dom.js';
 import { processFacts, type FactData } from '../../facts/facts.js';
 import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons.js';
-
-const PILL_COLORS = ['pink', 'sky', 'lilac', 'mint', 'sun'];
-
-export interface PillData {
-    text: string;
-    icon: string | null;
-    color: string;
-    size?: string;
-}
 
 export interface ProfileData {
     id: number;
@@ -32,7 +25,7 @@ export interface ProfileData {
     hasCompatibility: boolean;
     compatibility: number | null;
     compatibilityVerdict: string | null;
-    interests: PillData[];
+    interests: PillProps[];
     facts: FactData[];
 }
 
@@ -66,11 +59,11 @@ function compatibilityVerdict(percent: number): string {
  * @param {number} index
  * @returns {{text: string, icon: string|null, color: string}} Данные для пилюли интереса.
  */
-function toInterest(tag: string, index: number): PillData {
+function toInterest(tag: string, index: number): PillProps {
     return {
         text: interestLabel(tag),
         icon: interestIconUrl(tag),
-        color: PILL_COLORS[index % PILL_COLORS.length],
+        color: ACCENT_COLORS[index % ACCENT_COLORS.length],
     };
 }
 

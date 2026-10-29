@@ -1,4 +1,4 @@
-import { getAllElements } from '../../dom';
+import { getAllElements } from '../../utils/dom.js';
 import pagerHbs from './pager.hbs';
 
 export function pagerTemplate(mix: string = '', current: number, total: number) {

@@ -1,19 +1,35 @@
 import {
     formFieldTemplate,
+    initFormFieldErrorReset,
     initFormFieldToggles,
-    setFormFieldError,
+    validateFormFields,
 } from '../form-field/form-field.js';
 import { validateEmail, validatePassword } from '../../validation.js';
 import { login, ApiError } from '../../api/api.js';
+import type { AuthResponse } from '../../api/api.types.js';
+import { getElement } from '../../utils/dom.js';
+import type { TypedForm } from '../../utils/dom.js';
 import loginFormHbs from './login-form.hbs';
+
+type LoginForm = TypedForm<{ email: HTMLInputElement; password: HTMLInputElement }>;
+
+/**
+ * Свойства формы входа для инициализации.
+ */
+export interface LoginFormProps {
+    /** Вызывается после успешного входа с ответом бэкенда. */
+    onLogin: (response: AuthResponse) => void;
+}
 
 const GENERIC_ERROR = 'Не удалось войти. Проверьте соединение и попробуйте ещё раз';
 
 /**
- * @param {*} error
- * @returns {string} Сообщение бэкенда для ошибок 4xx, иначе общее сообщение.
+ * Выбирает текст ошибки входа: сообщение бэкенда для ошибок 4xx, иначе общее.
+ *
+ * @param error - Ошибка запроса входа.
+ * @returns Текст ошибки для пользователя.
  */
-function loginErrorMessage(error) {
+function loginErrorMessage(error: unknown): string {
     if (error instanceof ApiError && error.status < 500) {
         return error.message;
     }
@@ -22,7 +38,9 @@ function loginErrorMessage(error) {
 }
 
 /**
- * @returns {string} HTML формы входа.
+ * Рендерит форму входа.
+ *
+ * @returns HTML-строка формы входа.
  */
 export function loginFormTemplate() {
     const email = formFieldTemplate({
@@ -49,17 +67,15 @@ export function loginFormTemplate() {
 /**
  * Вешает валидацию и отправку на форму входа.
  *
- * @param {HTMLElement} root
- * @param {Object} params
- * @param {function({user_id: number, missing: string[]}): void} params.onSuccess - Вызывается
- *     после успешного входа с ответом бэкенда.
+ * @param root - Контейнер формы входа.
+ * @param props - Свойства формы входа.
  */
-export function initLoginForm(root, { onSuccess }) {
+export function initLoginForm(root: HTMLElement, props: LoginFormProps) {
     initFormFieldToggles(root);
 
-    const form = root.querySelector('.login-form__form');
-    const formError = form.querySelector('.login-form__error');
-    const submitButton = form.querySelector('.login-form__submit');
+    const form = getElement<LoginForm>(root, '.login-form__form');
+    const formError = getElement(form, '.login-form__error');
+    const submitButton = getElement<HTMLButtonElement>(form, '.login-form__submit');
     const rules = [
         { input: form.elements.email, validate: validateEmail },
         { input: form.elements.password, validate: validatePassword },
@@ -68,21 +84,14 @@ export function initLoginForm(root, { onSuccess }) {
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const invalid = rules.filter(({ input, validate }) => {
-            const error = validate(input.value);
-            setFormFieldError(input, error);
-            return error !== null;
-        });
-
-        if (invalid.length > 0) {
-            invalid[0].input.focus();
+        if (!validateFormFields(rules)) {
             return;
         }
 
         formError.hidden = true;
         submitButton.disabled = true;
 
-        let response;
+        let response: AuthResponse;
 
         try {
             response = await login(form.elements.email.value, form.elements.password.value);
@@ -93,14 +102,12 @@ export function initLoginForm(root, { onSuccess }) {
             return;
         }
 
-        onSuccess(response);
+        props.onLogin(response);
     });
 
-    form.addEventListener('input', (event) => {
+    form.addEventListener('input', () => {
         formError.hidden = true;
-
-        if (event.target.classList.contains('form-field__input')) {
-            setFormFieldError(event.target, null);
-        }
     });
+
+    initFormFieldErrorReset(form);
 }

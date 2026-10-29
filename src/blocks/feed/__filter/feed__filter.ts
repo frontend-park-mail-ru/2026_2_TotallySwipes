@@ -11,7 +11,7 @@ import { showModal } from '../../modal/modal.js';
 import { getProfile, getSearchFilter, setSearchFilter } from '../../../api/api.js';
 import type { DatingGoal, SearchFilter, SearchSex } from '../../../api/api.types.js';
 import { DATING_GOALS } from '../../../facts/facts.js';
-import { getElement } from '../../../dom.js';
+import { getElement } from '../../../utils/dom.js';
 import feedFilterHbs from './feed__filter.hbs';
 
 export interface FeedFilterData {

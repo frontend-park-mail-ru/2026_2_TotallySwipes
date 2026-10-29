@@ -30,9 +30,9 @@ export const EDUCATIONS: FactsOption[] = [
 ];
 
 export const SEARCH_SEX_OPTIONS = [
-    { value: 'female', label: 'Девушек' },
-    { value: 'male', label: 'Парней' },
-    { value: 'all', label: 'Всех' },
+    { value: 'female', text: 'Девушек' },
+    { value: 'male', text: 'Парней' },
+    { value: 'all', text: 'Всех' },
 ];
 
 /**

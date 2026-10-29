@@ -29,28 +29,46 @@ const SEARCH_AGE_MAX = 100;
 const PHOTO_MIN_COUNT = 1;
 export const PHOTO_MAX_COUNT = 6;
 const PHOTO_MAX_SIZE_MB = 5;
-export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+/**
+ * Допустимые форматы фото: MIME-тип и название для сообщения об ошибке.
+ */
+const PHOTO_FORMATS: Record<string, string> = {
+    'image/jpeg': 'JPG, JPEG',
+    'image/png': 'PNG',
+    'image/webp': 'WebP',
+};
+
+/**
+ * MIME-типы допустимых фото.
+ */
+export const PHOTO_TYPES = Object.keys(PHOTO_FORMATS);
+
+const PHOTO_FORMAT_NAMES = Object.values(PHOTO_FORMATS);
+const PHOTO_FORMATS_LABEL = `${PHOTO_FORMAT_NAMES.slice(0, -1).join(', ')} и ${PHOTO_FORMAT_NAMES.at(-1)}`;
 
 export const INTERESTS_MAX_COUNT = 7;
 
 /**
- * @param {string} domain
- * @returns {boolean} true, если в одной части домена смешаны латиница и кириллица.
+ * Проверяет, смешаны ли латиница и кириллица в одной части домена.
+ *
+ * @param domain - Часть почты после "@".
+ * @returns `true`, если в одной части смешаны оба алфавита.
  */
-function hasMixedScriptLabel(domain) {
+function hasMixedScriptLabel(domain: string): boolean {
     return domain
         .split('.')
         .some((label) => EMAIL_LATIN_PATTERN.test(label) && EMAIL_CYRILLIC_PATTERN.test(label));
 }
 
 /**
- * Проверяет почту.
- * Строчными делается вся почта, хотя по RFC стоило бы только домен.
+ * Валидирует почту.
  *
- * @param {string} value
- * @returns {string|null} Текст ошибки или null, если почта корректна.
+ * @remarks Строчными делается вся почта, хотя по RFC стоило бы только домен.
+ *
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateEmail(value) {
+export function validateEmail(value: string): string | null {
     const email = value.trim().toLowerCase().normalize('NFC');
     if (email.length === 0) {
         return 'Почта не может быть пустой.';
@@ -88,15 +106,18 @@ export function validateEmail(value) {
     return null;
 }
 
+/**
+ * Подсказка о правилах пароля. Правила на буквы и цифры заданы в
+ * {@link validatePassword}, при их изменении подсказку нужно обновить.
+ */
 export const PASSWORD_HINT = `От ${PASSWORD_MIN_LENGTH} символов, хотя бы одна буква и одна цифра.`;
 
 /**
- * Проверяет пароль: длина в символах и байтах, хотя бы одна буква и одна цифра.
+ * Валидирует пароль.
  *
- * @param {string} value
- * @returns {string|null} Текст ошибки или null.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validatePassword(value) {
+export function validatePassword(value: string): string | null {
     const password = value.normalize('NFC');
 
     if (password.length === 0) {
@@ -123,11 +144,13 @@ export function validatePassword(value) {
 }
 
 /**
- * @param {string} password
- * @param {string} confirm - Повтор пароля.
- * @returns {string|null} Текст ошибки или null.
+ * Проверяет, что повтор пароля введён и совпадает с исходным паролем.
+ *
+ * @param password - Исходный пароль.
+ * @param confirm - Повтор пароля.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validatePasswordConfirm(password, confirm) {
+export function validatePasswordConfirm(password: string, confirm: string): string | null {
     if (confirm.length === 0) {
         return 'Повторите пароль.';
     }
@@ -140,22 +163,21 @@ export function validatePasswordConfirm(password, confirm) {
 }
 
 /**
- * Убирает лишние пробелы в имени.
+ * Убирает лишние пробелы в имени и приводит его к форме NFC.
  *
- * @param {string} value
- * @returns {string}
+ * @param value - Введённое имя.
+ * @returns Нормализованное имя.
  */
-export function normalizeName(value) {
+export function normalizeName(value: string): string {
     return value.trim().replace(/\s+/g, ' ').normalize('NFC');
 }
 
 /**
- * Проверяет имя: каждое слово из букв, дефиса, апострофа и точки.
+ * Валидирует имя после нормализации через {@link normalizeName}.
  *
- * @param {string} value
- * @returns {string|null} Текст ошибки или null.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateName(value) {
+export function validateName(value: string): string | null {
     const name = normalizeName(value);
 
     if (name.length === 0) {
@@ -193,24 +215,26 @@ export function validateName(value) {
 }
 
 /**
- * @param {string} day
- * @param {string} month - Номер месяца, 1-12.
- * @param {string} year
- * @returns {string} Дата в формате YYYY-MM-DD.
+ * Собирает дату из полей формы.
+ *
+ * @param day - День.
+ * @param month - Месяц.
+ * @param year - Год.
+ * @returns Дата в формате YYYY-MM-DD.
  */
-export function toIsoDate(day, month, year) {
+export function toIsoDate(day: string, month: string, year: string): string {
     return [year.trim(), month.padStart(2, '0'), day.trim().padStart(2, '0')].join('-');
 }
 
 /**
- * Проверяет, что дата существует, уже наступила и пользователю есть MIN_AGE лет.
+ * Валидирует дату рождения.
  *
- * @param {string} day
- * @param {string} month - Номер месяца, 1-12.
- * @param {string} year
- * @returns {string|null} Текст ошибки или null.
+ * @param day - День.
+ * @param month - Месяц.
+ * @param year - Год.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateBirthDate(day, month, year) {
+export function validateBirthDate(day: string, month: string, year: string): string | null {
     const dayValue = day.trim();
     const yearValue = year.trim();
 
@@ -248,11 +272,13 @@ export function validateBirthDate(day, month, year) {
 }
 
 /**
- * @param {string} from
- * @param {string} to
- * @returns {string|null} Текст ошибки или null.
+ * Валидирует возрастной диапазон поиска.
+ *
+ * @param from - Возраст "от".
+ * @param to - Возраст "до".
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateSearchAge(from, to) {
+export function validateSearchAge(from: string, to: string): string | null {
     const fromValue = from.trim();
     const toValue = to.trim();
 
@@ -272,21 +298,21 @@ export function validateSearchAge(from, to) {
     }
 
     if (max < min) {
-        return 'Возраст «от» не может быть больше «до»';
+        return 'Возраст "от" не может быть больше возраста "до".';
     }
 
     return null;
 }
 
 /**
- * Проверяет формат и размер фото.
+ * Валидирует файл фото.
  *
- * @param {File} file
- * @returns {string|null} Текст ошибки или null.
+ * @param file - Выбранный файл.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validatePhotoFile(file) {
+export function validatePhotoFile(file: File): string | null {
     if (!PHOTO_TYPES.includes(file.type)) {
-        return 'Подходят только фото в форматах JPG, JPEG, PNG и WebP.';
+        return `Подходят только фото в форматах ${PHOTO_FORMATS_LABEL}.`;
     }
 
     if (file.size > PHOTO_MAX_SIZE_MB * 1024 * 1024) {
@@ -297,10 +323,12 @@ export function validatePhotoFile(file) {
 }
 
 /**
- * @param {number} count
- * @returns {string|null} Текст ошибки или null.
+ * Валидирует количество фото.
+ *
+ * @param count - Количество фото.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validatePhotoCount(count) {
+export function validatePhotoCount(count: number): string | null {
     if (count < PHOTO_MIN_COUNT) {
         return 'Добавьте хотя бы одно фото.';
     }
@@ -313,34 +341,42 @@ export function validatePhotoCount(count) {
 }
 
 /**
- * @param {string} value
- * @returns {string|null} Текст ошибки или null.
+ * Проверяет, что пол выбран.
+ *
+ * @param value - Выбранное значение, пустая строка - не выбрано.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateSex(value) {
+export function validateSex(value: string): string | null {
     return value === '' ? 'Выберите пол.' : null;
 }
 
 /**
- * @param {string} value
- * @returns {string|null} Текст ошибки или null.
+ * Проверяет, что выбрано, кого показывать.
+ *
+ * @param value - Выбранное значение, пустая строка - не выбрано.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateSearchSex(value) {
+export function validateSearchSex(value: string): string | null {
     return value === '' ? 'Выберите, кого показывать.' : null;
 }
 
 /**
- * @param {string} value
- * @returns {string|null} Текст ошибки или null.
+ * Проверяет, что цель знакомства выбрана.
+ *
+ * @param value - Выбранное значение, пустая строка - не выбрано.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateDatingGoal(value) {
+export function validateDatingGoal(value: string): string | null {
     return value === '' ? 'Выберите цель знакомства.' : null;
 }
 
 /**
- * @param {number} count
- * @returns {string|null} Текст ошибки или null.
+ * Проверяет, что интересов не больше INTERESTS_MAX_COUNT.
+ *
+ * @param count - Количество выбранных интересов.
+ * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validateInterestsCount(count) {
+export function validateInterestsCount(count: number): string | null {
     if (count > INTERESTS_MAX_COUNT) {
         return `Можно выбрать не больше ${INTERESTS_MAX_COUNT} интересов.`;
     }

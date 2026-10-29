@@ -37,7 +37,7 @@ export function searchFilterTemplate(id: string, mix = ''): string {
     return searchFilterHbs({
         id,
         mix,
-        sex: chipsTemplate({ type: 'radio', name: 'searchSex', options: SEARCH_SEX_OPTIONS }),
+        sex: chipsTemplate({ type: 'radio', name: 'searchSex', chips: SEARCH_SEX_OPTIONS }),
     });
 }
 

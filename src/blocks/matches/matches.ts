@@ -1,6 +1,6 @@
 import { getMatches, sendMatchSeen } from '../../api/api';
 import type { Cursor, Match } from '../../api/api.types';
-import { getElement } from '../../dom';
+import { getElement } from '../../utils/dom.js';
 import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons';
 import { matchCardTemplate } from '../match-card/match-card';
 import { showModal } from '../modal/modal';

@@ -6,19 +6,30 @@ import {
     validatePhotoCount,
 } from '../../validation.js';
 import { uploadPhoto, deletePhoto, reorderPhotos, ApiError } from '../../api/api.js';
+import type { Photo, PhotosResponse } from '../../api/api.types.js';
 import { icons } from '../../icons.js';
+import { getElement } from '../../utils/dom.js';
+import type { RegisterData, RegisterStepLogic } from '../register-form/register-form.js';
 import gridHbs from './grid.hbs';
 import registerPhotosHbs from './register-photos.hbs';
+
+/**
+ * Данные шагов с инициализированными служебными полями шага с фото.
+ */
+type PhotosData = RegisterData &
+    Required<Pick<RegisterData, 'photos' | 'photosPending' | 'photosSaving'>>;
 
 const NETWORK_ERROR_MESSAGE =
     'Не удалось сохранить фото. Проверьте соединение и попробуйте ещё раз.';
 
 /**
- * @param {{id: number, url: string}[]} photos
- * @param {boolean} locked - Идёт сохранение: удалять, добавлять и переставлять фото нельзя.
- * @returns {string} HTML сетки из PHOTO_MAX_COUNT слотов.
+ * Рендерит сетку фото.
+ *
+ * @param photos - Фото по порядку, первое главное.
+ * @param locked - Идёт сохранение: удалять, добавлять и переставлять фото нельзя.
+ * @returns HTML-строка сетки из PHOTO_MAX_COUNT слотов.
  */
-function gridTemplate(photos, locked) {
+function gridTemplate(photos: Photo[], locked: boolean): string {
     const slots = Array.from({ length: PHOTO_MAX_COUNT }, (_, index) => {
         const photo = photos[index];
 
@@ -34,10 +45,12 @@ function gridTemplate(photos, locked) {
 }
 
 /**
- * @param {*} error
- * @returns {string} Причина ошибки бэкенда или общее сообщение.
+ * Выбирает текст ошибки фото: первая причина бэкенда для ошибок 4xx, иначе общее сообщение.
+ *
+ * @param error - Ошибка действия с фото.
+ * @returns Текст ошибки для пользователя.
  */
-function photoErrorMessage(error) {
+function photoErrorMessage(error: unknown): string {
     if (error instanceof ApiError && error.status < 500) {
         return Object.values(error.fields ?? {})[0] ?? error.message;
     }
@@ -46,12 +59,14 @@ function photoErrorMessage(error) {
 }
 
 /**
- * @param {number[]} ids
- * @param {number} from
- * @param {number} to
- * @returns {number[]} Новый порядок: id с позиции from перенесён на позицию to.
+ * Переносит id с одной позиции на другую.
+ *
+ * @param ids - Исходный порядок.
+ * @param from - Позиция, с которой переносят.
+ * @param to - Позиция, на которую переносят.
+ * @returns Новый порядок, исходный массив не меняется.
  */
-function moveId(ids, from, to) {
+function moveId(ids: number[], from: number, to: number): number[] {
     const result = [...ids];
     const [moved] = result.splice(from, 1);
     result.splice(to, 0, moved);
@@ -63,13 +78,16 @@ function moveId(ids, from, to) {
  * Включает перестановку фото перетаскиванием. Слушатели висят на form,
  * поэтому переживают перерисовку сетки.
  *
- * @param {HTMLFormElement} form
- * @param {function(number, number): void} onMove - Получает позиции from и to.
+ * @param form - Форма шага.
+ * @param onMove - Получает позиции from и to.
  */
-function initPhotoDrag(form, onMove) {
-    let from = null;
+function initPhotoDrag(form: HTMLFormElement, onMove: (from: number, to: number) => void) {
+    let from: number | null = null;
 
-    const slotOf = (event) => event.target.closest('.register-photos__slot_filled');
+    const slotOf = (event: Event) =>
+        event.target instanceof Element
+            ? event.target.closest<HTMLElement>('.register-photos__slot_filled')
+            : null;
     const clearTargets = () => {
         form.querySelectorAll('.register-photos__slot_drop-target').forEach((slot) => {
             slot.classList.remove('register-photos__slot_drop-target');
@@ -83,7 +101,9 @@ function initPhotoDrag(form, onMove) {
         }
 
         from = Number(slot.dataset.index);
-        event.dataTransfer.effectAllowed = 'move';
+        if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = 'move';
+        }
         slot.classList.add('register-photos__slot_dragging');
     });
 
@@ -127,40 +147,48 @@ function initPhotoDrag(form, onMove) {
 }
 
 /**
- * Шаг 4: фото. Каждое действие сразу уходит на бэкенд: загрузка при выборе, удаление
- * и перестановка перетаскиванием. Действия выполняются по очереди в data.photosPending,
- * data.photosSaving - сколько из них ещё не завершилось. Пока они есть, сетка заблокирована,
- * чтобы следующее действие строилось по актуальному списку фото.
- * Сохраняет в data: photos - актуальный список фото с бэкенда, первое главное.
+ * Задаёт начальные значения служебных полей шага, если их ещё нет.
+ *
+ * @param data - Данные шагов.
  */
-export const photosStep = {
+function initPhotosData(data: RegisterData): asserts data is PhotosData {
+    data.photos ??= [];
+    data.photosPending ??= Promise.resolve();
+    data.photosSaving ??= 0;
+}
+
+/**
+ * Шаг регистрации: фото. Каждое действие сразу уходит на бэкенд: загрузка при выборе,
+ * удаление и перестановка перетаскиванием. Действия выполняются по очереди. Пока есть
+ * незавершённые, сетка заблокирована, чтобы следующее действие строилось по актуальному
+ * списку фото.
+ */
+export const photosStep: RegisterStepLogic = {
     template(data) {
         return registerPhotosHbs({
             accept: PHOTO_TYPES.join(','),
-            grid: gridTemplate(data.photos ?? [], data.photosSaving > 0),
+            grid: gridTemplate(data.photos ?? [], (data.photosSaving ?? 0) > 0),
         });
     },
 
     init(form, data) {
-        data.photos ??= [];
-        data.photosPending ??= Promise.resolve();
-        data.photosSaving ??= 0;
+        initPhotosData(data);
 
-        const fileInput = form.querySelector('.register-photos__file');
+        const fileInput = getElement<HTMLInputElement>(form, '.register-photos__file');
         const renderGrid = () => {
-            form.querySelector('.register-photos__grid').outerHTML = gridTemplate(
+            getElement(form, '.register-photos__grid').outerHTML = gridTemplate(
                 data.photos,
                 data.photosSaving > 0,
             );
         };
 
         /**
-         * Ставит действие в очередь. action возвращает ответ API со списком фото
-         * или null, если запрос не понадобился.
+         * Ставит действие с фото в очередь.
          *
-         * @param {function(): Promise<?{photos: Object[]}>} action
+         * @param action - Запрос, меняющий фото. Возвращает ответ API со списком фото
+         *     или `null`, если запрос не понадобился.
          */
-        const enqueue = (action) => {
+        const enqueue = (action: () => Promise<PhotosResponse | null>) => {
             data.photosSaving += 1;
             renderGrid();
 
@@ -191,7 +219,11 @@ export const photosStep = {
         }
 
         form.addEventListener('click', (event) => {
-            const removeButton = event.target.closest('.register-photos__remove');
+            if (!(event.target instanceof Element)) {
+                return;
+            }
+
+            const removeButton = event.target.closest<HTMLElement>('.register-photos__remove');
 
             if (removeButton) {
                 setFormFieldError(fileInput, null);
@@ -215,7 +247,7 @@ export const photosStep = {
         });
 
         fileInput.addEventListener('change', () => {
-            const files = [...fileInput.files];
+            const files = [...(fileInput.files ?? [])];
 
             fileInput.value = '';
             setFormFieldError(fileInput, null);
@@ -237,9 +269,10 @@ export const photosStep = {
     },
 
     async validate(form, data) {
+        initPhotosData(data);
         await data.photosPending;
 
-        const fileInput = form.querySelector('.register-photos__file');
+        const fileInput = getElement<HTMLInputElement>(form, '.register-photos__file');
 
         return validateFormFields([
             { input: fileInput, validate: () => validatePhotoCount(data.photos.length) },

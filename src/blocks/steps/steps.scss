@@ -15,6 +15,9 @@
     border: 0;
     background: none;
     color: v.$color-text-secondary;
+}
+
+.steps_interactive .steps__item {
     cursor: pointer;
 }
 
@@ -41,6 +44,10 @@
     height: 12px;
     background-color: currentColor;
     mask: url('/icons/check.svg') center / contain no-repeat;
+}
+
+.steps__item_color_primary {
+    --steps-ink: #{v.$color-text-primary};
 }
 
 .steps__item_color_sun {

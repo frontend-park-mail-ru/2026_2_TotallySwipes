@@ -85,7 +85,7 @@ const ADMIN_PROFILE: MockProfile = {
     sex: 'female',
     dating_goal: 'relationship',
     tags: [],
-    photos: [{ id: 1, url: '/public/img/1.jpg' }],
+    photos: [{ id: 1, url: '/img/1.jpg' }],
     filter: { sex: 'all', age_from: 18, age_to: 100 },
 };
 

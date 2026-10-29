@@ -1,5 +1,6 @@
 import {
     formFieldTemplate,
+    initFormFieldErrorReset,
     initFormFieldToggles,
     setFormFieldError,
     validateFormFields,
@@ -11,16 +12,23 @@ import {
     validatePasswordConfirm,
 } from '../../validation.js';
 import { register, ApiError } from '../../api/api.js';
-// import { checkEmailAvailable, ApiError } from '../../api/api.js';
+import type { TypedForm } from '../../utils/dom.js';
+import type { RegisterStepLogic } from '../register-form/register-form.js';
 import registerAccountHbs from './register-account.hbs';
+
+type AccountForm = TypedForm<{
+    email: HTMLInputElement;
+    password: HTMLInputElement;
+    passwordConfirm: HTMLInputElement;
+}>;
 
 const EMAIL_TAKEN_STATUS = 409;
 
 /**
- * Шаг 1: данные для входа. Сохраняет в data: email, password.
+ * Шаг регистрации: данные для входа.
  * Отправка создаёт аккаунт с пустой анкетой и ставит data.registered.
  */
-export const accountStep = {
+export const accountStep: RegisterStepLogic = {
     template() {
         return registerAccountHbs({
             email: formFieldTemplate({
@@ -51,7 +59,7 @@ export const accountStep = {
         });
     },
 
-    init(form, data) {
+    init(form: AccountForm, data) {
         initFormFieldToggles(form);
 
         const { email, password, passwordConfirm } = form.elements;
@@ -60,18 +68,14 @@ export const accountStep = {
         password.value = data.password ?? '';
         passwordConfirm.value = data.password ?? '';
 
-        form.addEventListener('input', (event) => {
-            if (event.target.matches('.form-field__input')) {
-                setFormFieldError(event.target, null);
-            }
-
-            if (event.target === password) {
+        initFormFieldErrorReset(form, (input) => {
+            if (input === password) {
                 setFormFieldError(passwordConfirm, null);
             }
         });
     },
 
-    validate(form, data) {
+    validate(form: AccountForm, data) {
         const { email, password, passwordConfirm } = form.elements;
 
         const isValid = validateFormFields([
@@ -93,13 +97,19 @@ export const accountStep = {
         return true;
     },
 
-    async submit(form, data) {
+    async submit(form: AccountForm, data) {
         if (data.registered) {
             return true;
         }
 
+        const { email, password } = data;
+
+        if (email === undefined || password === undefined) {
+            throw new Error('Шаг аккаунта: validate не заполнил данные');
+        }
+
         try {
-            await register(data.email, data.password);
+            await register(email, password);
         } catch (error) {
             if (error instanceof ApiError && error.status === EMAIL_TAKEN_STATUS) {
                 setFormFieldError(form.elements.email, error.message);

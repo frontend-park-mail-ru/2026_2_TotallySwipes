@@ -1,4 +1,5 @@
-import { getAllElements, getElement } from '../../dom.js';
+import { getAllElements, getElement } from '../../utils/dom.js';
+import type { AccentColor } from '../../colors.js';
 import { type ProfileData } from '../feed/feed.js';
 import { locationTemplate } from '../location/location.js';
 import { changeCurrentPager, pagerTemplate } from '../pager/pager.js';
@@ -11,7 +12,7 @@ import profileCardHbs from './profile-card.hbs';
  */
 
 interface ProfileCardData extends ProfileData {
-    matchColor: string;
+    matchColor: AccentColor;
 }
 
 type Side = 'right' | 'left';

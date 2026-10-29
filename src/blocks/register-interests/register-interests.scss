@@ -1,0 +1,7 @@
+@use '../../variables' as v;
+
+.register-interests__counter {
+    margin: 8px 0 0;
+    @include v.text-style('body-16-regular');
+    color: v.$color-text-secondary;
+}

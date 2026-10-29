@@ -1,3 +1,5 @@
+import type { AccentColor } from './colors.js';
+
 const svgAttrs =
     'width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 
@@ -48,4 +50,4 @@ export const icons = {
 
 //TODO: вынести отсюда
 export const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
-export const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];
+export const MATCH_COLORS: readonly AccentColor[] = ['lilac', 'mint', 'pink', 'sky', 'sun'];

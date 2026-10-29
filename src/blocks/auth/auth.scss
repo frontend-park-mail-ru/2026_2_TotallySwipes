@@ -1,3 +1,5 @@
+@use '../../variables' as v;
+
 .auth {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -9,12 +11,11 @@
     flex-direction: column;
     box-sizing: border-box;
     padding: 48px 64px;
-    background: var(--color-surface);
+    background: v.$color-surface;
 }
 
 .auth__logo {
     align-self: flex-start;
-    font-size: 34px;
 }
 
 .auth__pitch {
@@ -24,18 +25,14 @@
 
 .auth__headline {
     margin: 0;
-    font-size: 48px;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 50px;
+    @include v.text-style('display-48-extrabold');
 }
 
 .auth__lead {
     max-width: 480px;
     margin: 16px 0 0;
-    font-size: 16px;
-    line-height: 1.5;
-    color: var(--color-text-secondary);
+    @include v.text-style('body-16-regular');
+    color: v.$color-text-secondary;
 }
 
 .auth__art {
@@ -97,7 +94,7 @@
     justify-content: center;
     box-sizing: border-box;
     padding: 32px 24px;
-    background: var(--color-bg-page);
+    background: v.$color-bg-page;
 }
 
 .auth__card {
@@ -106,7 +103,7 @@
     max-width: 460px;
     padding: 32px;
     border-radius: 30px;
-    background: var(--color-surface);
+    background: v.$color-surface;
     box-shadow:
         0 16px 40px -24px rgba(20, 20, 20, 0.25),
         0 1px 2px rgba(20, 20, 20, 0.04);
@@ -118,7 +115,7 @@
     gap: 4px;
     padding: 4px;
     border-radius: 14px;
-    background: var(--color-bg-page);
+    background: v.$color-bg-page;
 }
 
 .auth__tab {
@@ -127,17 +124,15 @@
     justify-content: center;
     height: 40px;
     border-radius: 11px;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
-    color: var(--color-text-secondary);
+    @include v.text-style('body-16-semibold');
+    color: v.$color-text-secondary;
     text-decoration: none;
     transition: background-color 0.15s;
 }
 
 .auth__tab_active {
-    background: var(--color-surface);
-    color: var(--color-text-primary);
+    background: v.$color-surface;
+    color: v.$color-text-primary;
     box-shadow:
         0 4px 10px -6px rgba(0, 0, 0, 0.2),
         0 1px 2px rgba(0, 0, 0, 0.08);
