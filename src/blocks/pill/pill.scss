@@ -31,6 +31,11 @@
     height: 16px;
 }
 
+.pill_size_xs {
+    padding: 4px 12px;
+    @include v.text-style('caption-13-bold');
+}
+
 .pill_color_pink {
     --pill-bg: #{v.$color-accent-pink};
     --pill-ink: #{v.$color-accent-pink-ink};

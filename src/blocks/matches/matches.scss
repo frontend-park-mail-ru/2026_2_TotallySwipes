@@ -1,0 +1,66 @@
+@use '../../variables.scss' as v;
+
+.matches {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+    padding: 24px 32px;
+}
+
+.matches__header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+}
+
+.matches__title {
+    margin: 0;
+    @include v.text-style('heading-30-extrabold');
+}
+
+.matches__count {
+    @include v.text-style('caption-13-regular');
+    color: v.$color-text-secondary;
+}
+
+.matches__grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    padding-top: 24px;
+}
+
+.matches__more {
+    align-self: center;
+    margin-top: 8px;
+}
+
+.matches__more_hidden {
+    display: none;
+}
+
+.matches__empty {
+    display: none;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 560px;
+    align-self: center;
+    margin-top: 24px;
+    padding: 48px 32px;
+    border: 2px dashed v.$color-border-strong;
+    border-radius: 30px;
+}
+
+.matches__feed-link {
+    text-decoration: none;
+}
+
+.matches_empty .matches__empty {
+    display: block;
+}
+
+.matches_empty .matches__grid,
+.matches_empty .matches__more {
+    display: none;
+}

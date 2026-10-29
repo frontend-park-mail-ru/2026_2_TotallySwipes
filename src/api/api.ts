@@ -3,6 +3,8 @@ import type {
     CompatibilityTest,
     FeedPage,
     FeedParams,
+    MatchesPage,
+    MatchesParams,
     PhotosResponse,
     Profile,
     ProfileShort,
@@ -391,5 +393,15 @@ export function sendSwipe(targetUserId: number, direction: SwipeAction) {
     return request('/feed/swipe', {
         method: 'POST',
         body: { target_user_id: targetUserId, action: SWIPE_ACTIONS[direction] },
+    });
+}
+
+export function getMatches({ limit = 12, cursor }: MatchesParams = {}): Promise<MatchesPage> {
+    return request<MatchesPage>('/matches', { query: { limit, cursor } });
+}
+
+export function sendMatchSeen(matchId: number) {
+    return request(`/matches/${matchId}/seen`, {
+        method: 'POST',
     });
 }

@@ -1,0 +1,33 @@
+<article class="match-card {{mix}}" data-id="{{userId}}" data-match-id="{{matchId}}"{{#if isNew}} data-new{{/if}}>
+    <div class="match-card__surface">
+        <img class="match-card__photo" src="{{imgPath}}" alt="photo" draggable="false">
+        
+         <a href="/profile/{{userId}}" data-link class="match-card__link"></a>
+
+        {{{newPill}}}
+
+        <div class="match-card__bottom">
+            <div class="match-card__info">
+                <span class="match-card__name">{{name}}</span><span class="match-card__age">,&nbsp;{{age}}</span>
+            </div>
+
+            <div class="match-card__menu">
+                <button type="button" class="button button_view_primary match-card__button" disabled>
+                    <span class="button__icon button__icon_mask" style="--icon: url('/icons/chat.svg')"></span>
+                    <span class="button__text">Написать сообщение</span>
+                </button>
+                <button type="button" class="button button_view_secondary match-card__button">
+                    <span class="button__icon button__icon_mask" style="--icon: url('/icons/calendar.svg')"></span>
+                    <span class="button__text">Назначить встречу</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+    {{#if hasCompatibility}}
+        <div class="match-stamp match-stamp_size_s match-stamp_color_{{matchColor}} match-card__stamp">
+            <img class="match-stamp__image" src="/icons/badge-compat-{{matchColor}}.svg" alt="" draggable="false">
+            <span class="match-stamp__value">{{compatibility}}%</span>
+        </div>
+    {{/if}}
+</article>

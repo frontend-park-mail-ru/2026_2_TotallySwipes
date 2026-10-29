@@ -101,11 +101,11 @@ export interface SearchFilter {
     age_to: number;
 }
 
-export type FeedCursor = number;
+export type Cursor = number;
 
 export interface FeedParams {
     limit?: number;
-    cursor?: FeedCursor;
+    cursor?: Cursor;
 }
 
 export interface UserFacts {
@@ -131,7 +131,7 @@ export interface FeedItem extends UserFacts {
 
 export interface FeedPage {
     items: FeedItem[];
-    next_cursor: FeedCursor | null;
+    next_cursor: Cursor | null;
 }
 
 export type SwipeAction = 'like' | 'dislike' | 'super';
@@ -207,4 +207,26 @@ export interface TestResult {
     big_five: BigFive;
     personality_type: PersonalityType;
     about_personality_type: string;
+}
+
+export interface Match {
+    match_id: number;
+    user_id: number;
+    name: string;
+    age: number;
+    photo_url: string | null;
+    compatibility: number | null;
+    is_new: boolean;
+    created_at: string;
+}
+
+export interface MatchesPage {
+    total: number;
+    items: Match[];
+    next_cursor: Cursor | null;
+}
+
+export interface MatchesParams {
+    limit?: number;
+    cursor?: Cursor;
 }

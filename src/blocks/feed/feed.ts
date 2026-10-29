@@ -8,16 +8,10 @@ import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
 import { interestIconUrl, interestLabel } from '../../interests.js';
 import feedHbs from './feed.hbs';
-import {
-    type FeedCursor,
-    type FeedItem,
-    type Photo,
-    type SwipeAction,
-} from '../../api/api.types.js';
+import { type Cursor, type FeedItem, type Photo, type SwipeAction } from '../../api/api.types.js';
 import { getElement } from '../../dom.js';
 import { processFacts, type FactData } from '../../facts/facts.js';
-
-const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
+import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons.js';
 
 const PILL_COLORS = ['pink', 'sky', 'lilac', 'mint', 'sun'];
 
@@ -45,7 +39,7 @@ export interface ProfileData {
 export interface FeedState {
     profiles: ProfileData[];
     index: number;
-    nextCursor: FeedCursor | null;
+    nextCursor: Cursor | null;
     hasMore: boolean;
     isLoading: boolean;
 }
@@ -114,8 +108,6 @@ const ACTIONS: RoundButtonData[] = [
     { type: 'super', size: 'm', icon: '/icons/star.svg', label: 'Суперлайк' },
     { type: 'like', size: 'l', icon: '/icons/heart_filled.svg', label: 'Нравится' },
 ];
-
-const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];
 
 const PREFETCH_THRESHOLD = 4;
 

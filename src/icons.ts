@@ -45,3 +45,7 @@ export const icons = {
         <path d="M10 4.16667L15.8333 10L10 15.8333"/>
     </svg>`,
 };
+
+//TODO: вынести отсюда
+export const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
+export const MATCH_COLORS = ['lilac', 'mint', 'pink', 'sky', 'sun'];

@@ -8,7 +8,7 @@ import { getElement } from '../../dom.js';
 
 const MENU_ITEMS: MenuItem[] = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
-    { href: '/likes', text: 'Симпатии', icon: icons.heart, disabled: true },
+    { href: '/matches', text: 'Симпатии', icon: icons.heart },
     { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3, disabled: true },
     { href: '/test', text: 'Тест совместимости', icon: icons.stars },
     { href: '/profile', text: 'Профиль', icon: icons.user, disabled: true },
