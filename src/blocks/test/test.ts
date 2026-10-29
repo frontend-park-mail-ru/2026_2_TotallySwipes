@@ -1,4 +1,5 @@
 import { pillTemplate } from '../pill/pill.js';
+import type { AccentColor } from '../../colors.js';
 import { stepsTemplate } from '../steps/steps.js';
 import type { StepState } from '../steps/steps.js';
 import { scaleTemplate } from '../scale/scale';
@@ -23,11 +24,9 @@ import type { TestDraft } from '../../storage/test-storage.js';
 import type { Router } from '../../router.js';
 import testHbs from './test.hbs';
 
-const COLORS = ['sun', 'pink', 'sky', 'mint', 'lilac'] as const;
+const COLORS: readonly AccentColor[] = ['sun', 'pink', 'sky', 'mint', 'lilac'];
 
-type Color = (typeof COLORS)[number];
-
-const STICKERS: Record<Color, string> = {
+const STICKERS: Record<AccentColor, string> = {
     sun: '/icons/sun.svg',
     pink: '/icons/star-pink.svg',
     sky: '/icons/star-sky.svg',
@@ -62,16 +61,8 @@ interface TestState {
  * @param {number} index - Индекс вопроса.
  * @returns {string} Цвет из палитры по кругу.
  */
-function colorOf(index: number): Color {
+function colorOf(index: number): AccentColor {
     return COLORS[index % COLORS.length];
-}
-
-/**
- * @param {number} index
- * @returns {string} Номер шага с ведущим нулём: 01, 02...
- */
-function stepNumber(index: number): string {
-    return String(index + 1).padStart(2, '0');
 }
 
 /**
@@ -108,7 +99,7 @@ function isAnswered(state: TestState, question: TestQuestion): boolean {
  * @param {number} index
  * @param {Object} question
  * @param {Object} state
- * @returns {'current'|'done'|''}
+ * @returns {'current'|'done'|'todo'}
  */
 function stepState(index: number, question: TestQuestion, state: TestState): StepState {
     if (index === state.current) {
@@ -119,7 +110,7 @@ function stepState(index: number, question: TestQuestion, state: TestState): Ste
         return 'done';
     }
 
-    return '';
+    return 'todo';
 }
 
 /**
@@ -253,23 +244,22 @@ export function renderTestPage(root: HTMLElement, router: Router): void {
                 allAnswered: remaining === 0,
                 canNext: answer !== undefined,
                 isSubmitting: state.isSubmitting,
-                counter: pillTemplate(
-                    {
-                        text: `Вопрос ${state.current + 1} из ${total()}`,
-                        color,
-                        icon: '/icons/sparkles.svg',
-                        size: 's',
-                    },
-                    'test__counter',
-                ),
-                steps: stepsTemplate(
-                    test.questions.map((item, index) => ({
-                        number: stepNumber(index),
+                counter: pillTemplate({
+                    text: `Вопрос ${state.current + 1} из ${total()}`,
+                    color,
+                    icon: '/icons/sparkles.svg',
+                    size: 's',
+                    mix: 'test__counter',
+                }),
+                steps: stepsTemplate({
+                    items: test.questions.map((item, index) => ({
+                        number: index + 1,
                         color: colorOf(index),
                         state: stepState(index, item, state),
                     })),
-                    'test__steps',
-                ),
+                    mix: 'test__steps',
+                    isInteractive: true,
+                }),
                 scale: scaleTemplate(
                     {
                         name: 'answer',

@@ -1,14 +1,28 @@
-import type { PillData } from '../feed/feed.js';
 import pillHbs from './pill.hbs';
+import type { AccentColor } from '../../colors.js';
 
 /**
- * @param {{text: string, color?: string, icon?: string, size?: string}} pill
- * @param {string} [mix]
- * @returns {string}
+ * Свойства блока "Пилюля" для рендеринга.
  */
-export function pillTemplate(pill: PillData, mix: string = ''): string {
-    return pillHbs({
-        ...pill,
-        mix,
-    });
+export interface PillProps {
+    /** Путь к иконке в формате SVG. Если иконка не нужна, передать `null`. */
+    icon: string | null;
+    /** Текст. */
+    text: string;
+    /** Размер. Если не указан, используется размер по умолчанию. */
+    size?: 's';
+    /** Цвет. */
+    color: AccentColor;
+    /** Дополнительные CSS-классы (БЭМ-микс). */
+    mix?: string;
+}
+
+/**
+ * Рендерит блок "Пилюля" с необязательной иконкой и текстом.
+ *
+ * @param pill - Свойства пилюли для рендеринга.
+ * @returns HTML-строка пилюли.
+ */
+export function pillTemplate(pill: PillProps): string {
+    return pillHbs(pill);
 }

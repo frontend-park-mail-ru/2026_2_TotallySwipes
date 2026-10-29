@@ -1,4 +1,4 @@
-import { stepProgressTemplate } from '../step-progress/step-progress.js';
+import { stepsTemplate } from '../steps/steps.js';
 import { accountStep } from '../register-account/register-account.js';
 import { profileStep } from '../register-profile/register-profile.js';
 import { searchStep } from '../register-search/register-search.js';
@@ -6,6 +6,17 @@ import { photosStep } from '../register-photos/register-photos.js';
 import { interestsStep } from '../register-interests/register-interests.js';
 import { showModal } from '../modal/modal.js';
 import { ApiError, getProfile, getSearchFilter } from '../../api/api.js';
+import type {
+    DatingGoal,
+    MissingField,
+    Photo,
+    Profile,
+    SearchFilter,
+    SearchSex,
+    Sex,
+    TagKey,
+} from '../../api/api.types.js';
+import { getElement } from '../../utils/dom.js';
 import { icons } from '../../icons.js';
 import registerFormHbs from './register-form.hbs';
 
@@ -14,17 +25,20 @@ const FINISH_LABEL = 'Готово — к тесту';
 const GENERIC_ERROR_MESSAGE =
     'Не удалось сохранить данные. Проверьте соединение и попробуйте ещё раз.';
 const LOAD_ERROR_MODAL = {
-    image: '/public/icons/mascot-error.svg',
+    image: '/icons/mascot-error.svg',
     title: 'Произошла ошибка',
     text: 'Похоже, что пропала связь. Попробуйте ещё раз.',
     buttonText: 'Повторить',
 };
 
 /**
- * @param {*} error
- * @returns {string} Сообщение бэкенда с причинами по полям или общее сообщение.
+ * Выбирает текст ошибки шага: сообщение бэкенда с причинами по полям
+ * для ошибок 4xx, иначе общее.
+ *
+ * @param error - Ошибка отправки шага.
+ * @returns Текст ошибки для пользователя.
  */
-function registerErrorMessage(error) {
+function registerErrorMessage(error: unknown): string {
     if (error instanceof ApiError && error.status < 500) {
         const reasons = Object.values(error.fields ?? {});
 
@@ -35,23 +49,88 @@ function registerErrorMessage(error) {
 }
 
 /**
- * @typedef {Object} RegisterStep
- * @property {string} title
- * @property {string} subtitle
- * @property {string[]} [fields] - Поля из missing бэкенда, которые заполняет шаг.
- * @property {function(Object): string} [template] - HTML тела шага.
- * @property {function(HTMLFormElement, Object): void} [init] - Заполняет поля из data.
- * @property {function(HTMLFormElement, Object): void} [save] - Запоминает введённое без проверки,
- *     когда пользователь возвращается на шаг назад.
- * @property {function(HTMLFormElement, Object): (boolean|Promise<boolean>)} [validate] - При успехе
- *     сама сохраняет введённые значения в data и возвращает true. Может быть async.
- * @property {function(HTMLFormElement, Object): Promise<boolean>} [submit] - Отправляет данные шага
- *     на бэкенд после validate. false - остаться на шаге (ошибку шаг показал сам),
- *     исключение - показать общую ошибку формы.
+ * Введённые данные шагов. Живут, пока открыта страница.
  */
+export interface RegisterData {
+    /** Аккаунт уже создан. */
+    registered?: boolean;
+    email?: string;
+    password?: string;
+    name?: string;
+    birthDay?: string;
+    birthMonth?: string;
+    birthYear?: string;
+    /** Дата в формате YYYY-MM-DD. */
+    birthDate?: string;
+    sex?: Sex;
+    searchSex?: SearchSex;
+    searchAgeFrom?: string;
+    searchAgeTo?: string;
+    datingGoal?: DatingGoal;
+    /** Актуальный список фото с бэкенда, первое -- главное. */
+    photos?: Photo[];
+    /** Очередь действий с фото. */
+    photosPending?: Promise<void>;
+    /** Сколько действий с фото ещё не завершилось. */
+    photosSaving?: number;
+    /** Ключи тегов бэкенда. */
+    interests?: TagKey[];
+}
 
-/** @type {RegisterStep[]} */
-const STEPS = [
+/**
+ * Логика шага. Поля формы шаги типизируют сами, поэтому методы объявлены
+ * в виде методов, а не свойств-функций.
+ */
+export interface RegisterStepLogic {
+    /** HTML-строка тела шага. */
+    template?(data: RegisterData): string;
+    /** Заполняет поля из data. */
+    init?(form: HTMLFormElement, data: RegisterData): void;
+    /** Запоминает введённое без проверки, когда пользователь возвращается на шаг назад. */
+    save?(form: HTMLFormElement, data: RegisterData): void;
+    /**
+     * При успехе сама сохраняет введённые значения в data и возвращает true.
+     * Может быть async.
+     */
+    validate?(form: HTMLFormElement, data: RegisterData): boolean | Promise<boolean>;
+    /**
+     * Отправляет данные шага на бэкенд после validate. false - остаться на шаге
+     * (ошибку шаг показал сам), исключение - показать общую ошибку формы.
+     */
+    submit?(form: HTMLFormElement, data: RegisterData): Promise<boolean>;
+}
+
+/**
+ * Логика шага, у которого есть `save`: ей пользуется сам шаг в `validate`.
+ */
+export interface RegisterStepLogicWithSave extends RegisterStepLogic {
+    save(form: HTMLFormElement, data: RegisterData): void;
+}
+
+/**
+ * Свойства формы регистрации для инициализации.
+ */
+export interface RegisterFormProps {
+    /**
+     * Аккаунт уже создан: подтянуть анкету с бэкенда и начать с первого шага,
+     * где не хватает данных.
+     */
+    resume?: boolean;
+    /** Вызывается после успешной регистрации. */
+    onRegister?: () => void;
+}
+
+/**
+ * Шаг регистрации: тексты над формой и логика шага.
+ */
+export interface RegisterStep extends RegisterStepLogic {
+    title: string;
+    subtitle: string;
+    /** Поля из missing бэкенда, которые заполняет шаг. */
+    fields?: MissingField[];
+}
+
+const STEPS: RegisterStep[] = [
     {
         title: 'Создайте аккаунт!',
         subtitle: 'Займёт пару минут. Анкету можно поменять потом.',
@@ -86,11 +165,11 @@ const STEPS = [
 /**
  * Переводит сохранённые на бэкенде анкету и фильтр в data шагов.
  *
- * @param {Object} profile - Ответ GET /profile/me.
- * @param {{sex: string, age_from: number, age_to: number}} filter - Ответ GET /filters/me.
- * @returns {Object} data для шагов, поля без значения - undefined.
+ * @param profile - Анкета, сохранённая на бэкенде.
+ * @param filter - Фильтр поиска, сохранённый на бэкенде.
+ * @returns data для шагов, поля без значения - undefined.
  */
-function profileToData(profile, filter) {
+function profileToData(profile: Profile, filter: SearchFilter): RegisterData {
     const [birthYear, birthMonth, birthDay] = profile.birth_date?.split('-') ?? [];
     // Пока фильтр не задан, бэкенд отдаёт значения по умолчанию, а не выбор пользователя.
     const hasFilter = !profile.missing.includes('search_filter');
@@ -112,7 +191,9 @@ function profileToData(profile, filter) {
 }
 
 /**
- * @returns {string} Контейнер формы, шаги рендерит initRegisterForm.
+ * Рендерит контейнер формы. Шаги рендерит initRegisterForm.
+ *
+ * @returns HTML-строка контейнера формы.
  */
 export function registerFormTemplate() {
     return '<div class="register-form"></div>';
@@ -121,31 +202,36 @@ export function registerFormTemplate() {
 /**
  * Запускает пошаговую регистрацию. Введённые данные живут, пока открыта страница.
  *
- * @param {HTMLElement} root
- * @param {Object} [params]
- * @param {boolean} [params.resume=false] - Аккаунт уже создан: подтянуть анкету с бэкенда
- *     и начать с первого шага, где не хватает данных.
- * @param {Function} [params.onRegistered] - Вызывается после успешной регистрации.
+ * @param root - Контейнер формы регистрации.
+ * @param props - Свойства формы регистрации.
  */
-export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
-    const data = {};
+export function initRegisterForm(root: HTMLElement, props: RegisterFormProps = {}) {
+    const data: RegisterData = {};
     let isSubmitting = false;
 
-    function setActionsDisabled(form, disabled) {
-        form.querySelectorAll('.register-form__actions .button').forEach((button) => {
-            button.disabled = disabled;
-        });
+    /**
+     * Блокирует или разблокирует кнопки действий формы.
+     *
+     * @param form - Форма шага.
+     * @param disabled - Заблокировать кнопки.
+     */
+    function setActionsDisabled(form: HTMLFormElement, disabled: boolean) {
+        form.querySelectorAll<HTMLButtonElement>('.register-form__actions .button').forEach(
+            (button) => {
+                button.disabled = disabled;
+            },
+        );
     }
 
     /**
      * Проверяет и отправляет текущий шаг.
      *
-     * @param {RegisterStep} step
-     * @param {HTMLFormElement} form
-     * @returns {Promise<boolean>} Можно ли идти дальше.
+     * @param step - Текущий шаг.
+     * @param form - Форма шага.
+     * @returns Можно ли идти дальше.
      */
-    async function completeStep(step, form) {
-        const formError = form.querySelector('.register-form__error');
+    async function completeStep(step: RegisterStep, form: HTMLFormElement): Promise<boolean> {
+        const formError = getElement(form, '.register-form__error');
         formError.hidden = true;
 
         try {
@@ -161,16 +247,24 @@ export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
     }
 
     /**
+     * Рисует шаг и вешает обработчики формы.
      * После создания аккаунта на шаг с почтой вернуться нельзя.
      *
-     * @param {number} index - Индекс шага в STEPS.
+     * @param index - Индекс шага в STEPS.
      */
-    function showStep(index) {
+    function showStep(index: number) {
         const step = STEPS[index];
         const isLast = index === STEPS.length - 1;
 
         root.innerHTML = registerFormHbs({
-            progress: stepProgressTemplate(index + 1, STEPS.length),
+            progress: stepsTemplate({
+                items: STEPS.map((_, stepIndex) => ({
+                    number: stepIndex + 1,
+                    color: 'primary',
+                    state: stepIndex < index ? 'done' : stepIndex === index ? 'current' : 'todo',
+                })),
+                isInteractive: false,
+            }),
             title: step.title,
             subtitle: step.subtitle,
             body: step.template?.(data) ?? '',
@@ -180,7 +274,7 @@ export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
             arrow: icons.arrow,
         });
 
-        const form = root.querySelector('.register-form__form');
+        const form = getElement<HTMLFormElement>(root, '.register-form__form');
         step.init?.(form, data);
 
         form.addEventListener('submit', async (event) => {
@@ -203,7 +297,7 @@ export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
             }
 
             if (isLast) {
-                onRegistered?.();
+                props.onRegister?.();
                 return;
             }
 
@@ -211,7 +305,7 @@ export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
         });
 
         form.addEventListener('input', () => {
-            form.querySelector('.register-form__error').hidden = true;
+            getElement(form, '.register-form__error').hidden = true;
         });
 
         form.querySelector('.register-form__back')?.addEventListener('click', () => {
@@ -247,7 +341,7 @@ export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
         }
 
         if (profile.missing.length === 0) {
-            onRegistered?.();
+            props.onRegister?.();
             return;
         }
 
@@ -260,7 +354,7 @@ export function initRegisterForm(root, { resume = false, onRegistered } = {}) {
         showStep(index === -1 ? 1 : index);
     }
 
-    if (resume) {
+    if (props.resume) {
         resumeRegistration();
     } else {
         showStep(0);

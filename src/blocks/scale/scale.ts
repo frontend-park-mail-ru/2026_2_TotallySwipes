@@ -1,4 +1,5 @@
 import scaleHbs from './scale.hbs';
+import type { AccentColor } from '../../colors.js';
 
 export interface ScaleOption {
     value: number;
@@ -14,7 +15,7 @@ export interface ScaleCaption {
 export interface ScaleData {
     name: string;
     legend: string;
-    color: string;
+    color: AccentColor;
     options: ScaleOption[];
     captions: ScaleCaption[];
     disabled: boolean;

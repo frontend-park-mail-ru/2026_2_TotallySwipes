@@ -1,6 +1,6 @@
 import {
     formFieldTemplate,
-    setFormFieldError,
+    initFormFieldErrorReset,
     validateFormFields,
 } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
@@ -12,7 +12,19 @@ import {
     validateSex,
 } from '../../validation.js';
 import { updateProfile } from '../../api/api.js';
+import type { Sex } from '../../api/api.types.js';
+import { asOption, firstRadio } from '../../utils/dom.js';
+import type { TypedForm } from '../../utils/dom.js';
+import type { RegisterStepLogicWithSave } from '../register-form/register-form.js';
 import registerProfileHbs from './register-profile.hbs';
+
+type ProfileForm = TypedForm<{
+    name: HTMLInputElement;
+    day: HTMLInputElement;
+    month: HTMLSelectElement;
+    year: HTMLInputElement;
+    sex: RadioNodeList;
+}>;
 
 const MONTHS = [
     'января',
@@ -29,15 +41,17 @@ const MONTHS = [
     'декабря',
 ].map((label, index) => ({ value: String(index + 1), label }));
 
-const SEX_OPTIONS = [
-    { value: 'female', label: 'Женщина' },
-    { value: 'male', label: 'Мужчина' },
+const SEX_CHIPS: { value: Sex; text: string }[] = [
+    { value: 'female', text: 'Женщина' },
+    { value: 'male', text: 'Мужчина' },
 ];
 
+const SEX_VALUES = SEX_CHIPS.map(({ value }) => value);
+
 /**
- * Шаг 2: о себе. Сохраняет в data: name, birthDay, birthMonth, birthYear, birthDate, sex.
+ * Шаг регистрации: о себе.
  */
-export const profileStep = {
+export const profileStep: RegisterStepLogicWithSave = {
     template() {
         return registerProfileHbs({
             name: formFieldTemplate({
@@ -49,40 +63,36 @@ export const profileStep = {
                 autocomplete: 'given-name',
             }),
             months: MONTHS,
-            sex: chipsTemplate({ type: 'radio', name: 'sex', options: SEX_OPTIONS }),
+            sex: chipsTemplate({ type: 'radio', name: 'sex', chips: SEX_CHIPS }),
         });
     },
 
-    init(form, data) {
+    init(form: ProfileForm, data) {
         form.elements.name.value = data.name ?? '';
         form.elements.day.value = data.birthDay ?? '';
         form.elements.month.value = data.birthMonth ?? '';
         form.elements.year.value = data.birthYear ?? '';
         form.elements.sex.value = data.sex ?? '';
 
-        form.addEventListener('input', (event) => {
-            if (event.target.matches('.form-field__input, .chips__input')) {
-                setFormFieldError(event.target, null);
-            }
-        });
+        initFormFieldErrorReset(form);
     },
 
-    save(form, data) {
+    save(form: ProfileForm, data) {
         data.name = form.elements.name.value;
         data.birthDay = form.elements.day.value;
         data.birthMonth = form.elements.month.value;
         data.birthYear = form.elements.year.value;
-        data.sex = form.elements.sex.value;
+        data.sex = asOption(SEX_VALUES, form.elements.sex.value);
     },
 
-    validate(form, data) {
+    validate(form: ProfileForm, data) {
         const { name, day, month, year } = form.elements;
         const sex = form.elements.sex;
 
         const isValid = validateFormFields([
             { input: name, validate: validateName },
             { input: day, validate: () => validateBirthDate(day.value, month.value, year.value) },
-            { input: sex[0], validate: () => validateSex(sex.value) },
+            { input: firstRadio(sex), validate: () => validateSex(sex.value) },
         ]);
 
         if (!isValid) {
@@ -90,14 +100,18 @@ export const profileStep = {
         }
 
         this.save(form, data);
-        data.name = normalizeName(data.name);
-        data.birthDate = toIsoDate(data.birthDay, data.birthMonth, data.birthYear);
+        data.name = normalizeName(name.value);
+        data.birthDate = toIsoDate(day.value, month.value, year.value);
 
         return true;
     },
 
     async submit(form, data) {
-        await updateProfile({ name: data.name, birth_date: data.birthDate, sex: data.sex });
+        await updateProfile({
+            name: data.name,
+            birth_date: data.birthDate,
+            sex: data.sex,
+        });
         return true;
     },
 };

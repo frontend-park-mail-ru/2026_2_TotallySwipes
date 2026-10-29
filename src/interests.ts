@@ -1,5 +1,7 @@
+import type { TagKey } from './api/api.types.js';
+
 export interface InterestData {
-    key: string;
+    key: TagKey;
     label: string;
     icon: string;
 }
