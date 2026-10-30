@@ -2,7 +2,7 @@ import { getMatches, sendMatchSeen } from '../../api/api';
 import type { Cursor, Match } from '../../api/api.types';
 import { getElement } from '../../utils/dom.js';
 import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons';
-import { matchCardTemplate } from '../match-card/match-card';
+import { matchCardTemplate, type MatchCardData } from '../match-card/match-card';
 import { showModal } from '../modal/modal';
 import matchesHbs from './matches.hbs';
 
@@ -16,25 +16,12 @@ const LOAD_ERROR_MODAL = {
 
 interface MathesState {
     isLoading: boolean;
-    profiles: MatchData[];
+    profiles: MatchCardData[];
     nextCursor: Cursor | null;
     offset: number;
 }
 
-export interface MatchData {
-    matchId: number;
-    userId: number;
-    name: string;
-    age: number;
-    imgPath: string;
-    compatibility: number | null;
-    hasCompatibility: boolean;
-    matchColor: string;
-    isNew: boolean;
-    offset: number;
-}
-
-function toMatchView(item: Match, offset: number): MatchData {
+function toMatchView(item: Match, offset: number): MatchCardData {
     const compatibility = item.compatibility !== null ? Math.round(item.compatibility * 100) : null;
     const hasCompatibility = compatibility !== null;
     return {
@@ -86,9 +73,14 @@ export function renderMatchesPage(root: HTMLElement) {
         if (!card) return;
 
         delete card.dataset.new;
-        sendMatchSeen(Number(card.dataset.matchId)).catch((error) => {
-            console.error('Не удалось отметить мэтч просмотренным:', error);
-        });
+        sendMatchSeen(Number(card.dataset.matchId))
+            .then(() => {
+                getElement(card, '.match-card__new').remove();
+            })
+            .catch((error) => {
+                card.dataset.new = '';
+                console.error('Не удалось отметить мэтч просмотренным:', error);
+            });
     });
 
     moreButton.addEventListener('click', loadMore);
