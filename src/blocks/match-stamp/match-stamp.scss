@@ -22,6 +22,16 @@
     @include v.text-style('heading-30-extrabold');
 }
 
+.match-stamp_size_s {
+    width: 90px;
+    height: 90px;
+}
+
+.match-stamp_size_s .match-stamp__value {
+    transform: rotate(9deg);
+    @include v.text-style('body-16-semibold');
+}
+
 .match-stamp_color_lilac {
     color: v.$color-accent-lilac-ink;
 }

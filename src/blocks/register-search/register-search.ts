@@ -1,75 +1,94 @@
-import { initFormFieldErrorReset, validateFormFields } from '../form-field/form-field.js';
+import { setFormFieldError, validateFormFields } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
-import { validateSearchAge, validateSearchSex, validateDatingGoal } from '../../validation.js';
-import { DATING_GOALS } from '../../dating-goals.js';
+import {
+    searchFilterTemplate,
+    initSearchFilter,
+    readSearchFilter,
+    searchFilterRules,
+    toSearchFilter,
+    type SearchFilterFields,
+} from '../search-filter/search-filter.js';
+import { validateDatingGoal } from '../../validation.js';
+import { DATING_GOALS } from '../../facts/facts.js';
 import { updateProfile, setSearchFilter } from '../../api/api.js';
-import type { SearchSex } from '../../api/api.types.js';
-import { asOption, firstRadio } from '../../utils/dom.js';
-import type { TypedForm } from '../../utils/dom.js';
-import type { RegisterStepLogicWithSave } from '../register-form/register-form.js';
+import type { DatingGoal } from '../../api/api.types.js';
+// import { validateSearchAge, validateSearchSex, validateDatingIntent } from '../../validation.js';
 import registerSearchHbs from './register-search.hbs';
 
-type SearchForm = TypedForm<{
-    searchSex: RadioNodeList;
-    ageFrom: HTMLInputElement;
-    ageTo: HTMLInputElement;
-    datingGoal: RadioNodeList;
-}>;
+/**
+ * Поля data регистрации, которые заполняет этот шаг. Пустые, пока пользователь их не ввёл.
+ */
+interface SearchStepData {
+    searchSex?: string;
+    searchAgeFrom?: string;
+    searchAgeTo?: string;
+    datingGoal?: string;
+}
 
-const SEARCH_SEX_CHIPS: { value: SearchSex; text: string }[] = [
-    { value: 'female', text: 'Девушек' },
-    { value: 'male', text: 'Парней' },
-    { value: 'all', text: 'Всех' },
-];
-
-const SEARCH_SEX_VALUES = SEARCH_SEX_CHIPS.map(({ value }) => value);
-
-const DATING_GOAL_CHIPS = DATING_GOALS.map(({ key, label }) => ({ value: key, text: label }));
-
-const DATING_GOAL_VALUES = DATING_GOALS.map(({ key }) => key);
+const DATING_GOAL_OPTIONS = DATING_GOALS.map(({ key, label }) => ({ value: key, text: label }));
 
 /**
- * Шаг регистрации: кого ищете.
+ * @param {SearchStepData} data - data шагов регистрации.
+ * @returns {Partial<SearchFilterFields>} Значения для полей фильтра.
  */
-export const searchStep: RegisterStepLogicWithSave = {
-    template() {
+function filterFields(data: SearchStepData): Partial<SearchFilterFields> {
+    return { sex: data.searchSex, ageFrom: data.searchAgeFrom, ageTo: data.searchAgeTo };
+}
+
+/**
+ * @param {HTMLFormElement} form
+ * @returns {RadioNodeList} Чипы цели знакомства.
+ */
+function datingGoalInput(form: HTMLFormElement): RadioNodeList {
+    return form.elements.namedItem('datingGoal') as RadioNodeList;
+}
+
+/**
+ * Шаг 3: кого ищете. Сохраняет в data: searchSex, searchAgeFrom, searchAgeTo, datingGoal.
+ */
+export const searchStep = {
+    template(): string {
         return registerSearchHbs({
-            searchSex: chipsTemplate({
-                type: 'radio',
-                name: 'searchSex',
-                chips: SEARCH_SEX_CHIPS,
-            }),
+            searchFilter: searchFilterTemplate('register-search'),
             datingGoal: chipsTemplate({
                 type: 'radio',
                 name: 'datingGoal',
-                chips: DATING_GOAL_CHIPS,
+                chips: DATING_GOAL_OPTIONS,
             }),
         });
     },
 
-    init(form: SearchForm, data) {
-        form.elements.searchSex.value = data.searchSex ?? '';
-        form.elements.ageFrom.value = data.searchAgeFrom ?? '';
-        form.elements.ageTo.value = data.searchAgeTo ?? '';
-        form.elements.datingGoal.value = data.datingGoal ?? '';
+    init(form: HTMLFormElement, data: SearchStepData) {
+        initSearchFilter(form, filterFields(data));
+        datingGoalInput(form).value = data.datingGoal ?? '';
 
-        initFormFieldErrorReset(form);
+        form.addEventListener('input', (event) => {
+            const target = event.target as HTMLInputElement;
+
+            if (target.name === 'datingGoal') {
+                setFormFieldError(target, null);
+            }
+        });
     },
 
-    save(form: SearchForm, data) {
-        data.searchSex = asOption(SEARCH_SEX_VALUES, form.elements.searchSex.value);
-        data.searchAgeFrom = form.elements.ageFrom.value.trim();
-        data.searchAgeTo = form.elements.ageTo.value.trim();
-        data.datingGoal = asOption(DATING_GOAL_VALUES, form.elements.datingGoal.value);
+    save(form: HTMLFormElement, data: SearchStepData) {
+        const { sex, ageFrom, ageTo } = readSearchFilter(form);
+
+        data.searchSex = sex;
+        data.searchAgeFrom = ageFrom;
+        data.searchAgeTo = ageTo;
+        data.datingGoal = datingGoalInput(form).value;
     },
 
-    validate(form: SearchForm, data) {
-        const { searchSex, ageFrom, ageTo, datingGoal } = form.elements;
+    validate(form: HTMLFormElement, data: SearchStepData): boolean {
+        const datingGoal = datingGoalInput(form);
 
         const isValid = validateFormFields([
-            { input: firstRadio(searchSex), validate: () => validateSearchSex(searchSex.value) },
-            { input: ageFrom, validate: () => validateSearchAge(ageFrom.value, ageTo.value) },
-            { input: firstRadio(datingGoal), validate: () => validateDatingGoal(datingGoal.value) },
+            ...searchFilterRules(form),
+            {
+                input: datingGoal[0] as HTMLInputElement,
+                validate: () => validateDatingGoal(datingGoal.value),
+            },
         ]);
 
         if (!isValid) {
@@ -81,24 +100,10 @@ export const searchStep: RegisterStepLogicWithSave = {
         return true;
     },
 
-    async submit(form, data) {
-        const { searchSex, searchAgeFrom, searchAgeTo, datingGoal } = data;
-
-        if (
-            searchSex === undefined ||
-            searchAgeFrom === undefined ||
-            searchAgeTo === undefined ||
-            datingGoal === undefined
-        ) {
-            throw new Error('Шаг поиска: validate не заполнил данные');
-        }
-
-        await updateProfile({ dating_goal: datingGoal });
-        await setSearchFilter({
-            sex: searchSex,
-            age_from: Number(searchAgeFrom),
-            age_to: Number(searchAgeTo),
-        });
+    // Вызывается после validate, поэтому все поля data уже заполнены и проверены.
+    async submit(_form: HTMLFormElement, data: SearchStepData): Promise<boolean> {
+        await updateProfile({ dating_goal: data.datingGoal as DatingGoal });
+        await setSearchFilter(toSearchFilter(filterFields(data) as SearchFilterFields));
         return true;
     },
 };

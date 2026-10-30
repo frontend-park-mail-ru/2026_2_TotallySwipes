@@ -63,23 +63,19 @@ export interface ProfileShort {
     user_id: number;
     name: string | null;
     age: number | null;
+    city: string | null;
     photo_url: Photo['url'] | null;
     missing: MissingField[];
 }
 
-export interface Profile {
+export interface Profile extends UserFacts {
     user_id: number;
     name: string | null;
     birth_date: string | null;
     age: number | null;
     sex: Sex | null;
-    dating_goal: DatingGoal | null;
     about_me: string | null;
     education: Education | null;
-    work: string | null;
-    smoking: Attitude | null;
-    alcohol: Attitude | null;
-    height: number | null;
     tags: TagKey[];
     photos: Photo[];
     missing: MissingField[];
@@ -105,24 +101,28 @@ export interface SearchFilter {
     age_to: number;
 }
 
-export type FeedCursor = number;
+export type Cursor = number;
 
 export interface FeedParams {
     limit?: number;
-    cursor?: FeedCursor;
+    cursor?: Cursor;
 }
 
-export interface FeedItem {
-    user_id: number;
-    name: string;
-    age: number;
-    about_me: string | null;
+export interface UserFacts {
     education: Education | null;
     work: string | null;
     smoking: Attitude | null;
     alcohol: Attitude | null;
     height: number | null;
     dating_goal: DatingGoal;
+}
+
+export interface FeedItem extends UserFacts {
+    user_id: number;
+    name: string;
+    age: number;
+    city: string | null;
+    about_me: string | null;
     compatibility: number | null;
     tags: TagKey[];
     photos: Photo[];
@@ -131,7 +131,7 @@ export interface FeedItem {
 
 export interface FeedPage {
     items: FeedItem[];
-    next_cursor: FeedCursor | null;
+    next_cursor: Cursor | null;
 }
 
 export type SwipeAction = 'like' | 'dislike' | 'super';
@@ -207,4 +207,26 @@ export interface TestResult {
     big_five: BigFive;
     personality_type: PersonalityType;
     about_personality_type: string;
+}
+
+export interface Match {
+    match_id: number;
+    user_id: number;
+    name: string;
+    age: number;
+    photo_url: string | null;
+    compatibility: number | null;
+    is_new: boolean;
+    created_at: string;
+}
+
+export interface MatchesPage {
+    total: number;
+    items: Match[];
+    next_cursor: Cursor | null;
+}
+
+export interface MatchesParams {
+    limit?: number;
+    cursor?: Cursor;
 }

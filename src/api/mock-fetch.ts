@@ -33,7 +33,7 @@ export async function mockFetch(url: string, options: RequestInit = {}): Promise
 
     const route =
         MOCK_ROUTES[`${method} ${parsedUrl.pathname}`] ??
-        MOCK_ROUTES[`${method} ${parsedUrl.pathname.replace(/\/\d+$/, '/{id}')}`];
+        MOCK_ROUTES[`${method} ${parsedUrl.pathname.replace(/\/\d+(?=\/|$)/g, '/{id}')}`];
     if (!route) {
         return jsonResponse({ error: { code: 'NOT_FOUND', message: 'Not found' } }, 404);
     }

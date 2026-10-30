@@ -1,6 +1,10 @@
-<article class="profile-card {{mix}}">
+<article class="profile-card {{mix}}" data-id="{{id}}">
     <div class="profile-card__gallery">
-        <img class="profile-card__photo" src="{{imgPath}}" alt="{{name}}" draggable="false">
+        {{#each imgPath}}
+            <img class="profile-card__photo {{#if @first}}profile-card__photo_visible{{/if}}" src="{{this}}" alt="photo" draggable="false">
+        {{/each}}
+
+        {{{pager}}}
         <img class="profile-card__swipe-stamp profile-card__swipe-stamp_type_like" src="/icons/stamp-yes.svg" alt="" draggable="false">
         <img class="profile-card__swipe-stamp profile-card__swipe-stamp_type_dislike" src="/icons/stamp-no.svg" alt="" draggable="false">
         <img class="profile-card__swipe-stamp profile-card__swipe-stamp_type_super" src="/icons/stamp-super.svg" alt="" draggable="false">
@@ -18,7 +22,6 @@
         <div class="profile-card__title">
             <span class="profile-card__name">{{name}}</span>,&nbsp;<span class="profile-card__age">{{age}}</span>
         </div>
-        {{!-- TODO: расскоментить когда будет локация --}}
-        {{!-- {{{location}}} --}}
+        {{{location}}}
     </div>
 </article>

@@ -72,6 +72,13 @@
     background-color: v.$color-primary-hover;
 }
 
+.button_view_secondary {
+    border: 1px solid v.$color-secondary;
+    background-color: v.$color-secondary;
+    color: v.$color-on-secondary;
+    border-radius: 10px;
+}
+
 .button_view_plain {
     padding: 0;
     border: 0;

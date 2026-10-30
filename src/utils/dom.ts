@@ -55,3 +55,25 @@ export function firstRadio(group: RadioNodeList): HTMLInputElement {
 export function asOption<T extends string>(options: readonly T[], value: string): T | undefined {
     return options.find((option) => option === value);
 }
+
+/**
+ * Возвращает все элементы по селектору внутри родителя.
+ * Если ни одного нет, выбрасывает ошибку.
+ *
+ * @param parent - Узел, внутри которого идёт поиск.
+ * @param selector - CSS-селектор.
+ * @returns Найденные элементы.
+ * @throws {Error} Если элементы по селектору не найдены.
+ */
+export function getAllElements<T extends Element = HTMLElement>(
+    parent: ParentNode,
+    selector: string,
+): NodeListOf<T> {
+    const elements = parent.querySelectorAll<T>(selector);
+
+    if (elements.length === 0) {
+        throw new Error(`Элементы по селектору "${selector}" не найдены`);
+    }
+
+    return elements;
+}

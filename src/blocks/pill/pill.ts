@@ -10,7 +10,7 @@ export interface PillProps {
     /** Текст. */
     text: string;
     /** Размер. Если не указан, используется размер по умолчанию. */
-    size?: 's';
+    size?: 's' | 'xs';
     /** Цвет. */
     color: AccentColor;
     /** Дополнительные CSS-классы (БЭМ-микс). */

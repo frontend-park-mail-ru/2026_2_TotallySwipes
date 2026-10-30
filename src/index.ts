@@ -10,6 +10,7 @@ import { renderTestPage } from './blocks/test/test.js';
 import { renderTestResultPage } from './blocks/test-result/test-result.js';
 import { renderLoginPage, renderRegisterPage } from './blocks/auth/auth.js';
 import { showModal } from './blocks/modal/modal.js';
+import { renderMatchesPage } from './blocks/matches/matches.js';
 
 const GUEST_PATHS = ['/login', '/register'];
 const ONBOARDING_PATH = '/register';
@@ -119,6 +120,7 @@ function startApp() {
         .register('/', withLayout(renderFeedPage))
         .register('/test', withLayout(renderTestPage))
         .register('/test/result', withLayout(renderTestResultPage))
+        .register('/matches', withLayout(renderMatchesPage))
         .register(
             '*',
             withLayout((container) => {

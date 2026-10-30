@@ -152,9 +152,19 @@ const FEED_ITEMS = [
             'Работаю в книжном издательстве, по выходным катаюсь на велосипеде вдоль реки. Ищу человека, с которым можно молчать и не скучать.',
         dating_goal: 'relationship',
         compatibility: 0.87,
+        education: 'higher',
+        alcohol: 'negative',
+        smoking: 'negative',
+        work: 'Бебра',
+        height: 161,
         age: 24,
+        city: 'Москва',
         tags: ['книги', 'велосипед', 'кофе', 'музыка', 'походы'],
-        photos: [{ id: 1, url: '/img/1.jpg' }],
+        photos: [
+            { id: 1, url: '/public/img/1.jpg' },
+            { id: 2, url: '/public/img/2.jpg' },
+            { id: 3, url: '/public/img/3.jpg' },
+        ],
     },
     {
         user_id: 43,
@@ -163,6 +173,7 @@ const FEED_ITEMS = [
         dating_goal: 'relationship',
         compatibility: 0.82,
         age: 25,
+        city: 'Санкт-Петербург',
         tags: ['кулинария', 'концерты', 'животные'],
         photos: [{ id: 2, url: '/img/2.jpg' }],
     },
@@ -173,6 +184,7 @@ const FEED_ITEMS = [
         dating_goal: 'casual',
         compatibility: 0.91,
         age: 26,
+        city: 'Казань',
         tags: ['бег', 'настолки'],
         photos: [{ id: 3, url: '/img/3.jpg' }],
     },
@@ -183,6 +195,7 @@ const FEED_ITEMS = [
         dating_goal: 'friendship',
         compatibility: 0.76,
         age: 27,
+        city: 'Москва',
         tags: ['фотография', 'рисование', 'путешествия'],
         photos: [{ id: 4, url: '/img/1.jpg' }],
     },
@@ -193,6 +206,7 @@ const FEED_ITEMS = [
         dating_goal: 'relationship',
         compatibility: 0.64,
         age: 28,
+        city: null,
         tags: ['кино'],
         photos: [{ id: 5, url: '/img/2.jpg' }],
     },
@@ -203,6 +217,7 @@ const FEED_ITEMS = [
         dating_goal: 'casual',
         compatibility: null,
         age: 29,
+        city: 'Новосибирск',
         tags: [],
         photos: [{ id: 6, url: '/img/3.jpg' }],
     },
@@ -251,6 +266,81 @@ function feedPage(url: URL): MockResponse {
     };
 }
 
+const MATCH_NAMES = [
+    'Даша',
+    'Алина',
+    'Соня',
+    'Марина',
+    'Катя',
+    'Александраsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsd',
+    'Вера',
+    'Лиза',
+    'Настя',
+    'Полина',
+    'Ксюша',
+    'Ника',
+    'Аня',
+    'Оля',
+    'Женя',
+];
+
+const MATCH_ITEMS = MATCH_NAMES.map((name, index) => ({
+    match_id: 100 - index,
+    user_id: 200 + index,
+    name: index === 7 ? null : name,
+    age: index === 9 ? null : 22 + (index % 8),
+    photo_url: index % 5 === 3 ? null : `/img/${(index % 3) + 1}.jpg`,
+    compatibility: index % 4 === 0 ? null : Math.round((0.95 - index * 0.03) * 100) / 100,
+    is_new: index < 3,
+    created_at: new Date(Date.UTC(2026, 9, 20 - index, 12)).toISOString(),
+}));
+
+const SEEN_MATCHES_KEY = 'mock-seen-matches';
+
+const MATCHES_LIMIT_MAX = 48;
+
+// Просмотренные мэтчи живут в localStorage, чтобы метка «Новая» не возвращалась после обновления.
+const loadSeenMatches = (): number[] => JSON.parse(localStorage.getItem(SEEN_MATCHES_KEY) ?? '[]');
+
+const saveSeenMatch = (matchId: number) => {
+    const seen = new Set([...loadSeenMatches(), matchId]);
+    localStorage.setItem(SEEN_MATCHES_KEY, JSON.stringify([...seen]));
+};
+
+/**
+ * Отдаёт страницу мок-мэтчей: cursor - match_id последнего мэтча предыдущей страницы.
+ *
+ * @param {URL} url
+ * @returns {{status: number, body: Object}}
+ */
+function matchesPage(url: URL): MockResponse {
+    const limit = Number(url.searchParams.get('limit') ?? 12);
+    const cursor = url.searchParams.get('cursor');
+
+    if (!Number.isInteger(limit) || limit < 1 || limit > MATCHES_LIMIT_MAX) {
+        return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
+    }
+
+    const seen = loadSeenMatches();
+    const rest =
+        cursor === null
+            ? MATCH_ITEMS
+            : MATCH_ITEMS.filter((match) => match.match_id < Number(cursor));
+    const items = rest
+        .slice(0, limit)
+        .map((match) => ({ ...match, is_new: match.is_new && !seen.includes(match.match_id) }));
+    const hasMore = rest.length > limit;
+
+    return {
+        status: 200,
+        body: {
+            total: MATCH_ITEMS.length,
+            items,
+            next_cursor: hasMore ? items[items.length - 1].match_id : null,
+        },
+    };
+}
+
 export const MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/profile/me/short': () => ({
         status: 200,
@@ -258,6 +348,7 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
             user_id: mockProfile.user_id,
             name: mockProfile.name,
             age: mockProfile.birth_date ? 24 : null,
+            city: 'Москва',
             photo_url: mockProfile.photos[0]?.url ?? null,
             missing: missingFields(),
         },
@@ -266,6 +357,18 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
+    },
+    'GET /api/v1/matches': matchesPage,
+    'POST /api/v1/matches/{id}/seen': (url) => {
+        const matchId = Number(url.pathname.split('/').at(-2));
+
+        if (!MATCH_ITEMS.some((match) => match.match_id === matchId)) {
+            return error(404, 'MATCH_NOT_FOUND', 'Мэтч не найден');
+        }
+
+        saveSeenMatch(matchId);
+
+        return { status: 204 };
     },
     'GET /api/v1/tests/current': {
         status: 200,

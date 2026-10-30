@@ -1,41 +1,27 @@
-import { profileCardTemplate } from '../profile-card/profile-card.js';
+import { profileCardTemplate, nextPhoto } from '../profile-card/profile-card.js';
 import { profileDetailsTemplate } from '../profile-details/profile-details.js';
 import { initStack } from './__stack/feed__stack.js';
+import { feedFilterTemplate, initFeedFilter } from './__filter/feed__filter.js';
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button.js';
 import type { PillProps } from '../pill/pill.js';
-import { ACCENT_COLORS, type AccentColor } from '../../colors.js';
+import { ACCENT_COLORS } from '../../colors.js';
 import { emptyStateLayout } from '../empty-state/empty-state.js';
 import { getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
 import { interestIconUrl, interestLabel } from '../../interests.js';
 import feedHbs from './feed.hbs';
-import { type FeedCursor, type FeedItem, type SwipeAction } from '../../api/api.types.js';
+import { type Cursor, type FeedItem, type Photo, type SwipeAction } from '../../api/api.types.js';
 import { getElement } from '../../utils/dom.js';
-import { datingGoalFact } from '../../dating-goals.js';
-const STATIC_LOCATION = 'Москва, Хамовники · 3 км';
-
-// TODO: заполнять, когда будет профиль
-// const STATIC_FACTS = [
-//     { label: 'Рост', value: '168 см' },
-//     { label: 'Работа', value: 'Редактор' },
-//     { label: 'Образование', value: 'Высшее' },
-//     { label: 'Курение', value: 'Не курю' },
-// ];
-
-const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
-
-export interface FactData {
-    label: string;
-    value: string | null;
-}
+import { processFacts, type FactData } from '../../facts/facts.js';
+import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons.js';
 
 export interface ProfileData {
     id: number;
     name: string;
     age: number;
     about: string | null;
-    imgPath: string;
-    location: string;
+    imgPath: string[];
+    location: string | null;
     hasCompatibility: boolean;
     compatibility: number | null;
     compatibilityVerdict: string | null;
@@ -46,9 +32,15 @@ export interface ProfileData {
 export interface FeedState {
     profiles: ProfileData[];
     index: number;
-    nextCursor: FeedCursor | null;
+    nextCursor: Cursor | null;
     hasMore: boolean;
     isLoading: boolean;
+}
+
+interface LastSwipe {
+    profile: ProfileData;
+    direction: SwipeAction;
+    isPending: boolean;
 }
 
 /**
@@ -90,30 +82,25 @@ function toProfileView(item: FeedItem): ProfileData {
         name: item.name,
         age: item.age,
         about: item.about_me,
-        imgPath: item.photos[0]?.url ?? PHOTO_PLACEHOLDER,
-        location: STATIC_LOCATION,
+        imgPath:
+            item.photos.length > 0
+                ? item.photos.map((photo: Photo) => photo.url)
+                : [PHOTO_PLACEHOLDER],
+        location: item.city,
         hasCompatibility,
         compatibility,
         compatibilityVerdict: hasCompatibility ? compatibilityVerdict(compatibility) : null,
         interests: item.tags.map(toInterest),
-        facts: [{ label: 'Цель', value: datingGoalFact(item.dating_goal) }].filter(
-            (fact) => fact.value,
-        ),
-        // TODO: расскоментировать когда убдет профиль
-        // facts: [{ label: 'Цель', value: datingGoalFact(item.dating_goal) }, ...STATIC_FACTS].filter(
-        //     (fact) => fact.value,
-        // ),
+        facts: processFacts(item),
     };
 }
 
 const ACTIONS: RoundButtonData[] = [
-    { type: 'undo', size: 's', icon: '/icons/undo.svg', label: 'Вернуть', disabled: true },
+    { type: 'undo', size: 's', icon: '/icons/undo.svg', label: 'Вернуть' },
     { type: 'dislike', size: 'l', icon: '/icons/x.svg', label: 'Не нравится' },
     { type: 'super', size: 'm', icon: '/icons/star.svg', label: 'Суперлайк' },
     { type: 'like', size: 'l', icon: '/icons/heart_filled.svg', label: 'Нравится' },
 ];
-
-const MATCH_COLORS: readonly AccentColor[] = ['lilac', 'mint', 'pink', 'sky', 'sun'];
 
 const PREFETCH_THRESHOLD = 4;
 
@@ -200,6 +187,8 @@ export function renderFeedPage(root: HTMLElement) {
         isLoading: false,
     };
 
+    let lastSwipe: LastSwipe | null = null;
+
     const page: HTMLElement = document.createElement('section');
     page.className = 'feed';
 
@@ -209,31 +198,55 @@ export function renderFeedPage(root: HTMLElement) {
         details: details,
         actions: ACTIONS.map((action) => roundButtonTemplate(action)).join(''),
         emptyState: emptyStateLayout(),
+        filter: feedFilterTemplate({ label: 'Фильтр' }),
     });
 
     root.append(page);
+
+    const feedFilter = initFeedFilter(page, { onApply: reloadBehindTop });
 
     const stackElement = getElement(page, '.feed__stack');
     const detailsElement = getElement(page, '.feed__details');
 
     const stack = initStack(stackElement, {
-        onSwipe(direction: SwipeAction) {
-            const swiped = state.profiles[state.index];
-            sendSwipe(swiped.id, direction).catch((error) => {
-                console.error('Не удалось отправить свайп:', error);
-                if (!page.isConnected) return;
+        onSwipe(card: HTMLElement, direction: SwipeAction) {
+            const swiped = state.profiles.find((profile) => profile.id === Number(card.dataset.id));
+            // const swiped = state.profiles[state.index];
+            if (!swiped) return;
+            // lastSwipe = direction;
+            const current: LastSwipe = {
+                direction: direction,
+                profile: swiped,
+                isPending: true,
+            };
 
-                state.profiles.splice(state.index, 0, swiped);
-                const html = cardHtml(state.index, state);
-                stackElement.insertAdjacentHTML('beforeend', html);
-                if (stackElement.children.length > 3) {
-                    stackElement.firstElementChild?.remove();
-                }
-                updateLayers(stackElement);
-                updateEmpty();
-                detailsElement.innerHTML = detailsHtml(state);
-                showModal(SWIPE_ERROR_MODAL);
-            });
+            lastSwipe = current;
+            updateUndo();
+
+            sendSwipe(swiped.id, direction)
+                .then(() => {
+                    current.isPending = false;
+                    updateUndo();
+                })
+                .catch((error) => {
+                    console.error('Не удалось отправить свайп:', error);
+                    if (!page.isConnected) return;
+
+                    state.profiles.splice(state.index, 0, swiped);
+                    const html = cardHtml(state.index, state);
+                    stackElement.insertAdjacentHTML('beforeend', html);
+                    if (stackElement.children.length > 3) {
+                        stackElement.firstElementChild?.remove();
+                    }
+                    updateLayers(stackElement);
+                    updateEmpty();
+                    detailsElement.innerHTML = detailsHtml(state);
+
+                    if (lastSwipe === current) lastSwipe = null;
+
+                    updateUndo();
+                    showModal(SWIPE_ERROR_MODAL);
+                });
 
             state.index++;
             if (state.profiles.length - state.index <= PREFETCH_THRESHOLD) {
@@ -242,24 +255,51 @@ export function renderFeedPage(root: HTMLElement) {
 
             fillStack(stackElement, state);
             updateLayers(stackElement);
+            updateUndo();
             updateEmpty();
             detailsElement.innerHTML = detailsHtml(state);
         },
+        onTap: nextPhoto,
     });
 
     const actionsElement = getElement(page, '.feed__actions');
+    const undoButton = getElement<HTMLButtonElement>(actionsElement, '[data-action="undo"]');
     actionsElement.addEventListener('click', (event) => {
         if (!(event.target instanceof Element)) return;
 
         const button = event.target.closest<HTMLButtonElement>('[data-action]');
         if (!button || button.disabled) return;
 
-        const direction = button.dataset.action;
-        if (direction !== 'like' && direction !== 'dislike' && direction !== 'super') return;
+        const action = button.dataset.action;
 
-        stack.swipe(direction);
+        if (
+            (action === 'like' || action === 'dislike' || action === 'super') &&
+            stackElement.lastElementChild instanceof HTMLElement
+        ) {
+            stack.swipe(stackElement.lastElementChild, action);
+        } else if (action === 'undo') {
+            undo();
+        }
     });
 
+    const feedEmptyElement = getElement(page, '.feed__empty');
+    const feedEmptyUndoButton = getElement<HTMLButtonElement>(
+        feedEmptyElement,
+        '[data-action="undo"]',
+    );
+    feedEmptyUndoButton.addEventListener('click', undo);
+
+    const feedEmptyFilterButton = getElement<HTMLButtonElement>(
+        feedEmptyElement,
+        '[data-action="filter"]',
+    );
+    feedEmptyFilterButton.addEventListener('click', (event) => {
+        // Иначе этот же клик дойдёт до document и панель сразу закроется как клик снаружи.
+        event.stopPropagation();
+        feedFilter.open();
+    });
+
+    updateUndo();
     loadMore();
 
     /**
@@ -269,13 +309,19 @@ export function renderFeedPage(root: HTMLElement) {
         if (state.isLoading || !state.hasMore) return;
         state.isLoading = true;
 
+        // reloadBehindTop заменяет массив: ответ для старого массива пришёл по старому фильтру.
+        const profiles = state.profiles;
+
         getFeed({ cursor: state.nextCursor ?? undefined })
             .then(({ items, next_cursor: nextCursor }) => {
-                if (!page.isConnected) return;
+                if (!page.isConnected || profiles !== state.profiles) return;
 
                 const wasExhausted = state.index >= state.profiles.length;
+                // Верхняя карточка, оставшаяся после смены фильтра, может прийти снова.
+                const knownIds = new Set(state.profiles.map((profile) => profile.id));
+                const newItems = items.filter((item) => !knownIds.has(item.user_id));
 
-                state.profiles.push(...items.map(toProfileView));
+                state.profiles.push(...newItems.map(toProfileView));
                 state.nextCursor = nextCursor;
                 state.hasMore = nextCursor !== null;
 
@@ -289,15 +335,32 @@ export function renderFeedPage(root: HTMLElement) {
             })
             .catch((error) => {
                 console.error('Не удалось загрузить ленту:', error);
-                if (!page.isConnected) return;
+                if (!page.isConnected || profiles !== state.profiles) return;
 
                 if (state.index >= state.profiles.length) {
                     showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
                 }
             })
             .finally(() => {
-                state.isLoading = false;
+                if (profiles === state.profiles) state.isLoading = false;
             });
+    }
+
+    function reloadBehindTop() {
+        const top = state.profiles[state.index];
+
+        state.profiles = top ? [top] : [];
+        state.index = 0;
+        state.nextCursor = null;
+        state.hasMore = true;
+        state.isLoading = false;
+
+        [...stackElement.children].slice(0, -1).forEach((card) => card.remove());
+
+        lastSwipe = null;
+        updateUndo();
+        updateEmpty();
+        loadMore();
     }
 
     /**
@@ -306,5 +369,34 @@ export function renderFeedPage(root: HTMLElement) {
     function updateEmpty() {
         const isExhausted = state.index >= state.profiles.length;
         page.classList.toggle('feed_empty', isExhausted && !state.hasMore);
+    }
+
+    function updateUndo() {
+        const isDisabled = lastSwipe === null || lastSwipe?.isPending;
+        undoButton.disabled = isDisabled;
+        feedEmptyUndoButton.disabled = isDisabled;
+    }
+
+    function undo() {
+        if (!lastSwipe || stack.isStackAnimating() || lastSwipe.isPending) return;
+
+        const { direction } = lastSwipe;
+        lastSwipe = null;
+        updateUndo();
+
+        state.index--;
+        const html = cardHtml(state.index, state);
+        stackElement.insertAdjacentHTML('beforeend', html);
+        if (stackElement.children.length > 3) {
+            stackElement.firstElementChild?.remove();
+        }
+        const card = stackElement.lastElementChild;
+
+        if (!(card instanceof HTMLElement)) return;
+
+        updateEmpty();
+        stack.unswipe(card, direction);
+        updateLayers(stackElement);
+        detailsElement.innerHTML = detailsHtml(state);
     }
 }

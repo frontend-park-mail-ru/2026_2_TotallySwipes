@@ -1,0 +1,117 @@
+@use '../../variables' as v;
+
+.match-card {
+    // display: flex;
+
+    // flex-direction: column;
+    // background-color: v.$color-surface;
+    position: relative;
+    // padding: 10px;
+}
+
+.match-card__surface {
+    box-shadow: v.$shadow-panel;
+    position: relative;
+    aspect-ratio: 258 / 322;
+    overflow: hidden;
+    border-radius: 22px;
+}
+
+.match-card__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.match-card__stamp {
+    position: absolute;
+    top: -20px;
+    right: -15px;
+}
+
+.match-card__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    gap: 8px;
+    transform: translateY(116px);
+    transition: transform 0.3s;
+    pointer-events: none;
+}
+
+.match-card:hover .match-card__bottom {
+    transform: translateY(0);
+}
+
+.match-card__menu {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    gap: 8px;
+    padding: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 16px;
+    background-color: v.$color-surface;
+    box-shadow: v.$shadow-panel;
+    pointer-events: auto;
+}
+
+.match-card:hover .match-card__menu {
+    opacity: 1;
+}
+
+.match-card__button {
+    position: relative;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 0;
+    white-space: nowrap;
+    border-radius: 12px;
+}
+
+.match-card__info {
+    display: flex;
+    margin-left: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    @include v.text-style('body-16-semibold');
+    box-shadow: v.$shadow-sticker;
+    background-color: v.$color-surface;
+    color: v.$color-text-primary;
+    max-width: calc(100% - 32px);
+}
+
+.match-card__name {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    color: inherit;
+}
+
+.match-card__age {
+    // display: block;
+    flex-shrink: 0;
+    color: v.$color-text-secondary;
+}
+
+.match-card__link {
+    position: absolute;
+    inset: 0;
+}
+
+.match-card__new {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    pointer-events: none;
+}
