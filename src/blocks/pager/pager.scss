@@ -17,9 +17,9 @@
 }
 
 .pager__segment_done {
-    background: var(--color-text-secondary);
+    background: v.$color-text-secondary;
 }
 
 .pager__segment_current {
-    background: var(--color-text-primary);
+    background: v.$color-text-primary;
 }

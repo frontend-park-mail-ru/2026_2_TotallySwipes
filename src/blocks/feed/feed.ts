@@ -1,6 +1,6 @@
 import { profileCardTemplate, nextPhoto } from '../profile-card/profile-card.js';
 import { profileDetailsTemplate } from '../profile-details/profile-details.js';
-import { initStack } from './__stack/feed__stack.js';
+import { initStack, updateLayers } from '../swipe-stack/swipe-stack.js';
 import { feedFilterTemplate, initFeedFilter } from './__filter/feed__filter.js';
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button.js';
 import type { PillProps } from '../pill/pill.js';
@@ -134,20 +134,6 @@ function fillStack(stackElement: HTMLElement, state: FeedState) {
 }
 
 /**
- * Расставляет модификаторы слоёв: у верхней карточки layer_1.
- *
- * @param {HTMLElement} stackElement
- */
-function updateLayers(stackElement: HTMLElement) {
-    const cards = [...stackElement.children].reverse();
-
-    cards.forEach((card, index) => {
-        card.classList.remove('feed__card_layer_1', 'feed__card_layer_2', 'feed__card_layer_3');
-        card.classList.add(`feed__card_layer_${index + 1}`);
-    });
-}
-
-/**
  * @param {number} index - Индекс анкеты в state.profiles.
  * @param {Object} state - Состояние ленты.
  * @returns {string} HTML карточки или пустая строка, если анкеты нет.
@@ -156,7 +142,7 @@ function cardHtml(index: number, state: FeedState): string {
     const profile = state.profiles[index];
     if (!profile) return '';
 
-    return profileCardTemplate('feed__card', {
+    return profileCardTemplate('swipe-stack__card', {
         ...profile,
         matchColor: MATCH_COLORS[index % MATCH_COLORS.length],
     });

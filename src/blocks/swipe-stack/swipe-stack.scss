@@ -1,0 +1,54 @@
+@use '../../variables.scss' as v;
+
+.swipe-stack {
+    position: relative;
+    z-index: 1;
+}
+
+.swipe-stack__card {
+    position: absolute;
+    inset: 0;
+    transition:
+        transform 0.5s,
+        opacity 0.5s;
+    transform-origin: bottom center;
+    box-shadow: v.$shadow-card;
+    user-select: none;
+}
+
+.swipe-stack__card_layer_1 {
+    transform: translateY(-5px);
+    cursor: grab;
+}
+
+.swipe-stack__card_layer_2 {
+    --stack-stamp-visible: 0;
+    transform: rotate(-3deg);
+    pointer-events: none;
+}
+
+.swipe-stack__card_layer_3 {
+    --stack-stamp-visible: 0;
+    transform: rotate(3deg);
+    pointer-events: none;
+}
+
+.swipe-stack__card_leaving_like {
+    transform: translateX(150%) rotate(20deg);
+    opacity: 0;
+}
+
+.swipe-stack__card_leaving_dislike {
+    transform: translateX(-150%) rotate(-20deg);
+    opacity: 0;
+}
+
+.swipe-stack__card_leaving_super {
+    transform: translateY(-150%);
+    opacity: 0;
+}
+
+.swipe-stack__card_dragging {
+    transition: none;
+    cursor: grabbing;
+}

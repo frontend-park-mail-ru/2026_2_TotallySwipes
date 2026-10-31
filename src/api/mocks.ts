@@ -161,9 +161,9 @@ const FEED_ITEMS = [
         city: 'Москва',
         tags: ['книги', 'велосипед', 'кофе', 'музыка', 'походы'],
         photos: [
-            { id: 1, url: '/public/img/1.jpg' },
-            { id: 2, url: '/public/img/2.jpg' },
-            { id: 3, url: '/public/img/3.jpg' },
+            { id: 1, url: '/img/1.jpg' },
+            { id: 2, url: '/img/2.jpg' },
+            { id: 3, url: '/img/3.jpg' },
         ],
     },
     {
