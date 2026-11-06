@@ -56,6 +56,9 @@ $shadow-dialog:
     0 32px 64px -24px rgba(20, 20, 20, 0.45),
     0 2px 4px rgba(20, 20, 20, 0.06);
 
+$filter-sticker: drop-shadow(0 1px 1px rgba(20, 20, 20, 0.08))
+    drop-shadow(0 8px 10px rgba(20, 20, 20, 0.16));
+
 $font-family: 'Onest', sans-serif;
 
 $text-styles: (

@@ -24,11 +24,11 @@ export function renderLayout(root: HTMLElement) {
 /**
  * Оборачивает страницу в каркас. Если каркас уже есть, меняется только основная область.
  *
- * @param {function(HTMLElement, Router): void} renderPage
- * @returns {function(HTMLElement, Router): void}
+ * @param {function(HTMLElement, Router, RouteParams): void} renderPage
+ * @returns {function(HTMLElement, Router, RouteParams): void}
  */
 export function withLayout(renderPage: PageRender): PageRender {
-    return (root, router) => {
+    return (root, router, params) => {
         let main = root.querySelector('.layout__main');
 
         if (main) {
@@ -39,6 +39,6 @@ export function withLayout(renderPage: PageRender): PageRender {
 
         if (!(main instanceof HTMLElement)) return;
 
-        renderPage(main, router);
+        renderPage(main, router, params);
     };
 }

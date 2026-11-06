@@ -35,3 +35,28 @@
     flex: 1;
     height: 57px;
 }
+
+.empty-state__image_sticker {
+    filter: v.$filter-sticker;
+}
+
+.empty-state_size_l {
+    gap: 16px;
+}
+
+.empty-state_size_l .empty-state__text {
+    width: auto;
+    max-width: 520px;
+}
+
+.empty-state_size_l .empty-state__actions {
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.empty-state_size_l .empty-state__button {
+    flex: none;
+    box-sizing: border-box;
+    height: 48px;
+    text-decoration: none;
+}

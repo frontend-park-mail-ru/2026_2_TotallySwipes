@@ -1,0 +1,32 @@
+<article class="ticket {{mix}}" data-id="{{id}}">
+    <div class="ticket__gallery">
+         <img class="ticket__photo" src="{{photoUrl}}" alt="photo" draggable="false">
+    </div>
+    
+    <div class="ticket__info">
+        <div class="ticket__title">
+            {{title}}
+            {{!-- <span class="profile-card__name">{{name}}</span>,&nbsp;<span class="profile-card__age">{{age}}</span> --}}
+        </div>
+        <ul class="ticket__facts">
+            <li class="ticket__fact">
+                <img class="ticket__fact-icon" src="/icons/clock.svg" alt="" draggable="false">
+                <div class="ticket__fact-text">
+                    <span class="ticket__fact-title">{{time}}</span>
+                    <span class="ticket__fact-caption">{{date}}</span>
+                </div>
+            </li>
+            <li class="ticket__fact">
+                <img class="ticket__fact-icon" src="/icons/pin.svg" alt="" draggable="false">
+                <div class="ticket__fact-text">
+                    <span class="ticket__fact-title">{{city}}</span>
+                    <span class="ticket__fact-caption">{{address}}</span>
+                </div>
+            </li>
+        </ul>
+        <a class="ticket__link" href="{{url}}" target="_blank" rel="noopener" draggable="false">
+            Подробнее на Timepad
+            <img class="ticket__link-icon" src="/icons/arrow-up-right.svg" alt="" draggable="false">
+        </a>
+    </div>
+</article>

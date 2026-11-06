@@ -11,6 +11,7 @@ import { renderTestResultPage } from './blocks/test-result/test-result.js';
 import { renderLoginPage, renderRegisterPage } from './blocks/auth/auth.js';
 import { showModal } from './blocks/modal/modal.js';
 import { renderMatchesPage } from './blocks/matches/matches.js';
+import { renderPlaceSearchPage } from './blocks/place-search/place-search.js';
 
 const GUEST_PATHS = ['/login', '/register'];
 const ONBOARDING_PATH = '/register';
@@ -121,6 +122,7 @@ function startApp() {
         .register('/test', withLayout(renderTestPage))
         .register('/test/result', withLayout(renderTestResultPage))
         .register('/matches', withLayout(renderMatchesPage))
+        .register('/matches/:matchId/places', withLayout(renderPlaceSearchPage))
         .register(
             '*',
             withLayout((container) => {

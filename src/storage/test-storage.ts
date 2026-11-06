@@ -5,6 +5,7 @@ import type {
     TestQuestion,
     TestResult,
 } from '../api/api.types.js';
+import { read, write, remove } from './storage.js';
 
 type UserId = ProfileShort['user_id'];
 
@@ -20,43 +21,6 @@ function draftKey(userId: UserId): string {
 
 function resultKey(userId: UserId): string {
     return `test-result:${userId}`;
-}
-
-/**
- * Читает JSON из localStorage.
- *
- * @param {string} key
- * @returns {*} Значение или null, если его нет или хранилище недоступно.
- */
-function read<T>(key: string): T | null {
-    try {
-        const value = localStorage.getItem(key);
-        return value === null ? null : JSON.parse(value);
-    } catch {
-        return null;
-    }
-}
-
-/**
- * Пишет значение в localStorage как JSON, ошибки хранилища игнорирует.
- *
- * @param {string} key
- * @param {*} value
- */
-function write(key: string, value: unknown): void {
-    try {
-        localStorage.setItem(key, JSON.stringify(value));
-    } catch {
-        return;
-    }
-}
-
-function remove(key: string): void {
-    try {
-        localStorage.removeItem(key);
-    } catch {
-        return;
-    }
 }
 
 /**
