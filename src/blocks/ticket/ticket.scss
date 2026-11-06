@@ -1,0 +1,123 @@
+@use '../../variables.scss' as v;
+
+.ticket {
+    display: flex;
+    align-items: stretch;
+    background-color: v.$color-surface;
+    border-radius: 30px;
+    padding: 8px;
+    gap: 16px;
+}
+
+.ticket__gallery {
+    flex: 0 0 calc(360 / 864 * 100%);
+}
+
+.ticket__info {
+    display: flex;
+    flex-direction: column;
+    border-left: v.$color-border-strong dashed 2px;
+    flex-grow: 1;
+    min-width: 0;
+    position: relative;
+    padding: 32px 32px 32px 24px;
+}
+
+.ticket__photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 22px;
+    display: block;
+}
+
+// надрывы билета
+.ticket__info::before,
+.ticket__info::after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    width: 32px;
+    height: 16px;
+    background-color: v.$color-bg-page;
+    transform: translateX(-50%);
+}
+
+.ticket__info::before {
+    top: -8px;
+    border-radius: 0 0 16px 16px;
+}
+
+.ticket__info::after {
+    bottom: -8px;
+    border-radius: 16px 16px 0 0;
+}
+
+.ticket__title {
+    @include v.text-style('heading-30-extrabold');
+    overflow-wrap: break-word;
+    word-break: keep-all;
+}
+
+.ticket__facts {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ticket__fact {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.ticket__fact-icon {
+    display: block;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-block: 2px;
+}
+
+.ticket__fact-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: v.$color-text-secondary;
+}
+
+.ticket__fact-title {
+    @include v.text-style('body-16-semibold');
+}
+
+.ticket__fact-caption {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    @include v.text-style('caption-13-regular');
+}
+
+.ticket__link {
+    display: flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 4px;
+    margin-top: auto;
+    color: v.$color-text-primary;
+    text-decoration: none;
+    @include v.text-style('body-16-semibold');
+}
+
+.ticket__link:hover {
+    text-decoration: underline;
+}
+
+.ticket__link-icon {
+    display: block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}

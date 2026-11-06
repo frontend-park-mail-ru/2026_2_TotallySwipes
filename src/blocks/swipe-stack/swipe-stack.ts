@@ -1,8 +1,9 @@
-import { type SwipeAction } from '../../../api/api.types';
+import { type SwipeAction } from '../../api/api.types';
 
 const SWIPE_THRESHOLD = 120;
 const TAP_THRESHOLD = 5;
 const ROTATION_COEF = 0.05;
+const ALL_DIRECTIONS: SwipeAction[] = ['like', 'dislike', 'super'];
 
 interface DragInfo {
     startX: number;
@@ -16,11 +17,30 @@ type StackAction = SwipeAction | 'tap';
 
 interface StackOptions {
     onSwipe: (card: HTMLElement, direction: SwipeAction) => void;
-    onTap: (card: HTMLElement, clientX: number, clientY: number) => void;
+    onTap?: (card: HTMLElement, clientX: number, clientY: number) => void;
+    directions?: SwipeAction[];
 }
 
 function clamp01(value: number): number {
     return Math.min(Math.max(value, 0), 1);
+}
+
+/**
+ * Расставляет модификаторы слоёв: у верхней карточки layer_1.
+ *
+ * @param {HTMLElement} stackElement
+ */
+export function updateLayers(stackElement: HTMLElement) {
+    const cards = [...stackElement.children].reverse();
+
+    cards.forEach((card, index) => {
+        card.classList.remove(
+            'swipe-stack__card_layer_1',
+            'swipe-stack__card_layer_2',
+            'swipe-stack__card_layer_3',
+        );
+        card.classList.add(`swipe-stack__card_layer_${index + 1}`);
+    });
 }
 
 /**
@@ -53,9 +73,14 @@ function resetCard(card: HTMLElement) {
  * @param {Object} params
  * @param {function(string): void} params.onSwipe - Вызывается с направлением после того,
  *     как карточка улетела.
+ * @param {string[]} [params.directions] - Направления, доступные для свайпа жестом.
+ *     По умолчанию все.
  * @returns {{swipe: function(string): void}}
  */
-export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOptions) {
+export function initStack(
+    stackElement: HTMLElement,
+    { onSwipe, onTap, directions = ALL_DIRECTIONS }: StackOptions,
+) {
     let isAnimating = false;
     let drag: DragInfo | null = null;
 
@@ -69,7 +94,9 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
             return;
         }
 
-        if (event.target.closest('.feed__card') !== top) return;
+        if (event.target.closest('.swipe-stack__card') !== top) return;
+
+        if (event.target.closest('a, button')) return;
 
         drag = {
             startX: event.clientX,
@@ -80,7 +107,7 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
         };
 
         drag.card.setPointerCapture(event.pointerId);
-        drag.card.classList.add('feed__card_dragging');
+        drag.card.classList.add('swipe-stack__card_dragging');
     });
 
     stackElement.addEventListener('pointermove', (event) => {
@@ -99,7 +126,7 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
     stackElement.addEventListener('pointerup', (event) => {
         if (!drag) return;
 
-        drag.card.classList.remove('feed__card_dragging');
+        drag.card.classList.remove('swipe-stack__card_dragging');
 
         let direction: StackAction | null = null;
 
@@ -115,13 +142,18 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
             direction = 'super';
         }
 
+        if (direction && !directions.includes(direction)) {
+            direction = null;
+        }
+
         if (Math.abs(drag.dx) < TAP_THRESHOLD && Math.abs(drag.dy) < TAP_THRESHOLD) {
             direction = 'tap';
         }
 
         if (direction) {
             if (direction === 'tap') {
-                onTap(drag.card, event.clientX, event.clientY);
+                if (onTap) onTap(drag.card, event.clientX, event.clientY);
+
                 resetCard(drag.card);
             } else {
                 swipe(drag.card, direction);
@@ -136,7 +168,7 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
     stackElement.addEventListener('pointercancel', () => {
         if (!drag) return;
         resetCard(drag.card);
-        drag.card.classList.remove('feed__card_dragging');
+        drag.card.classList.remove('swipe-stack__card_dragging');
         drag = null;
     });
 
@@ -164,7 +196,7 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
 
         top.style.transform = '';
         top.style.setProperty(`--swipe-${direction}`, '1');
-        top.classList.add(`feed__card_leaving_${direction}`);
+        top.classList.add(`swipe-stack__card_leaving_${direction}`);
 
         top.addEventListener('transitionend', (event) => {
             if (event.target !== top || event.propertyName !== 'transform') return;
@@ -187,13 +219,13 @@ export function initStack(stackElement: HTMLElement, { onSwipe, onTap }: StackOp
         isAnimating = true;
 
         card.style.setProperty(`--swipe-${direction}`, '1');
-        card.classList.add(`feed__card_leaving_${direction}`);
+        card.classList.add(`swipe-stack__card_leaving_${direction}`);
 
         // рефлоу чтобы браузер запомнил стартовое положение за экраном
         void card.offsetWidth;
 
         card.style.setProperty(`--swipe-${direction}`, '0');
-        card.classList.remove(`feed__card_leaving_${direction}`);
+        card.classList.remove(`swipe-stack__card_leaving_${direction}`);
 
         card.addEventListener('transitionend', (event) => {
             if (event.target !== card || event.propertyName !== 'transform') return;

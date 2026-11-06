@@ -17,6 +17,8 @@ export type Education = 'secondary' | 'vocational' | 'incomplete_higher' | 'high
 
 export type Attitude = 'negative' | 'neutral' | 'positive';
 
+export type uuid = string;
+
 export type TagKey =
     | 'coffee'
     | 'books'
@@ -229,4 +231,54 @@ export interface MatchesPage {
 export interface MatchesParams {
     limit?: number;
     cursor?: Cursor;
+}
+
+export interface Location {
+    city: string;
+    address: string | null;
+}
+
+export type EventSearchStatus = 'voting' | 'waiting_partner' | 'completed' | 'cancelled';
+
+export interface Categories {
+    id: number;
+    name: string;
+}
+
+export interface PlaceEvent {
+    id: number;
+    name: string;
+    starts_at: string;
+    image_url: Photo['url'] | null;
+    location: Location;
+    categories: Categories[];
+    url: string;
+}
+
+export interface EventsPage {
+    search_id: uuid;
+    expires_at: string;
+    city: Location['city'];
+    status: EventSearchStatus;
+    events: PlaceEvent[];
+    current_user_liked_event_ids: number[] | null; // null до отправки результата, [] без лайков
+    current_user_finished: boolean;
+    partner_finished: boolean;
+    matches: PlaceEvent[];
+}
+
+export interface PlaceSearchParams {
+    matchId: number;
+    city: Location['city'];
+}
+
+export interface PlaceSearchStateParams {
+    matchId: number;
+    searchId: uuid;
+}
+
+export interface PlaceSearchResultParams {
+    matchId: number;
+    searchId: uuid;
+    likedEventIds: number[];
 }

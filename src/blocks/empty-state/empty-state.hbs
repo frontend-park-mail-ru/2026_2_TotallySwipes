@@ -1,16 +1,27 @@
-<div class="empty-state">
-    <img class="empty-state__image" src="/icons/card-mascot-sky.svg" alt="">
+<div class="empty-state{{#if size}} empty-state_size_{{size}}{{/if}} {{mix}}">
+    <img class="empty-state__image{{#if sticker}} empty-state__image_sticker{{/if}}" src="{{image}}" alt="">
     <div class="empty-state__title">
-        Анкеты рядом закончились
+        {{title}}
     </div>
-    <p class="empty-state__text">Расширьте фильтры или загляните позже — новые люди появляются каждый день</p>
+    <p class="empty-state__text">{{text}}</p>
 
     <div class="empty-state__actions">
-        <button type="button" class="button button_view_ghost empty-state__button" data-action="undo">
-            <span class="button__text">Вернуть последнюю</span>
-        </button>
-        <button type="button" class="button button_view_primary empty-state__button" data-action="filter">
-            <span class="button__text">Расширить фильтры</span>
-        </button>
+        {{#each actions}}
+            {{#if href}}
+                <a class="button button_view_{{view}}{{#if ../size}} button_size_{{../size}}{{/if}} empty-state__button" href="{{href}}" data-link>
+                    {{#if icon}}
+                        <span class="button__icon button__icon_mask" style="--icon: url('{{icon}}')"></span>
+                    {{/if}}
+                    <span class="button__text">{{text}}</span>
+                </a>
+            {{else}}
+                <button type="button" class="button button_view_{{view}}{{#if ../size}} button_size_{{../size}}{{/if}} empty-state__button"{{#if action}} data-action="{{action}}"{{/if}}{{#if disabled}} disabled{{/if}}>
+                    {{#if icon}}
+                        <span class="button__icon button__icon_mask" style="--icon: url('{{icon}}')"></span>
+                    {{/if}}
+                    <span class="button__text">{{text}}</span>
+                </button>
+            {{/if}}
+        {{/each}}
     </div>
 </div>

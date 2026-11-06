@@ -1,5 +1,41 @@
-export type PageRender = (root: HTMLElement, router: Router) => void;
+export type RouteParams = Record<string, string>;
+export type PageRender = (root: HTMLElement, router: Router, params: RouteParams) => void;
 type RouteGuard = (path: string) => string | null;
+
+/**
+ * Сравнивает путь с шаблоном. Сегмент шаблона с ':' совпадает с любым непустым
+ * сегментом пути и попадает в параметры под именем без ':'.
+ *
+ * @param {string} pattern - Шаблон, например '/matches/:matchId/places'.
+ * @param {string} path
+ * @returns {Object<string, string>|null} Параметры или null, если путь не подходит.
+ */
+function matchPattern(pattern: string, path: string): RouteParams | null {
+    const patternParts = pattern.split('/');
+    const pathParts = path.split('/');
+
+    if (patternParts.length !== pathParts.length) {
+        return null;
+    }
+
+    const params: RouteParams = {};
+
+    for (const [i, part] of patternParts.entries()) {
+        const value = pathParts[i];
+
+        if (part.startsWith(':')) {
+            if (!value) {
+                return null;
+            }
+
+            params[part.slice(1)] = value;
+        } else if (part !== value) {
+            return null;
+        }
+    }
+
+    return params;
+}
 
 /**
  * SPA-роутер на History API.
@@ -18,10 +54,11 @@ export class Router {
     }
 
     /**
-     * Регистрирует страницу. Путь '*' - страница по умолчанию.
+     * Регистрирует страницу. Путь '*' - страница по умолчанию. Сегменты пути
+     * с ':' (например '/matches/:matchId') страница получает в params.
      *
      * @param {string} path
-     * @param {function(HTMLElement, Router): void} render
+     * @param {function(HTMLElement, Router, RouteParams): void} render
      * @returns {Router}
      */
     register(path: string, render: PageRender) {
@@ -107,12 +144,39 @@ export class Router {
             return;
         }
 
-        const render = this.#routes.get(path) ?? this.#routes.get('*');
-        if (!render) {
+        const route = this.#match(path);
+        if (!route) {
             throw new Error(`Страница для ${path} не зарегистрирована`);
         }
 
-        render(this.#root, this);
+        route.render(this.#root, this, route.params);
         this.#onChange(path);
+    }
+
+    /**
+     * Ищет страницу для пути: сначала точное совпадение, затем шаблоны с ':', затем '*'.
+     *
+     * @param {string} path
+     * @returns {{render: PageRender, params: RouteParams}|null}
+     */
+    #match(path: string): { render: PageRender; params: RouteParams } | null {
+        const exact = this.#routes.get(path);
+        if (exact) {
+            return { render: exact, params: {} };
+        }
+
+        for (const [pattern, render] of this.#routes) {
+            if (!pattern.includes(':')) {
+                continue;
+            }
+
+            const params = matchPattern(pattern, path);
+            if (params) {
+                return { render, params };
+            }
+        }
+
+        const fallback = this.#routes.get('*');
+        return fallback ? { render: fallback, params: {} } : null;
     }
 }

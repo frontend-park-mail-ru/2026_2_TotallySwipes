@@ -1,11 +1,15 @@
 import type {
     AuthResponse,
     CompatibilityTest,
+    EventsPage,
     FeedPage,
     FeedParams,
     MatchesPage,
     MatchesParams,
     PhotosResponse,
+    PlaceSearchParams,
+    PlaceSearchResultParams,
+    PlaceSearchStateParams,
     Profile,
     ProfileShort,
     SearchFilter,
@@ -403,5 +407,27 @@ export function getMatches({ limit = 12, cursor }: MatchesParams = {}): Promise<
 export function sendMatchSeen(matchId: number) {
     return request(`/matches/${matchId}/seen`, {
         method: 'POST',
+    });
+}
+
+export function createPlaceSearch({ matchId, city }: PlaceSearchParams): Promise<EventsPage> {
+    return request<EventsPage>(`/matches/${matchId}/search-places`, {
+        method: 'POST',
+        body: { city },
+    });
+}
+
+export function getPlaceSearch({ matchId, searchId }: PlaceSearchStateParams): Promise<EventsPage> {
+    return request<EventsPage>(`/matches/${matchId}/place-searches/${searchId}`);
+}
+
+export function sendPlaceSearchResults({
+    matchId,
+    searchId,
+    likedEventIds,
+}: PlaceSearchResultParams): Promise<EventsPage> {
+    return request<EventsPage>(`/matches/${matchId}/place-searches/${searchId}/results`, {
+        method: 'POST',
+        body: { liked_event_ids: likedEventIds },
     });
 }

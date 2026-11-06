@@ -40,3 +40,7 @@
 @use './blocks/auth/auth';
 @use './blocks/matches/matches';
 @use './blocks/match-card/match-card';
+@use './blocks/place-search/place-search';
+@use './blocks/ticket/ticket';
+
+@use './blocks/swipe-stack/swipe-stack';

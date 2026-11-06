@@ -161,9 +161,9 @@ const FEED_ITEMS = [
         city: 'Москва',
         tags: ['книги', 'велосипед', 'кофе', 'музыка', 'походы'],
         photos: [
-            { id: 1, url: '/public/img/1.jpg' },
-            { id: 2, url: '/public/img/2.jpg' },
-            { id: 3, url: '/public/img/3.jpg' },
+            { id: 1, url: '/img/1.jpg' },
+            { id: 2, url: '/img/2.jpg' },
+            { id: 3, url: '/img/3.jpg' },
         ],
     },
     {
@@ -341,6 +341,233 @@ function matchesPage(url: URL): MockResponse {
     };
 }
 
+const PLACE_SEARCHES_KEY = 'mock-place-searches';
+
+// У всех мок-подборов один search_id: mock-fetch подставляет {id} только вместо чисел,
+// а search_id - uuid. Подбор с другим search_id получит 404 от mock-fetch.
+const MOCK_SEARCH_ID = '6f1c2b8e-3d4a-4e5f-9a7b-1c2d3e4f5a6b';
+
+const SEARCH_TTL_MS = 24 * 60 * 60 * 1000;
+
+// Партнёр заканчивает голосование через 10 с после нас, то есть ко второму опросу.
+const PARTNER_DELAY_MS = 10_000;
+
+const PLACE_CATEGORIES = {
+    exhibition: { id: 1, name: 'Выставки' },
+    theatre: { id: 2, name: 'Театр' },
+    cinema: { id: 3, name: 'Кино' },
+    concert: { id: 4, name: 'Концерты' },
+    lecture: { id: 5, name: 'Лекции' },
+};
+
+// Фото событий: /img/places/<id>.jpg. Особые случаи: 4 и 10 - категория не из словаря,
+// 5 - без адреса, 6 - длинное название, 7 - без фото, 8 - без категорий, 10 - две категории.
+const PLACE_EVENTS = [
+    {
+        id: 1,
+        name: 'Выставка «Свет и пустота»',
+        starts_at: '2026-10-24T12:00:00+03:00',
+        image_url: '/img/places/1.jpg',
+        url: 'https://afisha.timepad.ru/event/1',
+        location: { city: 'Москва', address: 'ул. Пречистенка, 10' },
+        categories: [PLACE_CATEGORIES.exhibition],
+    },
+    {
+        id: 2,
+        name: 'Спектакль «Двое на качелях»',
+        starts_at: '2026-10-31T19:00:00+03:00',
+        image_url: '/img/places/2.jpg',
+        url: 'https://afisha.timepad.ru/event/2',
+        location: { city: 'Москва', address: 'ул. Покровка, 27' },
+        categories: [PLACE_CATEGORIES.theatre],
+    },
+    {
+        id: 3,
+        name: 'Кино в оригинале: «Перед рассветом»',
+        starts_at: '2026-10-24T21:00:00+03:00',
+        image_url: '/img/places/3.jpg',
+        url: 'https://afisha.timepad.ru/event/3',
+        location: { city: 'Москва', address: 'ул. Арбат, 35' },
+        categories: [PLACE_CATEGORIES.cinema],
+    },
+    {
+        id: 4,
+        name: 'Джазовый вечер в саду «Эрмитаж»',
+        starts_at: '2026-11-07T20:00:00+03:00',
+        image_url: '/img/places/4.jpg',
+        url: 'https://afisha.timepad.ru/event/4',
+        location: { city: 'Москва', address: 'ул. Каретный Ряд, 3' },
+        categories: [PLACE_CATEGORIES.concert],
+    },
+    {
+        id: 5,
+        name: 'Лекция «Как смотреть современное искусство»',
+        starts_at: '2026-11-08T16:00:00+03:00',
+        image_url: '/img/places/5.jpg',
+        url: 'https://afisha.timepad.ru/event/5',
+        location: { city: 'Москва', address: null },
+        categories: [PLACE_CATEGORIES.lecture],
+    },
+    {
+        id: 6,
+        name: 'Иммерсивный спектакль «Вечер в усадьбе, где все гости немного не те, за кого себя выдают»',
+        starts_at: '2026-11-13T19:30:00+03:00',
+        image_url: '/img/places/6.jpg',
+        url: 'https://afisha.timepad.ru/event/6',
+        location: { city: 'Москва', address: 'Никитский бульвар, 12' },
+        categories: [PLACE_CATEGORIES.theatre],
+    },
+    {
+        id: 7,
+        name: 'Ночь кино: марафон фильмов Ричарда Линклейтера',
+        starts_at: '2026-11-14T22:00:00+03:00',
+        image_url: null,
+        url: 'https://afisha.timepad.ru/event/7',
+        location: { city: 'Москва', address: 'ул. Тверская, 12' },
+        categories: [PLACE_CATEGORIES.cinema],
+    },
+    {
+        id: 8,
+        name: 'Мастер-класс по гончарному делу',
+        starts_at: '2026-11-15T13:00:00+03:00',
+        image_url: '/img/places/8.jpg',
+        url: 'https://afisha.timepad.ru/event/8',
+        location: { city: 'Москва', address: 'ул. Бауманская, 11' },
+        categories: [],
+    },
+    {
+        id: 9,
+        name: 'Выставка «Москва в фотографиях 1960-х»',
+        starts_at: '2026-11-21T11:00:00+03:00',
+        image_url: '/img/places/9.jpg',
+        url: 'https://afisha.timepad.ru/event/9',
+        location: { city: 'Москва', address: 'ул. Остоженка, 16' },
+        categories: [PLACE_CATEGORIES.exhibition],
+    },
+    {
+        id: 10,
+        name: 'Стендап-концерт молодых комиков',
+        starts_at: '2026-11-22T19:00:00+03:00',
+        image_url: '/img/places/10.jpg',
+        url: 'https://afisha.timepad.ru/event/10',
+        location: { city: 'Москва', address: 'ул. Мясницкая, 13' },
+        categories: [PLACE_CATEGORIES.concert, PLACE_CATEGORIES.theatre],
+    },
+];
+
+interface PlaceSearchScenario {
+    eventIds?: number[];
+    partnerLikedIds?: number[];
+    cancelled?: boolean;
+    error?: MockResponse;
+}
+
+// Сценарии по match_id из MATCH_ITEMS, остальные мэтчи - обычный подбор с совпадениями.
+const PLACE_SEARCH_SCENARIOS: Record<number, PlaceSearchScenario> = {
+    99: { partnerLikedIds: [] },
+    98: { eventIds: [1] },
+    97: { error: error(409, 'NO_EVENTS', 'В этом городе не нашлось событий') },
+    96: { error: error(408, 'TIMEPAD_TIMEOUT', 'Timepad не ответил вовремя') },
+    95: { cancelled: true },
+};
+
+const DEFAULT_PARTNER_LIKED_IDS = [1, 3, 6, 9];
+
+interface MockPlaceSearch {
+    city: string;
+    created_at: number;
+    liked_event_ids: number[] | null;
+    finished_at: number | null;
+}
+
+// Подборы живут в localStorage по match_id, чтобы переживать обновление страницы.
+const loadPlaceSearches = (): Record<number, MockPlaceSearch> =>
+    JSON.parse(localStorage.getItem(PLACE_SEARCHES_KEY) ?? '{}');
+
+const savePlaceSearch = (matchId: number, search: MockPlaceSearch | null) => {
+    const searches = loadPlaceSearches();
+
+    if (search) {
+        searches[matchId] = search;
+    } else {
+        delete searches[matchId];
+    }
+
+    localStorage.setItem(PLACE_SEARCHES_KEY, JSON.stringify(searches));
+};
+
+// '/api/v1/matches/100/...' -> 100
+const matchIdFromUrl = (url: URL) => Number(url.pathname.split('/')[4]);
+
+/**
+ * @param {number} matchId
+ * @returns {Object|null} Подбор мэтча или null, если его нет или он истёк. Истёкший удаляется.
+ */
+function activePlaceSearch(matchId: number): MockPlaceSearch | null {
+    const search = loadPlaceSearches()[matchId];
+
+    if (!search) {
+        return null;
+    }
+
+    if (Date.now() >= search.created_at + SEARCH_TTL_MS) {
+        savePlaceSearch(matchId, null);
+        return null;
+    }
+
+    return search;
+}
+
+/**
+ * Собирает ответ SearchState. Статус и совпадения считаются на лету, партнёр голосует сам.
+ *
+ * @param {number} matchId
+ * @param {Object} search
+ * @returns {Object}
+ */
+function placeSearchState(matchId: number, search: MockPlaceSearch) {
+    const scenario = PLACE_SEARCH_SCENARIOS[matchId] ?? {};
+    const partnerLikedIds = scenario.partnerLikedIds ?? DEFAULT_PARTNER_LIKED_IDS;
+    const events = scenario.eventIds
+        ? PLACE_EVENTS.filter((event) => scenario.eventIds?.includes(event.id))
+        : PLACE_EVENTS;
+
+    const liked = search.liked_event_ids;
+    const finished = liked !== null;
+    const partnerFinished =
+        search.finished_at !== null && Date.now() - search.finished_at >= PARTNER_DELAY_MS;
+
+    let status = 'completed';
+    if (scenario.cancelled) {
+        status = 'cancelled';
+    } else if (!finished) {
+        status = 'voting';
+    } else if (!partnerFinished) {
+        status = 'waiting_partner';
+    }
+
+    const matches =
+        status === 'completed'
+            ? events.filter(
+                  (event) => liked?.includes(event.id) && partnerLikedIds.includes(event.id),
+              )
+            : [];
+
+    return {
+        search_id: MOCK_SEARCH_ID,
+        expires_at: new Date(search.created_at + SEARCH_TTL_MS).toISOString(),
+        city: search.city,
+        status,
+        events,
+        current_user_liked_event_ids: liked,
+        current_user_finished: finished,
+        partner_finished: partnerFinished,
+        matches,
+    };
+}
+
+const placeSearchNotFound = () => error(404, 'SEARCH_NOT_FOUND', 'Подбор не найден или истёк');
+
 export const MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/profile/me/short': () => ({
         status: 200,
@@ -369,6 +596,86 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
         saveSeenMatch(matchId);
 
         return { status: 204 };
+    },
+    'POST /api/v1/matches/{id}/search-places': (url, { body }) => {
+        const matchId = matchIdFromUrl(url);
+        const city = (body as { city?: string } | null)?.city;
+
+        if (typeof city !== 'string' || !city.trim()) {
+            return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
+        }
+
+        if (!MATCH_ITEMS.some((match) => match.match_id === matchId)) {
+            return error(404, 'MATCH_NOT_FOUND', 'Мэтч не найден');
+        }
+
+        const scenarioError = PLACE_SEARCH_SCENARIOS[matchId]?.error;
+        if (scenarioError) {
+            return scenarioError;
+        }
+
+        const current = activePlaceSearch(matchId);
+        if (current) {
+            if (current.city !== city) {
+                return error(409, 'SEARCH_ALREADY_ACTIVE', 'Подбор уже идёт в другом городе');
+            }
+
+            return { status: 200, body: placeSearchState(matchId, current) };
+        }
+
+        const search: MockPlaceSearch = {
+            city,
+            created_at: Date.now(),
+            liked_event_ids: null,
+            finished_at: null,
+        };
+        savePlaceSearch(matchId, search);
+
+        return { status: 201, body: placeSearchState(matchId, search) };
+    },
+    [`GET /api/v1/matches/{id}/place-searches/${MOCK_SEARCH_ID}`]: (url) => {
+        const matchId = matchIdFromUrl(url);
+        const search = activePlaceSearch(matchId);
+
+        if (!search) {
+            return placeSearchNotFound();
+        }
+
+        return { status: 200, body: placeSearchState(matchId, search) };
+    },
+    [`POST /api/v1/matches/{id}/place-searches/${MOCK_SEARCH_ID}/results`]: (url, { body }) => {
+        const matchId = matchIdFromUrl(url);
+        const search = activePlaceSearch(matchId);
+
+        if (!search) {
+            return placeSearchNotFound();
+        }
+
+        const state = placeSearchState(matchId, search);
+        const ids = (body as { liked_event_ids?: number[] } | null)?.liked_event_ids;
+        const isValid =
+            Array.isArray(ids) && ids.every((id) => state.events.some((event) => event.id === id));
+
+        if (!isValid) {
+            return error(400, 'VALIDATION_ERROR', 'Некорректные данные');
+        }
+
+        if (search.liked_event_ids !== null) {
+            return error(409, 'RESULT_ALREADY_SUBMITTED', 'Результат уже отправлен');
+        }
+
+        if (state.status !== 'voting') {
+            return error(409, 'SEARCH_STATE_CONFLICT', 'Подбор уже нельзя изменить');
+        }
+
+        const finished: MockPlaceSearch = {
+            ...search,
+            liked_event_ids: ids,
+            finished_at: Date.now(),
+        };
+        savePlaceSearch(matchId, finished);
+
+        return { status: 200, body: placeSearchState(matchId, finished) };
     },
     'GET /api/v1/tests/current': {
         status: 200,
