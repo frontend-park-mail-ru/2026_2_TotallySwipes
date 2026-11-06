@@ -93,6 +93,12 @@ const EXPIRED_MODAL = {
     buttonText: 'К симпатиям',
 };
 
+const SEARCH_ALREADY_ACTIVE_MODAL = {
+    image: '/icons/mascot-error.svg',
+    title: 'Подбор уже идёт',
+    buttonText: 'К симпатиям',
+};
+
 const NO_EVENTS_MODAL = {
     image: '/icons/mascot-error.svg',
     title: 'Не нашли событий',
@@ -232,6 +238,10 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
     async function load(): Promise<void> {
         try {
             const user = await getCurrentUser();
+            if (!page.isConnected) {
+                return;
+            }
+
             if (!user.city) {
                 showModal({
                     ...NO_CITY_MODAL,
@@ -255,27 +265,29 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
             renderState();
         } catch (error) {
             console.error('Не удалось загрузить подбор мест:', error);
-
-            if (error instanceof ApiError) {
-                const status = error.status;
-                switch (status) {
-                    case 409:
-                        showModal({
-                            ...NO_EVENTS_MODAL,
-                            onClose: () => {
-                                router.go('/matches', { replace: true });
-                            },
-                        });
-                        break;
-                    default:
-                        showModal({ ...ERROR_MODAL, onClose: load });
-                        break;
-                }
+            if (!page.isConnected) {
                 return;
             }
 
-            if (page.isConnected) {
-                showModal({ ...ERROR_MODAL, onClose: load });
+            const code = error instanceof ApiError ? error.code : null;
+
+            switch (code) {
+                case 'NO_EVENTS':
+                    showModal({
+                        ...NO_EVENTS_MODAL,
+                        onClose: () => router.go('/matches', { replace: true }),
+                    });
+                    break;
+                case 'SEARCH_ALREADY_ACTIVE':
+                    showModal({
+                        ...SEARCH_ALREADY_ACTIVE_MODAL,
+                        text: error instanceof ApiError ? error.message : '',
+                        onClose: () => router.go('/matches', { replace: true }),
+                    });
+                    break;
+                default:
+                    showModal({ ...ERROR_MODAL, onClose: load });
+                    break;
             }
         }
     }
@@ -301,6 +313,7 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
                 submitResults();
             }
         },
+        directions: ['like', 'dislike'],
     });
 
     async function submitResults(): Promise<void> {
