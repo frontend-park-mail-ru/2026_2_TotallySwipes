@@ -170,4 +170,27 @@ async function checkSession() {
     startApp();
 }
 
+function registerServiceWorker() {
+    if (!import.meta.env.PROD) {
+        return;
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then(function (registration) {
+                registration.addEventListener('updatefound', () => {
+                    const installingWorker = registration.installing;
+                    console.log('A new service worker is being installed:', installingWorker);
+                });
+            })
+            .catch(function (error) {
+                console.log('Service worker registration failed:', error);
+            });
+    } else {
+        console.log('Service workers are not supported.');
+    }
+}
+
+registerServiceWorker();
 checkSession();
