@@ -6,6 +6,7 @@ export default [
     { ignores: ['dist'] },
     js.configs.recommended,
     ...tseslint.configs.recommended.map((config) => ({ ...config, files: ['**/*.ts'] })),
+
     {
         files: ['src/**/*.{js,ts}'],
         languageOptions: {
@@ -14,7 +15,15 @@ export default [
     },
     {
         files: ['server/**/*.{js,ts}'],
-        languageOptions: { globals: globals.node },
+        languageOptions: {
+            globals: globals.node,
+        },
+    },
+    {
+        files: ['public/sw.js'],
+        languageOptions: {
+            globals: globals.serviceworker,
+        },
     },
     {
         rules: {
