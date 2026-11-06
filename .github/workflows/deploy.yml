@@ -99,10 +99,14 @@ jobs:
             docker rename front front_prev
           fi
 
-          docker run -d --name front --restart unless-stopped -p 80:8000 "$IMAGE" || rollback
+          docker run -d --name front --restart unless-stopped -p 443:8000 \
+            -v /home/ubuntu/app/certs:/certs:ro \
+            -e TLS_CERT_FILE=/certs/fullchain.pem \
+            -e TLS_KEY_FILE=/certs/privkey.pem \
+            "$IMAGE" || rollback
 
           for i in $(seq 1 15); do
-            if curl -fsS -o /dev/null http://127.0.0.1/; then
+            if curl -fsSk -o /dev/null https://127.0.0.1/; then
               echo "front is up"
               docker rm -f front_prev 2>/dev/null || true
               docker image prune -f
