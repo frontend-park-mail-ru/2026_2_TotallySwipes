@@ -5,8 +5,8 @@ export interface DatingGoalOption {
     label: string;
 }
 
-export interface FactsOption {
-    key: Education | Attitude;
+export interface FactsOption<Key extends string = Education | Attitude> {
+    key: Key;
     label: string;
 }
 
@@ -15,19 +15,19 @@ export interface FactData {
     value: string | null;
 }
 
-export const SMOKING_OPTIONS: FactsOption[] = [
+export const SMOKING_OPTIONS: FactsOption<Attitude>[] = [
     { key: 'negative', label: 'Не курю' },
     { key: 'neutral', label: 'Иногда' },
     { key: 'positive', label: 'Курю' },
 ];
 
-export const ALCOHOL_OPTIONS: FactsOption[] = [
+export const ALCOHOL_OPTIONS: FactsOption<Attitude>[] = [
     { key: 'negative', label: 'Не пью' },
     { key: 'neutral', label: 'Иногда' },
     { key: 'positive', label: 'Пью' },
 ];
 
-export const EDUCATIONS: FactsOption[] = [
+export const EDUCATIONS: FactsOption<Education>[] = [
     { key: 'secondary', label: 'Среднее' },
     { key: 'vocational', label: 'Среднее профессиональное' },
     { key: 'incomplete_higher', label: 'Незаконченное высшее' },
@@ -64,11 +64,14 @@ export function EducationFact(key: Education | null): string | null {
 }
 
 /**
- * @param {FactsOption[]} options - Справочник поля: SMOKING_OPTIONS или ALCOHOL_OPTIONS.
+ * @param {FactsOption<Attitude>[]} options - Справочник поля: SMOKING_OPTIONS или ALCOHOL_OPTIONS.
  * @param {Attitude | null} key - Отношение с бэкенда.
  * @returns {string | null} Подпись или null, если отношение неизвестно.
  */
-export function AttitudeFact(options: FactsOption[], key: Attitude | null): string | null {
+export function AttitudeFact(
+    options: FactsOption<Attitude>[],
+    key: Attitude | null,
+): string | null {
     return options.find((option) => option.key === key)?.label ?? null;
 }
 

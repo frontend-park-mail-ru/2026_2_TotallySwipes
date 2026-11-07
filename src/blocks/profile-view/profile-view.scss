@@ -39,24 +39,8 @@
     gap: 24px;
 }
 
-.profile-view__card {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-sizing: border-box;
-    padding: 32px;
-    border-radius: 20px;
-    background: v.$color-surface;
-    box-shadow: v.$shadow-panel;
-}
-
-.profile-view__card_tight {
+.profile-view__intro {
     gap: 8px;
-}
-
-.profile-view__card-title {
-    margin: 0;
-    @include v.text-style('body-16-semibold');
 }
 
 .profile-view__name {

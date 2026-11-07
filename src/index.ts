@@ -13,6 +13,7 @@ import { showModal } from './blocks/modal/modal.js';
 import { renderMatchesPage } from './blocks/matches/matches.js';
 import { renderPlaceSearchPage } from './blocks/place-search/place-search.js';
 import { renderProfileViewPage } from './blocks/profile-view/profile-view.js';
+import { renderProfileEditPage } from './blocks/profile-edit/profile-edit.js';
 
 const GUEST_PATHS = ['/login', '/register'];
 const ONBOARDING_PATH = '/register';
@@ -124,6 +125,7 @@ function startApp() {
         .register('/test/result', withLayout(renderTestResultPage))
         .register('/matches', withLayout(renderMatchesPage))
         .register('/matches/:matchId/places', withLayout(renderPlaceSearchPage))
+        .register('/profile', withLayout(renderProfileEditPage))
         .register(
             '/profile/:userId',
             withLayout((container, _router, params) =>

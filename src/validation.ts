@@ -49,6 +49,13 @@ const PHOTO_FORMATS_LABEL = `${PHOTO_FORMAT_NAMES.slice(0, -1).join(', ')} и ${
 
 export const INTERESTS_MAX_COUNT = 7;
 
+export const ABOUT_MAX_LENGTH = 500;
+
+const WORK_MAX_LENGTH = 100;
+
+const HEIGHT_MIN = 100;
+const HEIGHT_MAX = 250;
+
 /**
  * Проверяет, смешаны ли латиница и кириллица в одной части домена.
  *
@@ -368,6 +375,54 @@ export function validateSearchSex(value: string): string | null {
  */
 export function validateDatingGoal(value: string): string | null {
     return value === '' ? 'Выберите цель знакомства.' : null;
+}
+
+/**
+ * Валидирует рассказ о себе.
+ *
+ * @param value - Введённый текст.
+ * @returns Текст ошибки или `null`, если ошибки нет.
+ */
+export function validateAbout(value: string): string | null {
+    if ([...value.trim()].length > ABOUT_MAX_LENGTH) {
+        return `Рассказ о себе не может быть длиннее ${ABOUT_MAX_LENGTH} символов.`;
+    }
+
+    return null;
+}
+
+/**
+ * Валидирует место работы.
+ *
+ * @param value - Введённый текст.
+ * @returns Текст ошибки или `null`, если ошибки нет.
+ */
+export function validateWork(value: string): string | null {
+    if ([...value.trim()].length > WORK_MAX_LENGTH) {
+        return `Работа не может быть длиннее ${WORK_MAX_LENGTH} символов.`;
+    }
+
+    return null;
+}
+
+/**
+ * Валидирует рост в сантиметрах.
+ *
+ * @param value - Введённое значение.
+ * @returns Текст ошибки или `null`, если ошибки нет.
+ */
+export function validateHeight(value: string): string | null {
+    const height = value.trim();
+
+    if (height === '') {
+        return null;
+    }
+
+    if (!/^\d{1,3}$/.test(height) || Number(height) < HEIGHT_MIN || Number(height) > HEIGHT_MAX) {
+        return `Рост должен быть от ${HEIGHT_MIN} до ${HEIGHT_MAX} см`;
+    }
+
+    return null;
 }
 
 /**

@@ -1,0 +1,112 @@
+@use '../../variables' as v;
+
+.profile-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-sizing: border-box;
+    padding: 24px 32px 40px;
+}
+
+.profile-edit__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.profile-edit__title {
+    margin: 0;
+    @include v.text-style('heading-30-extrabold');
+}
+
+.profile-edit__save:disabled {
+    border-color: v.$color-bg-disabled;
+    background-color: v.$color-bg-disabled;
+    color: v.$color-text-secondary;
+}
+
+.profile-edit__saved {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    @include v.text-style('caption-13-bold');
+    color: v.$color-success-default;
+}
+
+.profile-edit__save[hidden],
+.profile-edit__saved[hidden] {
+    display: none;
+}
+
+.profile-edit__saved-icon {
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+.profile-edit__content {
+    display: grid;
+    grid-template-columns: minmax(0, 446fr) minmax(0, 634fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.profile-edit__cards {
+    display: flex;
+    flex-direction: column;
+    grid-column: 2;
+    gap: 24px;
+}
+
+.profile-edit__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-edit__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.profile-edit__date {
+    display: grid;
+    grid-template-columns: minmax(0, 138fr) minmax(0, 278fr) minmax(0, 138fr);
+    gap: 8px;
+}
+
+.profile-edit__note {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.profile-edit__counter {
+    flex-shrink: 0;
+    @include v.text-style('caption-13-regular');
+    color: v.$color-text-secondary;
+}
+
+.form-field_invalid .profile-edit__counter {
+    color: v.$color-error-default;
+}
+
+.profile-edit__hint {
+    margin: 0;
+    @include v.text-style('caption-13-regular');
+    color: v.$color-text-secondary;
+}
+
+.profile-edit .form-field__hint,
+.profile-edit .form-field__error {
+    margin-top: 0;
+}
+
+.profile-edit .chips__item_accent,
+.profile-edit .chips__item_accent:nth-child(even) {
+    --chips-rotate: 0deg;
+}

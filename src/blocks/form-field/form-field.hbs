@@ -1,7 +1,10 @@
 <div class="form-field {{mix}}">
     <label class="form-field__label" for="{{id}}">{{label}}</label>
-    <div class="form-field__control">
-        <input class="form-field__input" id="{{id}}" name="{{name}}" type="{{type}}" placeholder="{{placeholder}}" autocomplete="{{autocomplete}}">
+    <div class="form-field__control{{#if suffix}} form-field__control_suffix{{/if}}">
+        <input class="form-field__input" id="{{id}}" name="{{name}}" type="{{type}}"{{#if inputmode}} inputmode="{{inputmode}}"{{/if}} placeholder="{{placeholder}}" autocomplete="{{autocomplete}}">
+        {{#if suffix}}
+            <span class="form-field__suffix">{{suffix}}</span>
+        {{/if}}
         {{#if toggle}}
             <button class="form-field__toggle" type="button">{{{toggle}}}</button>
         {{/if}}

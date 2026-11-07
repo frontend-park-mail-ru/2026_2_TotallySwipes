@@ -18,6 +18,10 @@ export interface FormFieldProps {
     placeholder?: string;
     /** Пояснение под полем. */
     hint?: string;
+    /** Единица измерения внутри поля справа (например, `см`). */
+    suffix?: string;
+    /** Подсказка клавиатуре, например `numeric` для цифр. */
+    inputmode?: 'numeric';
     /** Значение атрибута `autocomplete`. */
     autocomplete?: string;
     /** Дополнительные CSS-классы (БЭМ-микс) на корне поля. */
@@ -28,8 +32,8 @@ export interface FormFieldProps {
  * Правило проверки одного поля формы.
  */
 export interface FormFieldRule {
-    /** Проверяемый input. */
-    input: HTMLInputElement;
+    /** Проверяемое поле. */
+    input: HTMLInputElement | HTMLTextAreaElement;
     /** Возвращает текст ошибки или `null`, если значение input-а валидное. */
     validate: (value: string) => string | null;
 }
