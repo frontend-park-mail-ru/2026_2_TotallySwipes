@@ -28,6 +28,7 @@
     "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.4",
+    "@yandex/ymaps3-types": "^1.0.21772363",
     "eslint": "^10.11.0",
     "globals": "^17.12.0",
     "handlebars": "^4.7.10",
