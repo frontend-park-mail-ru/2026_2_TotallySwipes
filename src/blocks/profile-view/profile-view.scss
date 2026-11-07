@@ -85,6 +85,14 @@
     padding: 6px 16px;
 }
 
+.profile-view__tag:nth-child(odd) {
+    transform: rotate(-1.5deg);
+}
+
+.profile-view__tag:nth-child(even) {
+    transform: rotate(1.5deg);
+}
+
 .profile-view_empty .profile-view__content {
     display: flex;
     justify-content: center;
