@@ -7,11 +7,11 @@
         </span>
     {{/if}}
     <div class="profile-photos__tools">
-        <button class="button profile-photos__tool profile-photos__replace" type="button"{{#if locked}} disabled{{/if}}>
+        <button class="button tool-button profile-photos__replace" type="button"{{#if locked}} disabled{{/if}}>
             <span class="button__icon button__icon_mask" style="--icon: url('/icons/camera.svg')"></span>
             <span class="button__text">Заменить</span>
         </button>
-        <button class="button profile-photos__tool profile-photos__remove" type="button"{{#if removeDisabled}} disabled{{/if}}>
+        <button class="button tool-button profile-photos__remove" type="button"{{#if removeDisabled}} disabled{{/if}}>
             <span class="button__icon button__icon_mask" style="--icon: url('/icons/x.svg')"></span>
             <span class="button__text">Удалить</span>
         </button>

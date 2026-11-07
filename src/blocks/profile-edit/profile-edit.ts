@@ -30,6 +30,10 @@ import {
     type FormFieldRule,
 } from '../form-field/form-field.js';
 import { showModal } from '../modal/modal.js';
+import {
+    profileLocationTemplate,
+    initProfileLocation,
+} from '../profile-location/profile-location.js';
 import { profilePhotosTemplate, initProfilePhotos } from '../profile-photos/profile-photos.js';
 import { MONTHS } from '../register-profile/register-profile.js';
 import { refreshSidebarUser } from '../sidebar/sidebar.js';
@@ -157,6 +161,7 @@ function fieldsTemplate(profile: Profile): string {
         }),
         months: MONTHS,
         ageHint: ageHint(profile.age),
+        location: profileLocationTemplate(),
         interests: chipsTemplate({
             type: 'checkbox',
             name: 'interests',
@@ -359,6 +364,9 @@ export function renderProfileEditPage(root: HTMLElement) {
                     photos: profile.photos,
                     onSettled: refreshSidebarUser,
                 });
+                initProfileLocation(getElement(content, '.profile-location'), {
+                    onSaved: refreshSidebarUser,
+                });
                 fillForm(page, profile);
 
                 saved = profileToValues(profile);
@@ -400,8 +408,8 @@ export function renderProfileEditPage(root: HTMLElement) {
             return;
         }
 
-        // Фото сохраняются сразу, а не вместе с остальными полями.
-        if (target.closest('.profile-photos')) {
+        // Фото и местоположение сохраняются сразу, а не вместе с остальными полями.
+        if (target.closest('.profile-photos, .profile-location')) {
             return;
         }
 
