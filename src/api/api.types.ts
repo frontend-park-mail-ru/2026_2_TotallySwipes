@@ -259,6 +259,16 @@ export interface LocationResponse {
     location: UserLocation | null;
 }
 
+/**
+ * Результат предварительного определения места по координатам. Не сохраняется.
+ * Чтобы сохранить, preview_id отправляют в PUT /location/me.
+ */
+export interface LocationPreview {
+    preview_id: string;
+    city: string;
+    district: string | null;
+}
+
 export type EventSearchStatus = 'voting' | 'waiting_partner' | 'completed' | 'cancelled';
 
 export interface Categories {

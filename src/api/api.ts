@@ -1,9 +1,11 @@
 import type {
     AuthResponse,
     CompatibilityTest,
+    Coordinates,
     EventsPage,
     FeedPage,
     FeedParams,
+    LocationPreview,
     LocationResponse,
     MatchedProfile,
     MatchesPage,
@@ -273,6 +275,35 @@ export function getProfileById(userId: number): Promise<MatchedProfile> {
  */
 export function getLocation(): Promise<LocationResponse> {
     return request<LocationResponse>('/location/me');
+}
+
+/**
+ * Определяет город и район по координатам, ничего не сохраняя.
+ *
+ * @param {{latitude: number, longitude: number}} coordinates
+ * @returns {Promise<{preview_id: string, city: string, district: ?string}>} Место для подтверждения.
+ * @throws {ApiError} Со статусом 422, если место не определено или находится вне России,
+ *     и со статусом 429, если исчерпан лимит геокодера.
+ */
+export function previewLocation(coordinates: Coordinates): Promise<LocationPreview> {
+    return request<LocationPreview>('/location/me/preview', {
+        method: 'POST',
+        body: coordinates,
+    });
+}
+
+/**
+ * Сохраняет своё местоположение по результату previewLocation.
+ *
+ * @param {string} previewId
+ * @returns {Promise<{location: {city: string, district: ?string, coordinates: Object}}>}
+ * @throws {ApiError} Со статусом 410, если результат устарел.
+ */
+export function saveLocation(previewId: string): Promise<LocationResponse> {
+    return request<LocationResponse>('/location/me', {
+        method: 'PUT',
+        body: { preview_id: previewId },
+    });
 }
 
 /**

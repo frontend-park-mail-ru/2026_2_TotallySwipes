@@ -2,8 +2,8 @@ import type {
     Attitude,
     Credentials,
     DatingGoal,
+    Coordinates,
     Education,
-    LocationResponse,
     MatchedProfile,
     MissingField,
     Photo,
@@ -13,6 +13,7 @@ import type {
     TagKey,
     TestResult,
     UpdateProfileRequest,
+    UserLocation,
 } from './api.types.js';
 
 interface MockResponse {
@@ -141,6 +142,25 @@ let mockProfile: MockProfile = {
     ...(JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? ADMIN_PROFILE),
 };
 
+const LOCATION_KEY = 'mock-location';
+
+const DEFAULT_LOCATION: UserLocation = {
+    city: 'Москва',
+    district: 'Хамовники',
+    coordinates: { latitude: 55.7295, longitude: 37.5738 },
+};
+
+// Место, как и анкета, живёт в localStorage. Пока ключа нет, место по умолчанию;
+// у нового аккаунта оно сохранено как null.
+const storedLocation = localStorage.getItem(LOCATION_KEY);
+let mockLocation: UserLocation | null =
+    storedLocation === null ? DEFAULT_LOCATION : JSON.parse(storedLocation);
+
+const setMockLocation = (location: UserLocation | null) => {
+    mockLocation = location;
+    localStorage.setItem(LOCATION_KEY, JSON.stringify(location));
+};
+
 const saveProfile = (changes: Partial<MockProfile> | UpdateProfileRequest) => {
     mockProfile = { ...mockProfile, ...changes };
     localStorage.setItem(PROFILE_KEY, JSON.stringify(mockProfile));
@@ -188,7 +208,7 @@ const profileResponse = () => ({
     body: {
         ...mockProfile,
         age: ageFromBirthDate(mockProfile.birth_date),
-        city: 'Москва',
+        city: mockLocation?.city ?? null,
         filter: undefined,
         missing: missingFields(),
     },
@@ -726,13 +746,77 @@ function matchedProfile(url: URL): MockResponse {
     return { status: 200, body: profile };
 }
 
-const MOCK_LOCATION: LocationResponse = {
-    location: {
-        city: 'Москва',
-        district: 'Хамовники',
-        coordinates: { latitude: 55.7295, longitude: 37.5738 },
-    },
-};
+interface MockLocationPreview {
+    city: string;
+    district: string;
+    coordinates: Coordinates;
+}
+
+// Результаты предварительного определения хранятся в памяти и пропадают при перезагрузке.
+// Срока годности по времени в моке нет, вместо него результат одноразовый: после PUT он удаляется.
+const locationPreviews = new Map<string, MockLocationPreview>();
+
+const isInRange = (value: unknown, min: number, max: number): value is number =>
+    typeof value === 'number' && value >= min && value <= max;
+
+/**
+ * Заглушка геокодера. Точка в прямоугольнике вокруг Москвы определяется как Москва,
+ * любая другая точка внутри грубого прямоугольника России - как Хотьково. Вне него
+ * отвечает 422, как по контракту для мест вне России.
+ *
+ * @param {URL} url
+ * @param {{body: *}} request - Тело запроса: широта и долгота.
+ * @returns {{status: number, body: Object}}
+ */
+function previewLocation(url: URL, { body }: { body: unknown }): MockResponse {
+    const { latitude, longitude } = (body ?? {}) as Partial<Coordinates>;
+
+    if (!isInRange(latitude, -90, 90) || !isInRange(longitude, -180, 180)) {
+        return validationError({ latitude: 'некорректные координаты' });
+    }
+
+    const isInRussia = latitude >= 41 && latitude <= 82 && longitude >= 19 && longitude <= 180;
+
+    if (!isInRussia) {
+        return error(422, 'LOCATION_NOT_FOUND', 'Не удалось определить местоположение');
+    }
+
+    const isInMoscow = latitude >= 55.5 && latitude <= 56 && longitude >= 37.3 && longitude <= 37.9;
+    const place = isInMoscow
+        ? { city: 'Москва', district: 'Хамовники' }
+        : { city: 'Хотьково', district: 'Сергиево-Посадский городской округ' };
+    const previewId = `loc_preview_${locationPreviews.size + 1}_${Date.now().toString(36)}`;
+
+    locationPreviews.set(previewId, { ...place, coordinates: { latitude, longitude } });
+
+    return { status: 200, body: { preview_id: previewId, ...place } };
+}
+
+/**
+ * Сохраняет место по результату предварительного определения.
+ *
+ * @param {URL} url
+ * @param {{body: *}} request - Тело запроса: preview_id.
+ * @returns {{status: number, body: Object}}
+ */
+function confirmLocation(url: URL, { body }: { body: unknown }): MockResponse {
+    const previewId = (body as { preview_id?: unknown } | null)?.preview_id;
+
+    if (typeof previewId !== 'string' || previewId === '') {
+        return validationError({ preview_id: 'не указан идентификатор результата' });
+    }
+
+    const preview = locationPreviews.get(previewId);
+
+    if (!preview) {
+        return error(410, 'LOCATION_PREVIEW_UNAVAILABLE', 'Повторите определение местоположения');
+    }
+
+    locationPreviews.delete(previewId);
+    setMockLocation(preview);
+
+    return { status: 200, body: { location: mockLocation } };
+}
 
 export const MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/profile/me/short': () => ({
@@ -741,14 +825,16 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
             user_id: mockProfile.user_id,
             name: mockProfile.name,
             age: ageFromBirthDate(mockProfile.birth_date),
-            city: 'Москва',
+            city: mockLocation?.city ?? null,
             photo_url: mockProfile.photos[0]?.url ?? null,
             missing: missingFields(),
         },
     }),
     'GET /api/v1/profile/me': profileResponse,
     'GET /api/v1/profiles/{id}': matchedProfile,
-    'GET /api/v1/location/me': { status: 200, body: MOCK_LOCATION },
+    'GET /api/v1/location/me': () => ({ status: 200, body: { location: mockLocation } }),
+    'POST /api/v1/location/me/preview': previewLocation,
+    'PUT /api/v1/location/me': confirmLocation,
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
@@ -899,6 +985,7 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
 
         startSession();
         saveProfile(NEW_PROFILE);
+        setMockLocation(null);
 
         return authResponse(201);
     },
@@ -967,6 +1054,7 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
 
         startSession();
         saveProfile(ADMIN_PROFILE);
+        setMockLocation(DEFAULT_LOCATION);
 
         return authResponse(200);
     },
