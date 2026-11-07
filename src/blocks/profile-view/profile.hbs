@@ -1,0 +1,53 @@
+<section class="profile-view__card">
+    {{{gallery}}}
+</section>
+
+<div class="profile-view__cards">
+    <section class="profile-view__card profile-view__card_tight">
+        <h2 class="profile-view__card-title">Анкета</h2>
+        <h1 class="profile-view__name">
+            <span class="profile-view__name-text">{{name}}</span>,&nbsp;<span class="profile-view__age">{{age}}</span>
+        </h1>
+        {{{location}}}
+    </section>
+
+    {{#if about}}
+        <section class="profile-view__card">
+            <h2 class="profile-view__card-title">О себе</h2>
+            <p class="profile-view__about">{{about}}</p>
+        </section>
+    {{/if}}
+
+    {{#if hasCompatibility}}
+        <section class="profile-view__card">
+            <h2 class="profile-view__card-title">Совместимость</h2>
+            <div class="compatibility profile-view__compatibility">
+                <span class="compatibility__percent">{{compatibility}}%</span>
+                <span class="compatibility__verdict">{{compatibilityVerdict}}</span>
+            </div>
+        </section>
+    {{/if}}
+
+    {{#if tags}}
+        <section class="profile-view__card">
+            <h2 class="profile-view__card-title">Интересы</h2>
+            <div class="profile-view__tags">
+                {{{tags}}}
+            </div>
+        </section>
+    {{/if}}
+
+    {{#if facts.length}}
+        <section class="profile-view__card">
+            <h2 class="profile-view__card-title">Основное</h2>
+            <dl class="facts">
+                {{#each facts}}
+                    <div class="facts__row">
+                        <dt class="facts__label">{{label}}</dt>
+                        <dd class="facts__value">{{value}}</dd>
+                    </div>
+                {{/each}}
+            </dl>
+        </section>
+    {{/if}}
+</div>

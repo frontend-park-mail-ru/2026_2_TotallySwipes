@@ -73,7 +73,7 @@ function toInterest(tag: string, index: number): PillProps {
  * @param {Object} item - Анкета из ленты.
  * @returns {Object}
  */
-function toProfileView(item: FeedItem): ProfileData {
+export function toProfileView(item: FeedItem): ProfileData {
     const compatibility = item.compatibility !== null ? Math.round(item.compatibility * 100) : null;
     const hasCompatibility = compatibility !== null;
 
