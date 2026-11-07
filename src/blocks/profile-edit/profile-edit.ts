@@ -30,7 +30,9 @@ import {
     type FormFieldRule,
 } from '../form-field/form-field.js';
 import { showModal } from '../modal/modal.js';
+import { profilePhotosTemplate, initProfilePhotos } from '../profile-photos/profile-photos.js';
 import { MONTHS } from '../register-profile/register-profile.js';
+import { refreshSidebarUser } from '../sidebar/sidebar.js';
 import fieldsHbs from './fields.hbs';
 import profileEditHbs from './profile-edit.hbs';
 
@@ -351,7 +353,11 @@ export function renderProfileEditPage(root: HTMLElement) {
             .then((profile) => {
                 if (!page.isConnected) return;
 
-                content.innerHTML = fieldsTemplate(profile);
+                content.innerHTML = profilePhotosTemplate() + fieldsTemplate(profile);
+                initProfilePhotos(getElement(content, '.profile-photos'), {
+                    photos: profile.photos,
+                    onSettled: refreshSidebarUser,
+                });
                 fillForm(page, profile);
 
                 saved = profileToValues(profile);
@@ -390,6 +396,11 @@ export function renderProfileEditPage(root: HTMLElement) {
             target instanceof HTMLSelectElement ||
             target instanceof HTMLTextAreaElement
         )) {
+            return;
+        }
+
+        // Фото сохраняются сразу, а не вместе с остальными полями.
+        if (target.closest('.profile-photos')) {
             return;
         }
 
@@ -504,6 +515,7 @@ export function renderProfileEditPage(root: HTMLElement) {
             saved = profileToValues(profile);
             getElement(page, '.profile-edit__age-hint').textContent = ageHint(profile.age);
             setSaveState('saved');
+            refreshSidebarUser();
         } catch (error) {
             console.error('Не удалось сохранить профиль:', error);
             if (!page.isConnected) return;

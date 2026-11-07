@@ -43,6 +43,18 @@ export async function loadSidebarUser(sidebar: HTMLElement) {
 }
 
 /**
+ * Перезагружает пользователя в sidebar, если он есть на странице. Вызывается после
+ * внесения изменений в анкету.
+ */
+export function refreshSidebarUser() {
+    const sidebar = document.querySelector<HTMLElement>('.sidebar');
+
+    if (sidebar) {
+        loadSidebarUser(sidebar);
+    }
+}
+
+/**
  * Выходит из аккаунта. При ошибке предлагает попробовать ещё раз.
  */
 async function handleLogout() {
