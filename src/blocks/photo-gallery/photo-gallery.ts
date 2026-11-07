@@ -31,20 +31,20 @@ export function photoGalleryTemplate({ photos, mix = '' }: PhotoGalleryProps): s
  * @param gallery - Корневой элемент галереи.
  */
 export function initPhotoGallery(gallery: HTMLElement): void {
-    const thumbsElement = gallery.querySelector('.photo-gallery__thumbs');
+    const thumbsElement = gallery.querySelector('.photo-thumbs');
 
     if (!thumbsElement) {
         return;
     }
 
-    const image = getElement<HTMLImageElement>(gallery, '.photo-gallery__image');
+    const image = getElement<HTMLImageElement>(gallery, '.photo-frame__image');
     const counter = getElement(gallery, '.photo-gallery__counter');
-    const thumbs = [...thumbsElement.querySelectorAll<HTMLButtonElement>('.photo-gallery__thumb')];
+    const thumbs = [...thumbsElement.querySelectorAll<HTMLButtonElement>('.photo-thumbs__item')];
 
     thumbsElement.addEventListener('click', (event) => {
         const thumb =
             event.target instanceof Element
-                ? event.target.closest<HTMLButtonElement>('.photo-gallery__thumb')
+                ? event.target.closest<HTMLButtonElement>('.photo-thumbs__item')
                 : null;
 
         if (!thumb) {
@@ -52,10 +52,10 @@ export function initPhotoGallery(gallery: HTMLElement): void {
         }
 
         thumbs.forEach((item) => {
-            item.classList.toggle('photo-gallery__thumb_active', item === thumb);
+            item.classList.toggle('photo-thumbs__item_active', item === thumb);
         });
 
-        image.src = getElement<HTMLImageElement>(thumb, '.photo-gallery__thumb-image').src;
+        image.src = getElement<HTMLImageElement>(thumb, '.photo-thumbs__image').src;
         counter.textContent = `${thumbs.indexOf(thumb) + 1} из ${thumbs.length}`;
     });
 }

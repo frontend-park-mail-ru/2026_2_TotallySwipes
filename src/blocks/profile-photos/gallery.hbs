@@ -1,5 +1,5 @@
-<div class="profile-photos__stage">
-    <img class="profile-photos__image" src="{{main}}" alt="" draggable="false">
+<div class="photo-frame photo-frame_ratio_tall">
+    <img class="photo-frame__image" src="{{main}}" alt="" draggable="false">
     {{#if isMain}}
         <span class="profile-photos__badge">
             <span class="profile-photos__badge-icon" style="--icon: url('/icons/star_filled.svg')"></span>
@@ -17,15 +17,15 @@
         </button>
     </div>
 </div>
-<div class="profile-photos__thumbs{{#if locked}} profile-photos__thumbs_locked{{/if}}">
+<div class="photo-thumbs profile-photos__thumbs{{#if locked}} profile-photos__thumbs_locked{{/if}}">
     {{#each slots}}
         {{#if url}}
-            <div class="profile-photos__thumb profile-photos__thumb_filled{{#if active}} profile-photos__thumb_active{{/if}}" draggable="{{#if @root.locked}}false{{else}}true{{/if}}" data-index="{{index}}">
-                <img class="profile-photos__thumb-image" src="{{url}}" alt="" draggable="false">
+            <div class="photo-thumbs__item profile-photos__thumb profile-photos__thumb_filled{{#if active}} photo-thumbs__item_active{{/if}}" draggable="{{#if @root.locked}}false{{else}}true{{/if}}" data-index="{{index}}">
+                <img class="photo-thumbs__image" src="{{url}}" alt="" draggable="false">
                 <span class="profile-photos__thumb-index">{{number}}</span>
             </div>
         {{else}}
-            <button class="profile-photos__thumb profile-photos__thumb_empty" type="button"{{#if @root.locked}} disabled{{/if}}>
+            <button class="photo-thumbs__item profile-photos__thumb profile-photos__thumb_empty" type="button"{{#if @root.locked}} disabled{{/if}}>
                 {{{@root.plusIcon}}}
             </button>
         {{/if}}
