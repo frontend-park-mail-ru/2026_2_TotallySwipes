@@ -1,14 +1,11 @@
 import { setFormFieldError } from '../form-field/form-field.js';
 import { chipsTemplate } from '../chips/chips.js';
-import type { AccentColor } from '../../colors.js';
 import { INTERESTS_MAX_COUNT, validateInterestsCount } from '../../validation.js';
-import { INTERESTS, interestIconUrl } from '../../interests.js';
+import { INTERESTS, interestColor, interestIconUrl } from '../../interests.js';
 import { updateProfile } from '../../api/api.js';
 import { asOption, getElement } from '../../utils/dom.js';
 import type { RegisterStepLogic } from '../register-form/register-form.js';
 import registerInterestsHbs from './register-interests.hbs';
-
-const ACCENTS: readonly AccentColor[] = ['mint', 'sun', 'pink', 'sky', 'lilac'];
 
 const INTEREST_KEYS = INTERESTS.map(({ key }) => key);
 
@@ -18,11 +15,11 @@ const INTEREST_KEYS = INTERESTS.map(({ key }) => key);
  */
 export const interestsStep: RegisterStepLogic = {
     template() {
-        const chips = INTERESTS.map(({ key, label }, index) => ({
+        const chips = INTERESTS.map(({ key, label }) => ({
             value: key,
             text: label,
             icon: interestIconUrl(key),
-            color: ACCENTS[index % ACCENTS.length],
+            color: interestColor(key),
         }));
 
         return registerInterestsHbs({
