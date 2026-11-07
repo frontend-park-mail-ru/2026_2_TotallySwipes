@@ -14,8 +14,8 @@ import profilePhotosHbs from './profile-photos.hbs';
  *
  * @returns HTML-строка карточки.
  */
-export function profilePhotosTemplate(): string {
-    return profilePhotosHbs({ accept: PHOTO_TYPES.join(',') });
+export function profilePhotosTemplate(mix: string): string {
+    return profilePhotosHbs({ accept: PHOTO_TYPES.join(','), mix });
 }
 
 /**

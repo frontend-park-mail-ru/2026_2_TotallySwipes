@@ -359,7 +359,8 @@ export function renderProfileEditPage(root: HTMLElement) {
             .then((profile) => {
                 if (!page.isConnected) return;
 
-                content.innerHTML = profilePhotosTemplate() + fieldsTemplate(profile);
+                content.innerHTML =
+                    profilePhotosTemplate('profile-edit__photos') + fieldsTemplate(profile);
                 initProfilePhotos(getElement(content, '.profile-photos'), {
                     photos: profile.photos,
                     onSettled: refreshSidebarUser,
