@@ -9,7 +9,6 @@ import { ApiError, getProfile, getSearchFilter } from '../../api/api.js';
 import type {
     DatingGoal,
     MissingField,
-    Photo,
     Profile,
     SearchFilter,
     SearchSex,
@@ -18,6 +17,7 @@ import type {
 } from '../../api/api.types.js';
 import { getElement } from '../../utils/dom.js';
 import { icons } from '../../icons.js';
+import { PhotoQueue } from '../../photos/photo-queue.js';
 import registerFormHbs from './register-form.hbs';
 
 const NEXT_LABEL = 'Продолжить';
@@ -67,12 +67,8 @@ export interface RegisterData {
     searchAgeFrom?: string;
     searchAgeTo?: string;
     datingGoal?: DatingGoal;
-    /** Актуальный список фото с бэкенда, первое -- главное. */
-    photos?: Photo[];
-    /** Очередь действий с фото. */
-    photosPending?: Promise<void>;
-    /** Сколько действий с фото ещё не завершилось. */
-    photosSaving?: number;
+    /** Фото анкеты и очередь действий с ними. */
+    photoQueue?: PhotoQueue;
     /** Ключи тегов бэкенда. */
     interests?: TagKey[];
 }
@@ -185,7 +181,7 @@ function profileToData(profile: Profile, filter: SearchFilter): RegisterData {
         searchSex: hasFilter ? filter.sex : undefined,
         searchAgeFrom: hasFilter ? String(filter.age_from) : undefined,
         searchAgeTo: hasFilter ? String(filter.age_to) : undefined,
-        photos: profile.photos,
+        photoQueue: new PhotoQueue(profile.photos),
         interests: profile.tags,
     };
 }
