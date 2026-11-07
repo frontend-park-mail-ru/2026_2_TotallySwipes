@@ -1,6 +1,10 @@
 import type {
+    Attitude,
     Credentials,
     DatingGoal,
+    Education,
+    LocationResponse,
+    MatchedProfile,
     MissingField,
     Photo,
     ReorderPhotosRequest,
@@ -27,6 +31,12 @@ interface MockProfile {
     birth_date: string | null;
     sex: Sex | null;
     dating_goal: DatingGoal | null;
+    about_me: string | null;
+    education: Education | null;
+    work: string | null;
+    smoking: Attitude | null;
+    alcohol: Attitude | null;
+    height: number | null;
     tags: TagKey[];
     photos: Photo[];
     filter: SearchFilter | null;
@@ -78,14 +88,35 @@ export function checkAccess(pathname: string): MockResponse | null {
 const MAX_PHOTOS = 6;
 const PROFILE_KEY = 'mock-profile';
 
+// Необязательные поля анкеты. Анкета из localStorage, сохранённая до их появления, их не содержит.
+const EMPTY_DETAILS = {
+    about_me: null,
+    education: null,
+    work: null,
+    smoking: null,
+    alcohol: null,
+    height: null,
+} satisfies Partial<MockProfile>;
+
 const ADMIN_PROFILE: MockProfile = {
     user_id: 1,
-    name: 'User',
-    birth_date: '2002-05-01',
-    sex: 'female',
+    name: 'Илья',
+    birth_date: '2001-04-14',
+    sex: 'male',
     dating_goal: 'relationship',
-    tags: [],
-    photos: [{ id: 1, url: '/img/1.jpg' }],
+    about_me:
+        'Делаю мобильные приложения, а по выходным ухожу в походы и снимаю на плёнку. Ищу человека, с которым интересно и в кофейне, и в палатке.',
+    education: 'higher',
+    work: 'Мобильный разработчик',
+    smoking: 'negative',
+    alcohol: 'neutral',
+    height: 182,
+    tags: ['coffee', 'hiking', 'bicycle', 'photo', 'movies'],
+    photos: [
+        { id: 1, url: '/img/1.jpg' },
+        { id: 2, url: '/img/2.jpg' },
+        { id: 3, url: '/img/3.jpg' },
+    ],
     filter: { sex: 'all', age_from: 18, age_to: 100 },
 };
 
@@ -95,6 +126,7 @@ const NEW_PROFILE: MockProfile = {
     birth_date: null,
     sex: null,
     dating_goal: null,
+    ...EMPTY_DETAILS,
     tags: [],
     photos: [],
     filter: null,
@@ -104,8 +136,10 @@ const DEFAULT_FILTER: SearchFilter = { sex: 'all', age_from: 18, age_to: 100 };
 
 // Анкета живёт в localStorage, чтобы переживать обновление страницы.
 // URL загруженных фото после обновления уже не открываются.
-let mockProfile: MockProfile =
-    JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? ADMIN_PROFILE;
+let mockProfile: MockProfile = {
+    ...EMPTY_DETAILS,
+    ...(JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? ADMIN_PROFILE),
+};
 
 const saveProfile = (changes: Partial<MockProfile> | UpdateProfileRequest) => {
     mockProfile = { ...mockProfile, ...changes };
@@ -131,10 +165,33 @@ function missingFields(): MissingField[] {
     return fields;
 }
 
+/**
+ * @param {string|null} birthDate - Дата рождения в формате YYYY-MM-DD.
+ * @returns {number|null} Полных лет на сегодня или null, если дата не задана.
+ */
+function ageFromBirthDate(birthDate: string | null): number | null {
+    if (!birthDate) {
+        return null;
+    }
+
+    const [year, month, day] = birthDate.split('-').map(Number);
+    const today = new Date();
+    const hadBirthday =
+        today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+
+    return today.getFullYear() - year - (hadBirthday ? 0 : 1);
+}
+
 // filter: undefined - фильтр в анкету не входит, JSON его не сохранит.
 const profileResponse = () => ({
     status: 200,
-    body: { ...mockProfile, filter: undefined, missing: missingFields() },
+    body: {
+        ...mockProfile,
+        age: ageFromBirthDate(mockProfile.birth_date),
+        city: 'Москва',
+        filter: undefined,
+        missing: missingFields(),
+    },
 });
 
 const authResponse = (status: number) => ({
@@ -568,19 +625,130 @@ function placeSearchState(matchId: number, search: MockPlaceSearch) {
 
 const placeSearchNotFound = () => error(404, 'SEARCH_NOT_FOUND', 'Подбор не найден или истёк');
 
+/**
+ * Приводит изменения анкеты к виду, в котором их хранит бэкенд. Пустой текст очищает поле.
+ *
+ * @param {Object} changes - Тело PATCH /profile/me.
+ * @returns {Object} Копия изменений, где пустые about_me и work заменены на null,
+ *     а work обрезан по краям. Остальные поля не меняются.
+ */
+function normalizeProfileChanges(changes: UpdateProfileRequest): UpdateProfileRequest {
+    const normalized = { ...changes };
+
+    if ('about_me' in changes) {
+        normalized.about_me = changes.about_me || null;
+    }
+
+    if ('work' in changes) {
+        normalized.work = changes.work?.trim() || null;
+    }
+
+    return normalized;
+}
+
+/**
+ * Проверяет изменения анкеты по ограничениям из контракта.
+ *
+ * @param {Object} changes - Тело PATCH /profile/me после normalizeProfileChanges.
+ * @returns {Object<string, string>|null} Ошибки по полям или null, если всё верно.
+ */
+function validateProfileChanges(changes: UpdateProfileRequest): Record<string, string> | null {
+    const fields: Record<string, string> = {};
+    const { name, about_me: aboutMe, work, height, tags } = changes;
+
+    if (name !== undefined && (name.trim() === '' || name.length > 64)) {
+        fields.name = 'имя должно быть от 1 до 64 символов';
+    }
+
+    if (aboutMe && aboutMe.length > 1000) {
+        fields.about_me = 'описание не должно быть длиннее 1000 символов';
+    }
+
+    if (work && work.length > 100) {
+        fields.work = 'место работы не должно быть длиннее 100 символов';
+    }
+
+    if (height != null && (!Number.isInteger(height) || height < 100 || height > 250)) {
+        fields.height = 'рост должен быть от 100 до 250 см';
+    }
+
+    if (tags && tags.length > 10) {
+        fields.tags = 'можно выбрать не больше 10 тегов';
+    }
+
+    return Object.keys(fields).length > 0 ? fields : null;
+}
+
+const validationError = (fields: Record<string, string>): MockResponse => ({
+    status: 400,
+    body: { error: { code: 'VALIDATION_ERROR', message: 'Проверьте поля запроса', fields } },
+});
+
+/**
+ * Отдаёт анкету собеседника. Как и бэкенд, отвечает только для мэтчей: у остальных 404.
+ *
+ * @param {URL} url
+ * @returns {{status: number, body: Object}}
+ */
+function matchedProfile(url: URL): MockResponse {
+    const userId = Number(url.pathname.split('/').pop());
+    const match = MATCH_ITEMS.find((item) => item.user_id === userId);
+
+    if (!match) {
+        return error(404, 'PROFILE_NOT_FOUND', 'Целевая анкета не найдена или недоступна');
+    }
+
+    const profile: MatchedProfile = {
+        match_id: match.match_id,
+        user_id: match.user_id,
+        name: match.name ?? 'Даша',
+        age: match.age ?? 24,
+        city: 'Москва',
+        about_me:
+            'Работаю в книжном издательстве, по выходным катаюсь на велосипеде вдоль реки. Ищу человека, с которым можно молчать и не скучать.',
+        education: 'higher',
+        work: 'Редактор',
+        smoking: 'negative',
+        alcohol: 'neutral',
+        height: 168,
+        dating_goal: 'relationship',
+        compatibility: match.compatibility,
+        tags: ['books', 'bicycle', 'coffee', 'music', 'hiking'],
+        photos: [
+            { id: 1, url: '/img/1.jpg' },
+            { id: 2, url: '/img/2.jpg' },
+            { id: 3, url: '/img/3.jpg' },
+            { id: 4, url: '/img/0.jpg' },
+        ],
+        liked_me: true,
+    };
+
+    return { status: 200, body: profile };
+}
+
+const MOCK_LOCATION: LocationResponse = {
+    location: {
+        city: 'Москва',
+        district: 'Хамовники',
+        coordinates: { latitude: 55.7295, longitude: 37.5738 },
+    },
+};
+
 export const MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/profile/me/short': () => ({
         status: 200,
         body: {
             user_id: mockProfile.user_id,
             name: mockProfile.name,
-            age: mockProfile.birth_date ? 24 : null,
+            age: ageFromBirthDate(mockProfile.birth_date),
             city: 'Москва',
             photo_url: mockProfile.photos[0]?.url ?? null,
             missing: missingFields(),
         },
     }),
     'GET /api/v1/profile/me': profileResponse,
+    'GET /api/v1/profiles/{id}': matchedProfile,
+    'GET /api/v1/location/me': { status: 200, body: MOCK_LOCATION },
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
@@ -735,7 +903,14 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
         return authResponse(201);
     },
     'PATCH /api/v1/profile/me': (url, { body }) => {
-        saveProfile(body as UpdateProfileRequest);
+        const changes = normalizeProfileChanges(body as UpdateProfileRequest);
+        const fields = validateProfileChanges(changes);
+
+        if (fields) {
+            return validationError(fields);
+        }
+
+        saveProfile(changes);
 
         return profileResponse();
     },

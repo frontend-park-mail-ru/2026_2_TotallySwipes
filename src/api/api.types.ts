@@ -70,16 +70,18 @@ export interface ProfileShort {
     missing: MissingField[];
 }
 
-export interface Profile extends UserFacts {
+export interface Profile extends Omit<UserFacts, 'dating_goal'> {
     user_id: number;
     name: string | null;
     birth_date: string | null;
     age: number | null;
     sex: Sex | null;
+    dating_goal: DatingGoal | null;
     about_me: string | null;
     education: Education | null;
     tags: TagKey[];
     photos: Photo[];
+    city: string | null;
     missing: MissingField[];
 }
 
@@ -129,6 +131,10 @@ export interface FeedItem extends UserFacts {
     tags: TagKey[];
     photos: Photo[];
     liked_me: boolean;
+}
+
+export interface MatchedProfile extends FeedItem {
+    match_id: number;
 }
 
 export interface FeedPage {
@@ -236,6 +242,21 @@ export interface MatchesParams {
 export interface Location {
     city: string;
     address: string | null;
+}
+
+export interface Coordinates {
+    latitude: number;
+    longitude: number;
+}
+
+export interface UserLocation {
+    city: string;
+    district: string | null;
+    coordinates: Coordinates;
+}
+
+export interface LocationResponse {
+    location: UserLocation | null;
 }
 
 export type EventSearchStatus = 'voting' | 'waiting_partner' | 'completed' | 'cancelled';

@@ -4,6 +4,8 @@ import type {
     EventsPage,
     FeedPage,
     FeedParams,
+    LocationResponse,
+    MatchedProfile,
     MatchesPage,
     MatchesParams,
     PhotosResponse,
@@ -250,6 +252,27 @@ export function register(email: string, password: string): Promise<AuthResponse>
  */
 export function getProfile(): Promise<Profile> {
     return request<Profile>('/profile/me');
+}
+
+/**
+ * Загружает анкету собеседника. Доступна только при мэтче.
+ *
+ * @param {number} userId
+ * @returns {Promise<Object>} Анкета в формате карточки ленты и match_id.
+ * @throws {ApiError} Со статусом 404, если мэтча нет, анкеты нет или запрошена своя анкета.
+ */
+export function getProfileById(userId: number): Promise<MatchedProfile> {
+    return request<MatchedProfile>(`/profiles/${userId}`);
+}
+
+/**
+ * Загружает своё местоположение.
+ *
+ * @returns {Promise<{location: ?{city: string, district: ?string, coordinates: Object}}>}
+ *     location равен null, если местоположение не задано.
+ */
+export function getLocation(): Promise<LocationResponse> {
+    return request<LocationResponse>('/location/me');
 }
 
 /**
