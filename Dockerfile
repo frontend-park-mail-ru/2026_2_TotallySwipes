@@ -6,6 +6,8 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+ARG VITE_YANDEX_MAPS_API_KEY
 RUN npm run build
 
 FROM node:24-alpine

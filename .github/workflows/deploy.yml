@@ -49,6 +49,8 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.image.outputs.name }}
+          build-args: |
+            VITE_YANDEX_MAPS_API_KEY=${{ secrets.YANDEX_MAPS_API_KEY }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
