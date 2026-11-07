@@ -160,6 +160,7 @@ function fieldsTemplate(profile: Profile): string {
         interests: chipsTemplate({
             type: 'checkbox',
             name: 'interests',
+            mix: 'chips_stickers',
             chips: INTERESTS.map(({ key, label }) => ({
                 value: key,
                 text: label,
