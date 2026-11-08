@@ -18,6 +18,7 @@ import type {
 import { getElement } from '../../utils/dom.js';
 import { icons } from '../../icons.js';
 import { PhotoQueue } from '../../photos/photo-queue.js';
+import { isNetworkError, showOfflineToast } from '../../network.js';
 import registerFormHbs from './register-form.hbs';
 
 const NEXT_LABEL = 'Продолжить';
@@ -326,7 +327,11 @@ export function initRegisterForm(root: HTMLElement, props: RegisterFormProps = {
         } catch (error) {
             console.error('Не удалось загрузить анкету:', error);
 
-            if (root.isConnected) {
+            if (!root.isConnected) return;
+
+            if (isNetworkError(error)) {
+                showOfflineToast();
+            } else {
                 showModal({ ...LOAD_ERROR_MODAL, onClose: resumeRegistration });
             }
             return;

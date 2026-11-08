@@ -5,6 +5,7 @@ import { showModal } from '../modal/modal.js';
 import { userPreviewTemplate } from '../user-preview/user-preview.js';
 import sidebarHbs from './sidebar.hbs';
 import { getElement } from '../../utils/dom.js';
+import { isNetworkError, showOfflineToast } from '../../network.js';
 
 const MENU_ITEMS: MenuItem[] = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
@@ -63,6 +64,11 @@ async function handleLogout() {
         location.replace('/login');
     } catch (error) {
         console.error('Не удалось завершить сессию:', error);
+        if (isNetworkError(error)) {
+            showOfflineToast();
+            return;
+        }
+
         showModal({
             title: 'Не удалось выйти из аккаунта',
             text: 'Похоже, что наблюдаются проблемы с подключением. Попробовать ещё раз?',

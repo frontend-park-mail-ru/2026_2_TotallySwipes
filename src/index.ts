@@ -1,6 +1,7 @@
 import { Router } from './router.js';
 import { getElement } from './utils/dom.js';
 import { logout, onUnauthorized } from './api/api.js';
+import { isNetworkError, showOfflineToast } from './network.js';
 import type { AuthResponse } from './api/api.types.js';
 import { restoreSession, isAuthenticated, isProfileComplete, setAuthenticated } from './session.js';
 import { withLayout } from './blocks/layout/layout.js';
@@ -21,6 +22,12 @@ const SERVER_ERROR_MODAL = {
     image: '/icons/mascot-error.svg',
     title: 'Произошла ошибка',
     text: 'Ошибка на сервере. Обновите страницу или повторите попытку позднее.',
+    buttonText: 'Повторить',
+};
+const OFFLINE_MODAL = {
+    image: '/icons/mascot-error.svg',
+    title: 'Нет соединения',
+    text: 'Проверьте подключение к интернету и повторите попытку.',
     buttonText: 'Повторить',
 };
 
@@ -52,8 +59,8 @@ function startApp() {
 
     /**
      * При регистрации проверяет сессию и отправляет на тест или на вход.
-     * При ошибке предлагает повторить. Отказ от повтора тоже уводит со страницы
-     * регистрации. Если анкета всё ещё не заполнена, правила доступа возвращают
+     * При ошибке предлагает повторить, без сети - только тост. Отказ от повтора
+     * тоже уводит со страницы регистрации. Если анкета всё ещё не заполнена, правила доступа возвращают
      * на регистрацию.
      */
     async function handleRegister() {
@@ -69,6 +76,12 @@ function startApp() {
             await restoreSession();
         } catch (error) {
             console.error('Не удалось проверить сессию после регистрации:', error);
+            if (isNetworkError(error)) {
+                showOfflineToast();
+                leaveRegistration();
+                return;
+            }
+
             showModal({
                 ...SERVER_ERROR_MODAL,
                 onClose: (returnValue) => {
@@ -87,13 +100,20 @@ function startApp() {
 
     /**
      * При выходе завершает сессию и отправляет на вход. При ошибке предлагает
-     * повторить. Отказ от повтора возвращает на главную без выхода.
+     * повторить, без сети - только тост. Отказ от повтора возвращает на главную
+     * без выхода.
      */
     async function handleLogout() {
         try {
             await logout();
         } catch (error) {
             console.error('Не удалось завершить сессию на сервере:', error);
+            if (isNetworkError(error)) {
+                showOfflineToast();
+                router.go('/', { replace: true });
+                return;
+            }
+
             showModal({
                 ...SERVER_ERROR_MODAL,
                 onClose: (returnValue) => {
@@ -162,7 +182,7 @@ function startApp() {
 
 /**
  * Проверяет сессию и запускает приложение. При ошибке предлагает повторить
- * проверку.
+ * проверку. Без сети - модалка «Нет соединения», а не «ошибка на сервере».
  */
 async function checkSession() {
     try {
@@ -170,7 +190,7 @@ async function checkSession() {
     } catch (error) {
         console.error('Не удалось восстановить сессию:', error);
         showModal({
-            ...SERVER_ERROR_MODAL,
+            ...(isNetworkError(error) ? OFFLINE_MODAL : SERVER_ERROR_MODAL),
             onClose: checkSession,
         });
         return;
@@ -179,4 +199,29 @@ async function checkSession() {
     startApp();
 }
 
+function registerServiceWorker() {
+    if (!import.meta.env.PROD) {
+        return;
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then(function (registration) {
+                registration.addEventListener('updatefound', () => {
+                    const installingWorker = registration.installing;
+                    console.log('A new service worker is being installed:', installingWorker);
+                });
+            })
+            .catch(function (error) {
+                console.log('Service worker registration failed:', error);
+            });
+    } else {
+        console.log('Service workers are not supported.');
+    }
+}
+
+registerServiceWorker();
+// пропала сеть, когда приложение уже открыто: не блокируем, загруженное остаётся
+window.addEventListener('offline', showOfflineToast);
 checkSession();

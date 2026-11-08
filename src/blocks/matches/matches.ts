@@ -4,6 +4,7 @@ import { getElement } from '../../utils/dom.js';
 import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons';
 import { matchCardTemplate, type MatchCardData } from '../match-card/match-card';
 import { showModal } from '../modal/modal';
+import { isNetworkError, showOfflineToast } from '../../network';
 import matchesHbs from './matches.hbs';
 
 //TODO: вынести в общий константы отсюда и из feed.ts
@@ -110,7 +111,11 @@ export function renderMatchesPage(root: HTMLElement) {
                 console.error('Не удалось загрузить симпатии:', error);
                 if (!page.isConnected) return;
 
-                showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
+                if (isNetworkError(error)) {
+                    showOfflineToast();
+                } else {
+                    showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
+                }
             })
             .finally(() => {
                 state.isLoading = false;

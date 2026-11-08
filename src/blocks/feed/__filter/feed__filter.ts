@@ -12,6 +12,7 @@ import { getProfile, getSearchFilter, setSearchFilter } from '../../../api/api.j
 import type { DatingGoal, SearchFilter, SearchSex } from '../../../api/api.types.js';
 import { DATING_GOALS } from '../../../facts/facts.js';
 import { getElement } from '../../../utils/dom.js';
+import { isNetworkError, showOfflineToast } from '../../../network.js';
 import feedFilterHbs from './feed__filter.hbs';
 
 export interface FeedFilterData {
@@ -170,7 +171,13 @@ export function initFeedFilter(root: HTMLElement, { onApply }: FeedFilterParams)
             current = await setSearchFilter(filter);
         } catch (error) {
             console.error('Не удалось сохранить фильтр:', error);
-            if (root.isConnected) showModal(SAVE_ERROR_MODAL);
+            if (!root.isConnected) return;
+
+            if (isNetworkError(error)) {
+                showOfflineToast();
+            } else {
+                showModal(SAVE_ERROR_MODAL);
+            }
             return;
         } finally {
             isSaving = false;
