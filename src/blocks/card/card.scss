@@ -30,3 +30,12 @@
     @include v.text-style('caption-13-bold');
     color: v.$color-text-secondary;
 }
+
+// Карточка едет за страницей, но только в окнах, где она помещается целиком:
+// в низких её нижняя часть оставалась бы недоступной до конца страницы.
+@media (min-height: 800px) {
+    .card_sticky {
+        position: sticky;
+        top: 24px;
+    }
+}
