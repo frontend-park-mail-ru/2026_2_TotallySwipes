@@ -350,6 +350,7 @@ export function renderProfileEditPage(root: HTMLElement) {
     let rules: Record<FieldKey, FormFieldRule>;
     let saved: ProfileValues;
     let saveState: SaveState = 'idle';
+    let editedWhileSaving = false;
     let isLoaded = false;
 
     load();
@@ -418,8 +419,12 @@ export function renderProfileEditPage(root: HTMLElement) {
             (target instanceof HTMLInputElement && target.type === 'text');
 
         // У текстовых полей значение меняет input, у остальных - change.
-        if ((event.type === 'input') === isTextField && saveState === 'saved') {
-            setSaveState('idle');
+        if ((event.type === 'input') === isTextField) {
+            if (saveState === 'saved') {
+                setSaveState('idle');
+            } else if (saveState === 'saving') {
+                editedWhileSaving = true;
+            }
         }
 
         if (target.name === 'about' && event.type === 'input') {
@@ -515,6 +520,7 @@ export function renderProfileEditPage(root: HTMLElement) {
             return;
         }
 
+        editedWhileSaving = false;
         setSaveState('saving');
 
         try {
@@ -523,7 +529,7 @@ export function renderProfileEditPage(root: HTMLElement) {
 
             saved = profileToValues(profile);
             getElement(page, '.profile-edit__age-hint').textContent = ageHint(profile.age);
-            setSaveState('saved');
+            setSaveState(editedWhileSaving ? 'idle' : 'saved');
             refreshSidebarUser();
         } catch (error) {
             console.error('Не удалось сохранить профиль:', error);
