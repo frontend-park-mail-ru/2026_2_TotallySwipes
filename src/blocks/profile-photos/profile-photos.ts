@@ -1,6 +1,6 @@
 import type { Photo } from '../../api/api.types.js';
 import { PHOTO_PLACEHOLDER, icons } from '../../icons.js';
-import { PhotoQueue } from '../../photos/photo-queue.js';
+import { PhotoQueue, REPLACE_AT_LIMIT_MESSAGE } from '../../photos/photo-queue.js';
 import { initPhotoDrag } from '../../photos/photo-drag.js';
 import { getElement } from '../../utils/dom.js';
 import { PHOTO_MAX_COUNT, PHOTO_TYPES } from '../../validation.js';
@@ -82,7 +82,11 @@ export function initProfilePhotos(
         } else if (event.target.closest('.profile-photos__thumb_empty')) {
             fileInput.click();
         } else if (event.target.closest('.profile-photos__replace')) {
-            replaceInput.click();
+            if (queue.photos.length >= PHOTO_MAX_COUNT) {
+                setFormFieldError(fileInput, REPLACE_AT_LIMIT_MESSAGE);
+            } else {
+                replaceInput.click();
+            }
         } else if (event.target.closest('.profile-photos__remove') && selectedId !== null) {
             setFormFieldError(fileInput, null);
             queue.remove(selectedId);

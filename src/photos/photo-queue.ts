@@ -6,6 +6,11 @@ const NETWORK_ERROR_MESSAGE =
     'Не удалось сохранить фото. Проверьте соединение и попробуйте ещё раз.';
 
 /**
+ * Причина, по которой при полном наборе фото замена невозможна.
+ */
+export const REPLACE_AT_LIMIT_MESSAGE = `В анкете уже ${PHOTO_MAX_COUNT} фото. Чтобы заменить фото, сначала удалите любое другое.`;
+
+/**
  * Возвращает текст ошибки фото.
  *
  * @param error - Ошибка действия с фото.
@@ -146,11 +151,11 @@ export class PhotoQueue {
         });
     }
 
+    // TODO: Пофиксить, когда бэкенд сделает PUT /api/v1/profile/me/photos/{photo_id}!
     /**
-     * Заменяет фото другим файлом на том же месте. У бэкенда нет замены, поэтому это
-     * загрузка нового фото, удаление старого и перестановка. Пока в анкете есть место,
-     * новое фото загружается первым: если загрузка не удалась, старое остаётся.
-     * При полном наборе места нет, и старое фото удаляется первым.
+     * Заменяет фото другим файлом на том же месте. При полном наборе фото замена невозможна:
+     * бэкенд не примет лишнее фото, а удалять старое до загрузки нового нельзя, оно
+     * пропало бы при сбое. Тогда сообщается причина, и ничего не меняется.
      *
      * @param id - id заменяемого фото.
      * @param file - Выбранный файл.
@@ -164,19 +169,19 @@ export class PhotoQueue {
                 return;
             }
 
+            if (this.currentPhotos.length >= PHOTO_MAX_COUNT) {
+                this.listener?.onError(REPLACE_AT_LIMIT_MESSAGE);
+                return;
+            }
+
             const index = this.currentPhotos.findIndex((photo) => photo.id === id);
 
             if (index === -1) {
                 return;
             }
 
-            if (this.currentPhotos.length < PHOTO_MAX_COUNT) {
-                this.apply(await uploadPhoto(file));
-                this.apply(await deletePhoto(id));
-            } else {
-                this.apply(await deletePhoto(id));
-                this.apply(await uploadPhoto(file));
-            }
+            this.apply(await uploadPhoto(file));
+            this.apply(await deletePhoto(id));
 
             // Новое фото лежит в конце списка, ставим его на место старого.
             const ids = this.currentPhotos.map((photo) => photo.id);
