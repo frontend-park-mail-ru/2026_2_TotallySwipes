@@ -24,6 +24,7 @@ import {
 } from '../../storage/place-search-storage';
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button';
 import { pillTemplate } from '../pill/pill';
+import { isNetworkError, showOfflineToast } from '../../network';
 
 interface SearchState {
     searchId: uuid;
@@ -269,6 +270,11 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
                 return;
             }
 
+            if (isNetworkError(error)) {
+                showOfflineToast();
+                return;
+            }
+
             const code = error instanceof ApiError ? error.code : null;
 
             switch (code) {
@@ -344,6 +350,11 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
         } catch (error) {
             console.error('Не удалось отправить результаты подбора:', error);
             if (!page.isConnected) return;
+
+            if (isNetworkError(error)) {
+                showOfflineToast();
+                return;
+            }
 
             const status = error instanceof ApiError ? error.status : null;
 

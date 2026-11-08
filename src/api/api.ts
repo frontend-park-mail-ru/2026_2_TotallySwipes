@@ -36,6 +36,14 @@ interface RequestOptions {
     query?: QueryParams;
     body?: object | FormData;
 }
+
+export class NetworkError extends Error {
+    constructor(cause: unknown) {
+        super('Не удалось связаться с сервером', { cause });
+        this.name = 'NetworkError';
+    }
+}
+
 /**
  * Ошибка ответа API с HTTP-статусом и кодом ошибки бэкенда.
  */
@@ -157,6 +165,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
  * @param {Object|FormData} [options.body] - Тело запроса.
  * @returns {Promise<*>} Тело ответа или null при статусе 204.
  * @throws {ApiError} Если ответ не 2xx.
+ * @throws {NetworkError} Если ответа нет совсем.
  */
 async function send<T>(
     path: string,
@@ -172,7 +181,12 @@ async function send<T>(
         init.body = JSON.stringify(body);
     }
 
-    const response = USE_MOCKS ? await mockFetch(url, init) : await fetch(url, init);
+    let response: Response;
+    try {
+        response = USE_MOCKS ? await mockFetch(url, init) : await fetch(url, init);
+    } catch (error) {
+        throw new NetworkError(error);
+    }
 
     if (response.status === 204) {
         return null as T;
