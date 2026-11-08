@@ -1,5 +1,5 @@
 import { ticketTemplate, type TicketData } from '../ticket/ticket';
-import { PHOTO_PLACEHOLDER } from '../../icons';
+import { PHOTO_PLACE_PLACEHOLDER } from '../../icons';
 import { formatEventDate } from '../../utils/format';
 import placeSearchHbs from './place-search.hbs';
 import placeSearchMatchesHbs from './__matches/place-search__matches.hbs';
@@ -131,7 +131,7 @@ function toTicketView(event: PlaceEvent): TicketData {
     return {
         id: event.id,
         title: event.name,
-        photoUrl: event.image_url ?? PHOTO_PLACEHOLDER,
+        photoUrl: event.image_url ?? PHOTO_PLACE_PLACEHOLDER,
         time: startsAt.time,
         date: startsAt.date,
         city: event.location.city,
