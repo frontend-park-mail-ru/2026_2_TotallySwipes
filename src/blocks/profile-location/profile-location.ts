@@ -1,6 +1,6 @@
 import { ApiError, getLocation, previewLocation, saveLocation } from '../../api/api.js';
 import type { Coordinates, LocationPreview, UserLocation } from '../../api/api.types.js';
-import { createPickMap, loadYandexMaps, type PickMap } from '../../maps/yandex-maps.js';
+import { createPickMap, loadMaps, type PickMap, type PickMarkerIcon } from '../../maps/pick-map.js';
 import { getElement } from '../../utils/dom.js';
 import { setFormFieldError } from '../form-field/form-field.js';
 import profileLocationHbs from './profile-location.hbs';
@@ -9,6 +9,14 @@ const DEFAULT_CENTER: Coordinates = { latitude: 55.7558, longitude: 37.6173 };
 const DEFAULT_ZOOM = 10;
 const SAVED_ZOOM = 12;
 const LOCATED_ZOOM = 13;
+
+// Булавка 30x33: остриё в 15 пикселях от левого края и в 31,5 от верхнего.
+const MARKER_ICON: PickMarkerIcon = {
+    url: '/icons/map-marker.svg',
+    size: [30, 33],
+    anchor: [15, 31.5],
+    className: 'profile-location__marker',
+};
 
 const GEOLOCATION_OPTIONS: PositionOptions = { timeout: 10000 };
 
@@ -132,25 +140,16 @@ export function initProfileLocation(root: HTMLElement, { onSaved }: ProfileLocat
     function initMap() {
         const center = saved?.coordinates ?? DEFAULT_CENTER;
 
-        loadYandexMaps()
-            .then((ymaps3) => {
+        loadMaps()
+            .then((maps) => {
                 if (!root.isConnected) return;
 
                 mapElement.textContent = '';
-                map = createPickMap(ymaps3, mapElement, {
+                map = createPickMap(maps, mapElement, {
                     center,
                     zoom: saved ? SAVED_ZOOM : DEFAULT_ZOOM,
                     onPick: pick,
-                    createMarker: () => {
-                        const marker = document.createElement('img');
-
-                        marker.className = 'profile-location__marker';
-                        marker.src = '/icons/map-marker.svg';
-                        marker.alt = '';
-                        marker.draggable = false;
-
-                        return marker;
-                    },
+                    markerIcon: MARKER_ICON,
                 });
                 restoreMarker();
             })

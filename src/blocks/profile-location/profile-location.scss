@@ -69,9 +69,6 @@
     border-radius: 12px;
 }
 
-// Карта ставит маркер верхним левым углом в точку: сдвигаем булавку остриём в точку.
 .profile-location__marker {
-    display: block;
-    transform: translate(-15px, -31.5px);
     filter: drop-shadow(0 3px 3px rgba(20, 20, 20, 0.35));
 }
