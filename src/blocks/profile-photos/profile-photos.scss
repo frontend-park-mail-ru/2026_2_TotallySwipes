@@ -44,6 +44,10 @@
     background: v.$color-error-hover;
 }
 
+.profile-photos__thumbs {
+    justify-content: center;
+}
+
 .profile-photos__thumbs_locked {
     cursor: progress;
 }
