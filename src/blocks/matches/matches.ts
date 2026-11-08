@@ -15,6 +15,9 @@ const LOAD_ERROR_MODAL = {
     buttonText: 'Повторить',
 };
 
+const MORE_TEXT = 'Загрузить ещё';
+const RETRY_TEXT = 'Повторить загрузку';
+
 interface MathesState {
     isLoading: boolean;
     profiles: MatchCardData[];
@@ -65,6 +68,7 @@ export function renderMatchesPage(root: HTMLElement) {
 
     const gridElement = getElement(page, '.matches__grid');
     const moreButton = getElement<HTMLButtonElement>(page, '.matches__more');
+    const moreText = getElement(moreButton, '.button__text');
     const countElement = getElement(page, '.matches__count');
 
     gridElement.addEventListener('click', (event) => {
@@ -103,6 +107,7 @@ export function renderMatchesPage(root: HTMLElement) {
                 gridElement.insertAdjacentHTML('beforeend', html);
                 state.offset += items.length;
                 state.nextCursor = nextCursor;
+                moreText.textContent = MORE_TEXT;
                 moreButton.classList.toggle('matches__more_hidden', nextCursor === null);
                 countElement.textContent = `${total} ${mutualWord(total)}`;
                 page.classList.toggle('matches_empty', state.offset === 0);
@@ -113,6 +118,8 @@ export function renderMatchesPage(root: HTMLElement) {
 
                 if (isNetworkError(error)) {
                     showOfflineToast();
+                    moreText.textContent = RETRY_TEXT;
+                    moreButton.classList.remove('matches__more_hidden');
                 } else {
                     showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
                 }
