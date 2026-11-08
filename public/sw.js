@@ -1,13 +1,30 @@
 const CACHE_NAME = 'v1';
 const STATIC_PATHS = ['/assets/', '/icons/', '/fonts/', '/stickers/', '/badges/', '/img/'];
 
+const FONT_URL = '/fonts/Onest-VariableFont_wght.ttf';
+
+const OFFLINE_IMAGE_URLS = ['/icons/mascot-error.svg', '/icons/x.svg'];
+
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(['/', '/fonts/Onest-VariableFont_wght.ttf']);
-        }),
-    );
+    event.waitUntil(precache());
 });
+
+async function precache() {
+    const cache = await caches.open(CACHE_NAME);
+
+    const resp = await fetch('/');
+    if (!resp.ok) {
+        throw new Error(`Не удалось загрузить index.html: ${resp.status}`);
+    }
+
+    const html = await resp.clone().text();
+    // сет нужен, чтобы не файлы не добавились повторно, а то addall упадет
+    const assets = [...new Set(html.match(/\/assets\/[^"']+/g) ?? [])];
+
+    await cache.addAll([...assets, FONT_URL, ...OFFLINE_IMAGE_URLS]);
+    // html кладём последним,если ассеты не скачались установка упадет целиком
+    await cache.put('/', resp);
+}
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(
