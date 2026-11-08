@@ -12,9 +12,10 @@ import profilePhotosHbs from './profile-photos.hbs';
  * Рендерит блок "Фото профиля": карточку с большим фото, миниатюрами и кнопками.
  * Содержимое появляется после {@link initProfilePhotos}.
  *
+ * @param mix - Дополнительные CSS-классы (БЭМ-микс).
  * @returns HTML-строка карточки.
  */
-export function profilePhotosTemplate(mix: string): string {
+export function profilePhotosTemplate(mix: string = ''): string {
     return profilePhotosHbs({ accept: PHOTO_TYPES.join(','), mix });
 }
 
