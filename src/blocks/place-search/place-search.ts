@@ -53,7 +53,7 @@ const ACTIONS: RoundButtonData[] = [
 export const WAITING_STATE: EmptyStateData = {
     image: '/icons/ticket-waiting.svg',
     title: 'Ждём партнёра',
-    text: 'Вы оценили все 10 мест. Когда партнёр закончит, покажем места, которые понравились вам обоим, и пришлём уведомление.',
+    text: 'Вы оценили все 10 мест. Когда партнёр закончит, покажем места, которые понравились вам обоим.',
     actions: [{ text: 'К симпатиям', view: 'primary', href: '/matches' }],
     size: 'l',
     sticker: true,
@@ -222,6 +222,13 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
                     screenElement.innerHTML = emptyStateTemplate(NO_MATCHES_STATE);
                     break;
                 }
+
+                counterElement.innerHTML = pillTemplate({
+                    icon: '/icons/check.svg',
+                    text: `Совпали ${search.matches.length} места`,
+                    size: 's',
+                    color: 'mint',
+                });
 
                 screenElement.innerHTML = placeSearchMatchesHbs({
                     tickets: search.matches
@@ -403,8 +410,10 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
     function updateProgress() {
         undoButton.disabled = state.decisions.length === 0 || isSubmitting;
 
-        const total = state.search?.events.length ?? 0;
-        if (total === 0 || state.search?.status !== 'voting') {
+        if (state.search?.status !== 'voting') return;
+
+        const total = state.search.events.length;
+        if (total === 0) {
             counterElement.innerHTML = '';
             return;
         }

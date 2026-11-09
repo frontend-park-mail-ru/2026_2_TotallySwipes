@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v1';
+const CACHE_NAME = 'v2';
 const STATIC_PATHS = ['/assets/', '/icons/', '/fonts/', '/stickers/', '/badges/', '/img/'];
 
 const FONT_URL = '/fonts/Onest-VariableFont_wght.ttf';
@@ -39,6 +39,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    if (new URL(event.request.url).pathname.startsWith('/api/')) {
+        return;
+    }
+
     if (event.request.mode === 'navigate') {
         event.respondWith(networkFirst(event.request));
     } else if (event.request.method === 'GET') {

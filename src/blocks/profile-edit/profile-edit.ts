@@ -37,6 +37,7 @@ import {
 import { profilePhotosTemplate, initProfilePhotos } from '../profile-photos/profile-photos.js';
 import { MONTHS } from '../register-profile/register-profile.js';
 import { refreshSidebarUser } from '../sidebar/sidebar.js';
+import { initLogoutButton } from '../../logout.js';
 import fieldsHbs from './fields.hbs';
 import profileEditHbs from './profile-edit.hbs';
 
@@ -346,6 +347,9 @@ export function renderProfileEditPage(root: HTMLElement) {
     const saveButton = getElement<HTMLButtonElement>(page, '.profile-edit__save');
     const saveLabel = getElement(saveButton, '.button__text');
     const savedMessage = getElement(page, '.profile-edit__saved');
+
+    // Кнопка выхода вне загружаемых карточек: выйти можно, даже если анкета не загрузилась.
+    initLogoutButton(getElement(page, '.profile-edit__logout'));
 
     let rules: Record<FieldKey, FormFieldRule>;
     let saved: ProfileValues;

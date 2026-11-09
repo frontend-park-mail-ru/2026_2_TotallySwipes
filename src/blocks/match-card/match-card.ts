@@ -11,6 +11,8 @@ export interface MatchCardData {
     hasCompatibility: boolean;
     matchColor: string;
     isNew: boolean;
+    canMeetup: boolean;
+    partnerFinished: boolean;
     offset: number;
 }
 
@@ -22,10 +24,19 @@ const NEW_PILL: PillProps = {
     mix: 'match-card__new',
 };
 
+const WAITING_PILL: PillProps = {
+    text: 'Ждёт вас!',
+    icon: null,
+    color: 'mint',
+    size: 'xs',
+    mix: 'match-card__waiting',
+};
+
 export function matchCardTemplate(mix: string, match: MatchCardData) {
     return matchCardHbs({
         mix: mix,
         ...match,
         newPill: match.isNew ? pillTemplate(NEW_PILL) : '',
+        waitingPill: match.partnerFinished ? pillTemplate(WAITING_PILL) : '',
     });
 }

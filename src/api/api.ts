@@ -2,6 +2,7 @@ import type {
     AuthResponse,
     CompatibilityTest,
     Coordinates,
+    CsrfResponse,
     EventsPage,
     FeedPage,
     FeedParams,
@@ -121,6 +122,40 @@ function refreshOnce(): Promise<null> {
     return refreshPromise;
 }
 
+let csrfToken: string | null = null;
+let csrfPromise: Promise<string> | null = null;
+
+/**
+ * Возвращает CSRF-токен. Запрашивает его, только если токена ещё нет;
+ * параллельные вызовы ждут один и тот же запрос.
+ *
+ * @returns {Promise<string>}
+ */
+function getCsrfToken(): Promise<string> {
+    if (csrfToken) {
+        return Promise.resolve(csrfToken);
+    }
+
+    csrfPromise ??= sendOnce<CsrfResponse>('/auth/csrf')
+        .then(({ csrf_token }) => {
+            csrfToken = csrf_token;
+            return csrf_token;
+        })
+        .finally(() => {
+            csrfPromise = null;
+        });
+
+    return csrfPromise;
+}
+
+/**
+ * @param {*} error
+ * @returns {boolean} true, если бэкенд отклонил CSRF-токен.
+ */
+function isCsrfInvalid(error: unknown): boolean {
+    return error instanceof ApiError && error.code === 'CSRF_INVALID';
+}
+
 /**
  * @param {*} error
  * @returns {boolean} true, если это ApiError со статусом 401.
@@ -160,7 +195,29 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 }
 
 /**
+ * Отправляет запрос. Если бэкенд отклонил CSRF-токен, получает новый и один раз повторяет запрос.
+ *
+ * @param {string} path - Путь относительно API_URL.
+ * @param {Object} [options] - Параметры запроса, как у sendOnce.
+ * @returns {Promise<*>} Тело ответа.
+ * @throws {ApiError}
+ */
+async function send<T>(path: string, options: RequestOptions = {}): Promise<T> {
+    try {
+        return await sendOnce<T>(path, options);
+    } catch (error) {
+        if (!isCsrfInvalid(error)) {
+            throw error;
+        }
+    }
+
+    csrfToken = null;
+    return sendOnce<T>(path, options);
+}
+
+/**
  * Отправляет один запрос без повторов. FormData уходит как есть, остальное тело - как JSON.
+ * Ко всем запросам, кроме GET, добавляет заголовок X-CSRF-Token.
  *
  * @param {string} path - Путь относительно API_URL.
  * @param {Object} [options]
@@ -171,17 +228,22 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
  * @throws {ApiError} Если ответ не 2xx.
  * @throws {NetworkError} Если ответа нет совсем.
  */
-async function send<T>(
+async function sendOnce<T>(
     path: string,
     { method = 'GET', query, body }: RequestOptions = {},
 ): Promise<T> {
     const url = buildUrl(path, query);
-    const init: RequestInit = { method, credentials: 'include' };
+    const headers: Record<string, string> = {};
+    const init: RequestInit = { method, credentials: 'include', headers };
+
+    if (method !== 'GET') {
+        headers['X-CSRF-Token'] = await getCsrfToken();
+    }
 
     if (body instanceof FormData) {
         init.body = body;
     } else if (body !== undefined) {
-        init.headers = { 'Content-Type': 'application/json' };
+        headers['Content-Type'] = 'application/json';
         init.body = JSON.stringify(body);
     }
 

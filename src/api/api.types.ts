@@ -43,6 +43,10 @@ export interface Credentials {
     password: string;
 }
 
+export interface CsrfResponse {
+    csrf_token: string;
+}
+
 export interface AuthResponse {
     user_id: number;
     missing: MissingField[];
@@ -226,6 +230,8 @@ export interface Match {
     compatibility: number | null;
     is_new: boolean;
     created_at: string;
+    can_meetup?: boolean;
+    partner_finished?: boolean;
 }
 
 export interface MatchesPage {

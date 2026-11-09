@@ -1,11 +1,9 @@
 import { icons } from '../../icons.js';
-import { getCurrentUser, logout } from '../../api/api.js';
+import { getCurrentUser } from '../../api/api.js';
 import { type MenuItem, menuTemplate } from '../menu/menu.js';
-import { showModal } from '../modal/modal.js';
 import { userPreviewTemplate } from '../user-preview/user-preview.js';
 import sidebarHbs from './sidebar.hbs';
 import { getElement } from '../../utils/dom.js';
-import { isNetworkError, showOfflineToast } from '../../network.js';
 
 const MENU_ITEMS: MenuItem[] = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
@@ -53,54 +51,4 @@ export function refreshSidebarUser() {
     if (sidebar) {
         loadSidebarUser(sidebar);
     }
-}
-
-/**
- * Выходит из аккаунта. При ошибке предлагает попробовать ещё раз.
- */
-async function handleLogout() {
-    try {
-        await logout();
-        location.replace('/login');
-    } catch (error) {
-        console.error('Не удалось завершить сессию:', error);
-        if (isNetworkError(error)) {
-            showOfflineToast();
-            return;
-        }
-
-        showModal({
-            title: 'Не удалось выйти из аккаунта',
-            text: 'Похоже, что наблюдаются проблемы с подключением. Попробовать ещё раз?',
-            buttonText: 'Выйти',
-            cancelText: 'Отмена',
-            onClose: (result) => {
-                if (result === 'confirm') {
-                    handleLogout();
-                }
-            },
-        });
-    }
-}
-
-/**
- * Вешает на кнопку выхода подтверждение.
- *
- * @param {HTMLElement} sidebar
- */
-export function initSidebarLogout(sidebar: HTMLElement) {
-    const logoutButton = getElement(sidebar, '.sidebar__logout');
-    logoutButton.addEventListener('click', () => {
-        showModal({
-            title: 'Выйти из аккаунта?',
-            text: 'Чтобы снова смотреть анкеты, нужно будет войти ещё раз.',
-            buttonText: 'Выйти',
-            cancelText: 'Отмена',
-            onClose: (result) => {
-                if (result === 'confirm') {
-                    handleLogout();
-                }
-            },
-        });
-    });
 }

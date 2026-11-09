@@ -38,6 +38,8 @@ function toMatchView(item: Match, offset: number): MatchCardData {
         hasCompatibility,
         matchColor: MATCH_COLORS[offset % MATCH_COLORS.length],
         isNew: item.is_new,
+        canMeetup: item.can_meetup === true,
+        partnerFinished: item.partner_finished === true,
         offset,
     };
 }

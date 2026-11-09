@@ -4,7 +4,10 @@
         
          <a href="/profile/{{userId}}" data-link class="match-card__link"></a>
 
-        {{{newPill}}}
+        <div class="match-card__pills">
+            {{{newPill}}}
+            {{{waitingPill}}}
+        </div>
 
         <div class="match-card__bottom">
             <div class="match-card__info">
@@ -16,10 +19,12 @@
                     <span class="button__icon button__icon_mask" style="--icon: url('/icons/chat.svg')"></span>
                     <span class="button__text">Написать сообщение</span>
                 </button>
-                <a href="/matches/{{matchId}}/places" data-link class="button button_view_secondary match-card__button">
-                    <span class="button__icon button__icon_mask" style="--icon: url('/icons/calendar.svg')"></span>
-                    <span class="button__text">Назначить встречу</span>
-                </a>
+                {{#if canMeetup}}
+                    <a href="/matches/{{matchId}}/places" data-link class="button button_view_secondary match-card__button">
+                        <span class="button__icon button__icon_mask" style="--icon: url('/icons/calendar.svg')"></span>
+                        <span class="button__text">Назначить встречу</span>
+                    </a>
+                {{/if}}
             </div>
         </div>
 

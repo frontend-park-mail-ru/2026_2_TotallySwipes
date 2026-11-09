@@ -370,6 +370,9 @@ const MATCH_ITEMS = MATCH_NAMES.map((name, index) => ({
     compatibility: index % 4 === 0 ? null : Math.round((0.95 - index * 0.03) * 100) / 100,
     is_new: index < 3,
     created_at: new Date(Date.UTC(2026, 9, 20 - index, 12)).toISOString(),
+    // У части мэтчей полей нет совсем, у части false - кнопка и пилл видны только при true.
+    ...(index % 3 === 2 ? {} : { can_meetup: index % 3 === 0 }),
+    ...(index % 4 === 3 ? {} : { partner_finished: index % 4 < 2 }),
 }));
 
 const SEEN_MATCHES_KEY = 'mock-seen-matches';
@@ -1058,6 +1061,7 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
 
         return authResponse(200);
     },
+    'GET /api/v1/auth/csrf': { status: 200, body: { csrf_token: 'mock-csrf-token' } },
     'POST /api/v1/auth/logout': () => {
         endSession();
 

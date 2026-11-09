@@ -47,7 +47,9 @@
     mask: var(--icon) center / contain no-repeat;
 }
 
-.profile-edit__content {
+// Футер повторяет сетку контента, чтобы кнопка выхода стояла под колонкой с анкетой.
+.profile-edit__content,
+.profile-edit__footer {
     display: grid;
     grid-template-columns: minmax(0, 446fr) minmax(0, 634fr);
     gap: 24px;
@@ -99,6 +101,18 @@
     margin: 0;
     @include v.text-style('caption-13-regular');
     color: v.$color-text-secondary;
+}
+
+.profile-edit__logout {
+    grid-column: 2;
+    justify-self: center;
+    border-color: v.$color-error-default;
+    color: v.$color-error-default;
+}
+
+.profile-edit__logout:hover {
+    border-color: v.$color-error-hover;
+    color: v.$color-error-hover;
 }
 
 .profile-edit .form-field__hint,
