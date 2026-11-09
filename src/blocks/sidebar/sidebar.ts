@@ -1,7 +1,6 @@
 import { icons } from '../../icons.js';
-import { getCurrentUser, logout } from '../../api/api.js';
+import { getCurrentUser } from '../../api/api.js';
 import { type MenuItem, menuTemplate } from '../menu/menu.js';
-import { showModal } from '../modal/modal.js';
 import { userPreviewTemplate } from '../user-preview/user-preview.js';
 import sidebarHbs from './sidebar.hbs';
 import { getElement } from '../../utils/dom.js';
@@ -11,7 +10,7 @@ const MENU_ITEMS: MenuItem[] = [
     { href: '/matches', text: 'Симпатии', icon: icons.heart },
     { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3, disabled: true },
     { href: '/test', text: 'Тест совместимости', icon: icons.stars },
-    { href: '/profile', text: 'Профиль', icon: icons.user, disabled: true },
+    { href: '/profile', text: 'Профиль', icon: icons.user },
 ];
 
 // TODO: брать счётчики с бэкенда
@@ -43,46 +42,13 @@ export async function loadSidebarUser(sidebar: HTMLElement) {
 }
 
 /**
- * Выходит из аккаунта. При ошибке предлагает попробовать ещё раз.
+ * Перезагружает пользователя в sidebar, если он есть на странице. Вызывается после
+ * внесения изменений в анкету.
  */
-async function handleLogout() {
-    try {
-        await logout();
-        location.replace('/login');
-    } catch (error) {
-        console.error('Не удалось завершить сессию:', error);
-        showModal({
-            title: 'Не удалось выйти из аккаунта',
-            text: 'Похоже, что наблюдаются проблемы с подключением. Попробовать ещё раз?',
-            buttonText: 'Выйти',
-            cancelText: 'Отмена',
-            onClose: (result) => {
-                if (result === 'confirm') {
-                    handleLogout();
-                }
-            },
-        });
-    }
-}
+export function refreshSidebarUser() {
+    const sidebar = document.querySelector<HTMLElement>('.sidebar');
 
-/**
- * Вешает на кнопку выхода подтверждение.
- *
- * @param {HTMLElement} sidebar
- */
-export function initSidebarLogout(sidebar: HTMLElement) {
-    const logoutButton = getElement(sidebar, '.sidebar__logout');
-    logoutButton.addEventListener('click', () => {
-        showModal({
-            title: 'Выйти из аккаунта?',
-            text: 'Чтобы снова смотреть анкеты, нужно будет войти ещё раз.',
-            buttonText: 'Выйти',
-            cancelText: 'Отмена',
-            onClose: (result) => {
-                if (result === 'confirm') {
-                    handleLogout();
-                }
-            },
-        });
-    });
+    if (sidebar) {
+        loadSidebarUser(sidebar);
+    }
 }

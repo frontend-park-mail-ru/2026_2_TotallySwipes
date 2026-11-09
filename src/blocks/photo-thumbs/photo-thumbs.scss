@@ -1,0 +1,39 @@
+@use '../../variables' as v;
+
+.photo-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.photo-thumbs__item {
+    position: relative;
+    box-sizing: border-box;
+    flex: 0 0 57px;
+    width: 57px;
+    aspect-ratio: 57 / 71;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: v.$color-bg-page;
+    cursor: pointer;
+}
+
+.photo-thumbs__item_active {
+    box-shadow:
+        0 0 0 2px v.$color-surface,
+        0 0 0 4px v.$color-primary;
+}
+
+.photo-thumbs__item:focus-visible {
+    outline: 2px solid v.$color-primary;
+    outline-offset: 2px;
+}
+
+.photo-thumbs__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

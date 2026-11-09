@@ -22,6 +22,7 @@ import type {
 import { saveDraft, loadDraft, clearDraft, saveResult } from '../../storage/test-storage.js';
 import type { TestDraft } from '../../storage/test-storage.js';
 import type { Router } from '../../router.js';
+import { isNetworkError, showOfflineToast } from '../../network.js';
 import testHbs from './test.hbs';
 
 const COLORS: readonly AccentColor[] = ['sun', 'pink', 'sky', 'mint', 'lilac'];
@@ -204,8 +205,11 @@ export function renderTestPage(root: HTMLElement, router: Router): void {
             start(userId, test, restoreState(draft, test));
         } catch (error) {
             console.error('Не удалось загрузить тест:', error);
+            if (!page.isConnected) return;
 
-            if (page.isConnected) {
+            if (isNetworkError(error)) {
+                showOfflineToast();
+            } else {
                 showModal({ ...ERROR_MODAL, onClose: load });
             }
         }
@@ -334,6 +338,11 @@ export function renderTestPage(root: HTMLElement, router: Router): void {
 
                 if (page.isConnected) {
                     render();
+                    if (isNetworkError(error)) {
+                        showOfflineToast();
+                        return;
+                    }
+
                     showModal({
                         ...ERROR_MODAL,
                         onClose: (returnValue) => {

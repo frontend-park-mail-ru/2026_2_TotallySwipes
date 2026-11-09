@@ -6,8 +6,10 @@ import { roundButtonTemplate, type RoundButtonData } from '../round-button/round
 import type { PillProps } from '../pill/pill.js';
 import { ACCENT_COLORS } from '../../colors.js';
 import { emptyStateTemplate, type EmptyStateData } from '../empty-state/empty-state.js';
-import { getFeed, sendSwipe } from '../../api/api.js';
+import { ApiError, getFeed, sendSwipe } from '../../api/api.js';
 import { showModal } from '../modal/modal.js';
+import { isNetworkError, showOfflineToast } from '../../network.js';
+import type { Router } from '../../router.js';
 import { interestIconUrl, interestLabel } from '../../interests.js';
 import feedHbs from './feed.hbs';
 import { type Cursor, type FeedItem, type Photo, type SwipeAction } from '../../api/api.types.js';
@@ -73,7 +75,7 @@ function toInterest(tag: string, index: number): PillProps {
  * @param {Object} item - Анкета из ленты.
  * @returns {Object}
  */
-function toProfileView(item: FeedItem): ProfileData {
+export function toProfileView(item: FeedItem): ProfileData {
     const compatibility = item.compatibility !== null ? Math.round(item.compatibility * 100) : null;
     const hasCompatibility = compatibility !== null;
 
@@ -127,6 +129,13 @@ const LOAD_ERROR_MODAL = {
     buttonText: 'Повторить',
 };
 
+const NO_CITY_MODAL = {
+    image: '/icons/mascot-error.svg',
+    title: 'Не указан город',
+    text: 'Чтобы показывать анкеты рядом, нам нужно знать ваш город. Укажите его в профиле.',
+    buttonText: 'Указать город',
+};
+
 /**
  * Добавляет карточки под низ стопки, пока в ней не станет три.
  *
@@ -173,8 +182,9 @@ function detailsHtml(state: FeedState): string {
  * Рендерит ленту анкет. Если свайп не отправился, анкета возвращается наверх стопки.
  *
  * @param {HTMLElement} root
+ * @param router - Нужен, чтобы без города отправить в профиль.
  */
-export function renderFeedPage(root: HTMLElement) {
+export function renderFeedPage(root: HTMLElement, router: Router) {
     const state: FeedState = {
         profiles: [],
         index: 0,
@@ -241,7 +251,11 @@ export function renderFeedPage(root: HTMLElement) {
                     if (lastSwipe === current) lastSwipe = null;
 
                     updateUndo();
-                    showModal(SWIPE_ERROR_MODAL);
+                    if (isNetworkError(error)) {
+                        showOfflineToast();
+                    } else {
+                        showModal(SWIPE_ERROR_MODAL);
+                    }
                 });
 
             state.index++;
@@ -333,7 +347,16 @@ export function renderFeedPage(root: HTMLElement) {
                 console.error('Не удалось загрузить ленту:', error);
                 if (!page.isConnected || profiles !== state.profiles) return;
 
-                if (state.index >= state.profiles.length) {
+                if (error instanceof ApiError && error.code === 'LOCATION_REQUIRED') {
+                    showModal({ ...NO_CITY_MODAL, onClose: () => router.go('/profile') });
+                    return;
+                }
+
+                if (state.index < state.profiles.length) return;
+
+                if (isNetworkError(error)) {
+                    showOfflineToast();
+                } else {
                     showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
                 }
             })

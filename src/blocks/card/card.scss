@@ -1,0 +1,39 @@
+@use '../../variables' as v;
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+    padding: 32px;
+    border-radius: 20px;
+    background: v.$color-surface;
+    box-shadow: v.$shadow-panel;
+}
+
+.card_gap_l {
+    gap: 24px;
+}
+
+.card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card__title {
+    margin: 0;
+    @include v.text-style('body-16-semibold');
+}
+
+.card__counter {
+    @include v.text-style('caption-13-bold');
+    color: v.$color-text-secondary;
+}
+
+@media (min-height: 850px) {
+    .card_sticky {
+        position: sticky;
+        top: 24px;
+    }
+}

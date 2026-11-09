@@ -1,0 +1,100 @@
+@use '../../variables' as v;
+
+.profile-view {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-sizing: border-box;
+    padding: 24px 32px 40px;
+}
+
+.profile-view__header {
+    display: flex;
+    align-items: center;
+    height: 48px;
+}
+
+.profile-view__back {
+    gap: 8px;
+    height: 32px;
+    text-decoration: none;
+    color: v.$color-text-primary;
+}
+
+.profile-view__back-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.profile-view__content {
+    display: grid;
+    grid-template-columns: minmax(0, 446fr) minmax(0, 634fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.profile-view__cards {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-view__intro {
+    gap: 8px;
+}
+
+.profile-view__name {
+    display: flex;
+    margin: 0;
+    @include v.text-style('heading-30-extrabold');
+    white-space: nowrap;
+}
+
+.profile-view__name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-view__age {
+    color: v.$color-text-secondary;
+}
+
+.profile-view__about {
+    margin: 0;
+    @include v.text-style('body-16-regular');
+}
+
+.profile-view__compatibility {
+    padding: 16px;
+}
+
+.profile-view .facts__row {
+    box-sizing: border-box;
+    align-items: center;
+    height: 48px;
+    padding: 0;
+}
+
+.profile-view__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-view__tag {
+    padding: 6px 16px;
+}
+
+.profile-view__tag:nth-child(odd) {
+    transform: rotate(-1.5deg);
+}
+
+.profile-view__tag:nth-child(even) {
+    transform: rotate(1.5deg);
+}
+
+.profile-view_empty .profile-view__content {
+    display: flex;
+    justify-content: center;
+    padding-top: 64px;
+}

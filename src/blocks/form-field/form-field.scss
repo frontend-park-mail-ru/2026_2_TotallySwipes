@@ -28,6 +28,30 @@
     transition: border-color 0.15s;
 }
 
+.form-field__control_suffix .form-field__input {
+    padding-right: 52px;
+}
+
+.form-field__suffix {
+    position: absolute;
+    top: 0;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    @include v.text-style('body-16-regular');
+    color: v.$color-text-secondary;
+    pointer-events: none;
+}
+
+.form-field__input_textarea {
+    display: block;
+    height: auto;
+    min-height: 147px;
+    padding: 12px 16px;
+    resize: vertical;
+}
+
 .form-field__input::placeholder {
     color: v.$color-text-placeholder;
     opacity: 1;

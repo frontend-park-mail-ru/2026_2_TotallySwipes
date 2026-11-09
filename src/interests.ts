@@ -1,4 +1,5 @@
 import type { TagKey } from './api/api.types.js';
+import type { AccentColor } from './colors.js';
 
 export interface InterestData {
     key: TagKey;
@@ -25,6 +26,21 @@ export const INTERESTS: InterestData[] = [
     { key: 'concerts', label: 'Концерты', icon: 'sparkles' },
     { key: 'animals', label: 'Животные', icon: 'heart' },
 ];
+
+/**
+ * Список акцентных цветов интересов по порядку.
+ */
+const INTEREST_ACCENTS: readonly AccentColor[] = ['mint', 'sun', 'pink', 'sky', 'lilac'];
+
+/**
+ * @param {string} key - Ключ тега с бэкенда.
+ * @returns {string} Акцентный цвет интереса или первый акцентный цвет, если интерес неизвестен.
+ */
+export function interestColor(key: string): AccentColor {
+    const index = INTERESTS.findIndex((item) => item.key === key);
+
+    return INTEREST_ACCENTS[Math.max(index, 0) % INTEREST_ACCENTS.length];
+}
 
 /**
  * @param {string} key - Ключ тега с бэкенда.

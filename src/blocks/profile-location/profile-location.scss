@@ -1,0 +1,74 @@
+@use '../../variables' as v;
+
+.profile-location__stage {
+    position: relative;
+}
+
+.profile-location__map {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid v.$color-border-strong;
+    border-radius: 12px;
+    background: v.$color-surface;
+    @include v.text-style('body-16-semibold');
+    color: v.$color-text-secondary;
+}
+
+.profile-location__locate {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1;
+}
+
+.profile-location__value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    @include v.text-style('body-16-semibold');
+}
+
+.profile-location__pin {
+    display: block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.profile-location__confirm {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: v.$color-bg-page;
+}
+
+.profile-location__confirm[hidden] {
+    display: none;
+}
+
+.profile-location__question {
+    @include v.text-style('body-16-regular');
+}
+
+.profile-location__buttons {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.profile-location__ok,
+.profile-location__cancel {
+    height: 40px;
+    border-radius: 12px;
+}
+
+.profile-location__marker {
+    filter: drop-shadow(0 3px 3px rgba(20, 20, 20, 0.35));
+}

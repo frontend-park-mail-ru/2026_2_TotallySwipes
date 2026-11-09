@@ -26,7 +26,7 @@ type ProfileForm = TypedForm<{
     sex: RadioNodeList;
 }>;
 
-const MONTHS = [
+export const MONTHS = [
     'января',
     'февраля',
     'марта',

@@ -1,0 +1,108 @@
+@use '../../variables' as v;
+
+.profile-photos__gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-photos__badge {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: v.$color-surface;
+    @include v.text-style('caption-13-bold');
+}
+
+.profile-photos__badge-icon {
+    width: 12px;
+    height: 12px;
+    background-color: currentColor;
+    mask: var(--icon) center / contain no-repeat;
+}
+
+.profile-photos__tools {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.profile-photos__remove {
+    background: v.$color-error-default;
+    color: v.$color-on-primary;
+    transition: background-color 0.15s;
+}
+
+.profile-photos__remove:hover:not(:disabled) {
+    background: v.$color-error-hover;
+}
+
+.profile-photos__thumbs {
+    justify-content: center;
+}
+
+.profile-photos__thumbs_locked {
+    cursor: progress;
+}
+
+.profile-photos__thumbs_locked .profile-photos__thumb {
+    pointer-events: none;
+}
+
+.profile-photos__thumb_filled {
+    cursor: grab;
+}
+
+.profile-photos__thumb_dragging {
+    opacity: 0.4;
+}
+
+.profile-photos__thumb_drop-target {
+    outline: 2px solid v.$color-primary;
+    outline-offset: 2px;
+}
+
+.profile-photos__thumb_empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed v.$color-border-strong;
+    background: v.$color-bg-subtle;
+    color: v.$color-text-secondary;
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.profile-photos__thumb_empty:disabled {
+    cursor: progress;
+}
+
+.profile-photos__thumb-index {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 8px;
+    background: v.$color-surface;
+    @include v.text-style('caption-13-bold');
+}
+
+.profile-photos__hint {
+    margin: 0;
+    @include v.text-style('caption-13-regular');
+    color: v.$color-text-secondary;
+}

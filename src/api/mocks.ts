@@ -1,6 +1,10 @@
 import type {
+    Attitude,
     Credentials,
     DatingGoal,
+    Coordinates,
+    Education,
+    MatchedProfile,
     MissingField,
     Photo,
     ReorderPhotosRequest,
@@ -9,6 +13,7 @@ import type {
     TagKey,
     TestResult,
     UpdateProfileRequest,
+    UserLocation,
 } from './api.types.js';
 
 interface MockResponse {
@@ -27,6 +32,12 @@ interface MockProfile {
     birth_date: string | null;
     sex: Sex | null;
     dating_goal: DatingGoal | null;
+    about_me: string | null;
+    education: Education | null;
+    work: string | null;
+    smoking: Attitude | null;
+    alcohol: Attitude | null;
+    height: number | null;
     tags: TagKey[];
     photos: Photo[];
     filter: SearchFilter | null;
@@ -78,14 +89,35 @@ export function checkAccess(pathname: string): MockResponse | null {
 const MAX_PHOTOS = 6;
 const PROFILE_KEY = 'mock-profile';
 
+// Необязательные поля анкеты. Анкета из localStorage, сохранённая до их появления, их не содержит.
+const EMPTY_DETAILS = {
+    about_me: null,
+    education: null,
+    work: null,
+    smoking: null,
+    alcohol: null,
+    height: null,
+} satisfies Partial<MockProfile>;
+
 const ADMIN_PROFILE: MockProfile = {
     user_id: 1,
-    name: 'User',
-    birth_date: '2002-05-01',
-    sex: 'female',
+    name: 'Илья',
+    birth_date: '2001-04-14',
+    sex: 'male',
     dating_goal: 'relationship',
-    tags: [],
-    photos: [{ id: 1, url: '/img/1.jpg' }],
+    about_me:
+        'Делаю мобильные приложения, а по выходным ухожу в походы и снимаю на плёнку. Ищу человека, с которым интересно и в кофейне, и в палатке.',
+    education: 'higher',
+    work: 'Мобильный разработчик',
+    smoking: 'negative',
+    alcohol: 'neutral',
+    height: 182,
+    tags: ['coffee', 'hiking', 'bicycle', 'photo', 'movies'],
+    photos: [
+        { id: 1, url: '/img/1.jpg' },
+        { id: 2, url: '/img/2.jpg' },
+        { id: 3, url: '/img/3.jpg' },
+    ],
     filter: { sex: 'all', age_from: 18, age_to: 100 },
 };
 
@@ -95,6 +127,7 @@ const NEW_PROFILE: MockProfile = {
     birth_date: null,
     sex: null,
     dating_goal: null,
+    ...EMPTY_DETAILS,
     tags: [],
     photos: [],
     filter: null,
@@ -104,8 +137,29 @@ const DEFAULT_FILTER: SearchFilter = { sex: 'all', age_from: 18, age_to: 100 };
 
 // Анкета живёт в localStorage, чтобы переживать обновление страницы.
 // URL загруженных фото после обновления уже не открываются.
-let mockProfile: MockProfile =
-    JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? ADMIN_PROFILE;
+let mockProfile: MockProfile = {
+    ...EMPTY_DETAILS,
+    ...(JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? ADMIN_PROFILE),
+};
+
+const LOCATION_KEY = 'mock-location';
+
+const DEFAULT_LOCATION: UserLocation = {
+    city: 'Москва',
+    district: 'Хамовники',
+    coordinates: { latitude: 55.7295, longitude: 37.5738 },
+};
+
+// Место, как и анкета, живёт в localStorage. Пока ключа нет, место по умолчанию;
+// у нового аккаунта оно сохранено как null.
+const storedLocation = localStorage.getItem(LOCATION_KEY);
+let mockLocation: UserLocation | null =
+    storedLocation === null ? DEFAULT_LOCATION : JSON.parse(storedLocation);
+
+const setMockLocation = (location: UserLocation | null) => {
+    mockLocation = location;
+    localStorage.setItem(LOCATION_KEY, JSON.stringify(location));
+};
 
 const saveProfile = (changes: Partial<MockProfile> | UpdateProfileRequest) => {
     mockProfile = { ...mockProfile, ...changes };
@@ -131,10 +185,33 @@ function missingFields(): MissingField[] {
     return fields;
 }
 
+/**
+ * @param {string|null} birthDate - Дата рождения в формате YYYY-MM-DD.
+ * @returns {number|null} Полных лет на сегодня или null, если дата не задана.
+ */
+function ageFromBirthDate(birthDate: string | null): number | null {
+    if (!birthDate) {
+        return null;
+    }
+
+    const [year, month, day] = birthDate.split('-').map(Number);
+    const today = new Date();
+    const hadBirthday =
+        today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+
+    return today.getFullYear() - year - (hadBirthday ? 0 : 1);
+}
+
 // filter: undefined - фильтр в анкету не входит, JSON его не сохранит.
 const profileResponse = () => ({
     status: 200,
-    body: { ...mockProfile, filter: undefined, missing: missingFields() },
+    body: {
+        ...mockProfile,
+        age: ageFromBirthDate(mockProfile.birth_date),
+        city: mockLocation?.city ?? null,
+        filter: undefined,
+        missing: missingFields(),
+    },
 });
 
 const authResponse = (status: number) => ({
@@ -293,6 +370,9 @@ const MATCH_ITEMS = MATCH_NAMES.map((name, index) => ({
     compatibility: index % 4 === 0 ? null : Math.round((0.95 - index * 0.03) * 100) / 100,
     is_new: index < 3,
     created_at: new Date(Date.UTC(2026, 9, 20 - index, 12)).toISOString(),
+    // У части мэтчей полей нет совсем, у части false - кнопка и пилл видны только при true.
+    ...(index % 3 === 2 ? {} : { can_meetup: index % 3 === 0 }),
+    ...(index % 4 === 3 ? {} : { partner_finished: index % 4 < 2 }),
 }));
 
 const SEEN_MATCHES_KEY = 'mock-seen-matches';
@@ -568,19 +648,196 @@ function placeSearchState(matchId: number, search: MockPlaceSearch) {
 
 const placeSearchNotFound = () => error(404, 'SEARCH_NOT_FOUND', 'Подбор не найден или истёк');
 
+/**
+ * Приводит изменения анкеты к виду, в котором их хранит бэкенд. Пустой текст очищает поле.
+ *
+ * @param {Object} changes - Тело PATCH /profile/me.
+ * @returns {Object} Копия изменений, где пустые about_me и work заменены на null,
+ *     а work обрезан по краям. Остальные поля не меняются.
+ */
+function normalizeProfileChanges(changes: UpdateProfileRequest): UpdateProfileRequest {
+    const normalized = { ...changes };
+
+    if ('about_me' in changes) {
+        normalized.about_me = changes.about_me || null;
+    }
+
+    if ('work' in changes) {
+        normalized.work = changes.work?.trim() || null;
+    }
+
+    return normalized;
+}
+
+/**
+ * Проверяет изменения анкеты по ограничениям из контракта.
+ *
+ * @param {Object} changes - Тело PATCH /profile/me после normalizeProfileChanges.
+ * @returns {Object<string, string>|null} Ошибки по полям или null, если всё верно.
+ */
+function validateProfileChanges(changes: UpdateProfileRequest): Record<string, string> | null {
+    const fields: Record<string, string> = {};
+    const { name, about_me: aboutMe, work, height, tags } = changes;
+
+    if (name !== undefined && (name.trim() === '' || name.length > 64)) {
+        fields.name = 'имя должно быть от 1 до 64 символов';
+    }
+
+    if (aboutMe && aboutMe.length > 1000) {
+        fields.about_me = 'описание не должно быть длиннее 1000 символов';
+    }
+
+    if (work && work.length > 100) {
+        fields.work = 'место работы не должно быть длиннее 100 символов';
+    }
+
+    if (height != null && (!Number.isInteger(height) || height < 100 || height > 250)) {
+        fields.height = 'рост должен быть от 100 до 250 см';
+    }
+
+    if (tags && tags.length > 10) {
+        fields.tags = 'можно выбрать не больше 10 тегов';
+    }
+
+    return Object.keys(fields).length > 0 ? fields : null;
+}
+
+const validationError = (fields: Record<string, string>): MockResponse => ({
+    status: 400,
+    body: { error: { code: 'VALIDATION_ERROR', message: 'Проверьте поля запроса', fields } },
+});
+
+/**
+ * Отдаёт анкету собеседника. Как и бэкенд, отвечает только для мэтчей: у остальных 404.
+ *
+ * @param {URL} url
+ * @returns {{status: number, body: Object}}
+ */
+function matchedProfile(url: URL): MockResponse {
+    const userId = Number(url.pathname.split('/').pop());
+    const match = MATCH_ITEMS.find((item) => item.user_id === userId);
+
+    if (!match) {
+        return error(404, 'PROFILE_NOT_FOUND', 'Целевая анкета не найдена или недоступна');
+    }
+
+    const profile: MatchedProfile = {
+        match_id: match.match_id,
+        user_id: match.user_id,
+        name: match.name ?? 'Даша',
+        age: match.age ?? 24,
+        city: 'Москва',
+        about_me:
+            'Работаю в книжном издательстве, по выходным катаюсь на велосипеде вдоль реки. Ищу человека, с которым можно молчать и не скучать.',
+        education: 'higher',
+        work: 'Редактор',
+        smoking: 'negative',
+        alcohol: 'neutral',
+        height: 168,
+        dating_goal: 'relationship',
+        compatibility: match.compatibility,
+        tags: ['books', 'bicycle', 'coffee', 'music', 'hiking'],
+        photos: [
+            { id: 1, url: '/img/1.jpg' },
+            { id: 2, url: '/img/2.jpg' },
+            { id: 3, url: '/img/3.jpg' },
+            { id: 4, url: '/img/0.jpg' },
+        ],
+        liked_me: true,
+    };
+
+    return { status: 200, body: profile };
+}
+
+interface MockLocationPreview {
+    city: string;
+    district: string;
+    coordinates: Coordinates;
+}
+
+// Результаты предварительного определения хранятся в памяти и пропадают при перезагрузке.
+// Срока годности по времени в моке нет, вместо него результат одноразовый: после PUT он удаляется.
+const locationPreviews = new Map<string, MockLocationPreview>();
+
+const isInRange = (value: unknown, min: number, max: number): value is number =>
+    typeof value === 'number' && value >= min && value <= max;
+
+/**
+ * Заглушка геокодера. Точка в прямоугольнике вокруг Москвы определяется как Москва,
+ * любая другая точка внутри грубого прямоугольника России - как Хотьково. Вне него
+ * отвечает 422, как по контракту для мест вне России.
+ *
+ * @param {URL} url
+ * @param {{body: *}} request - Тело запроса: широта и долгота.
+ * @returns {{status: number, body: Object}}
+ */
+function previewLocation(url: URL, { body }: { body: unknown }): MockResponse {
+    const { latitude, longitude } = (body ?? {}) as Partial<Coordinates>;
+
+    if (!isInRange(latitude, -90, 90) || !isInRange(longitude, -180, 180)) {
+        return validationError({ latitude: 'некорректные координаты' });
+    }
+
+    const isInRussia = latitude >= 41 && latitude <= 82 && longitude >= 19 && longitude <= 180;
+
+    if (!isInRussia) {
+        return error(422, 'LOCATION_NOT_FOUND', 'Не удалось определить местоположение');
+    }
+
+    const isInMoscow = latitude >= 55.5 && latitude <= 56 && longitude >= 37.3 && longitude <= 37.9;
+    const place = isInMoscow
+        ? { city: 'Москва', district: 'Хамовники' }
+        : { city: 'Хотьково', district: 'Сергиево-Посадский городской округ' };
+    const previewId = `loc_preview_${locationPreviews.size + 1}_${Date.now().toString(36)}`;
+
+    locationPreviews.set(previewId, { ...place, coordinates: { latitude, longitude } });
+
+    return { status: 200, body: { preview_id: previewId, ...place } };
+}
+
+/**
+ * Сохраняет место по результату предварительного определения.
+ *
+ * @param {URL} url
+ * @param {{body: *}} request - Тело запроса: preview_id.
+ * @returns {{status: number, body: Object}}
+ */
+function confirmLocation(url: URL, { body }: { body: unknown }): MockResponse {
+    const previewId = (body as { preview_id?: unknown } | null)?.preview_id;
+
+    if (typeof previewId !== 'string' || previewId === '') {
+        return validationError({ preview_id: 'не указан идентификатор результата' });
+    }
+
+    const preview = locationPreviews.get(previewId);
+
+    if (!preview) {
+        return error(410, 'LOCATION_PREVIEW_UNAVAILABLE', 'Повторите определение местоположения');
+    }
+
+    locationPreviews.delete(previewId);
+    setMockLocation(preview);
+
+    return { status: 200, body: { location: mockLocation } };
+}
+
 export const MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/profile/me/short': () => ({
         status: 200,
         body: {
             user_id: mockProfile.user_id,
             name: mockProfile.name,
-            age: mockProfile.birth_date ? 24 : null,
-            city: 'Москва',
+            age: ageFromBirthDate(mockProfile.birth_date),
+            city: mockLocation?.city ?? null,
             photo_url: mockProfile.photos[0]?.url ?? null,
             missing: missingFields(),
         },
     }),
     'GET /api/v1/profile/me': profileResponse,
+    'GET /api/v1/profiles/{id}': matchedProfile,
+    'GET /api/v1/location/me': () => ({ status: 200, body: { location: mockLocation } }),
+    'POST /api/v1/location/me/preview': previewLocation,
+    'PUT /api/v1/location/me': confirmLocation,
     'GET /api/v1/feed': feedPage,
     'POST /api/v1/feed/swipe': {
         status: 204,
@@ -731,11 +988,19 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
 
         startSession();
         saveProfile(NEW_PROFILE);
+        setMockLocation(null);
 
         return authResponse(201);
     },
     'PATCH /api/v1/profile/me': (url, { body }) => {
-        saveProfile(body as UpdateProfileRequest);
+        const changes = normalizeProfileChanges(body as UpdateProfileRequest);
+        const fields = validateProfileChanges(changes);
+
+        if (fields) {
+            return validationError(fields);
+        }
+
+        saveProfile(changes);
 
         return profileResponse();
     },
@@ -792,9 +1057,11 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
 
         startSession();
         saveProfile(ADMIN_PROFILE);
+        setMockLocation(DEFAULT_LOCATION);
 
         return authResponse(200);
     },
+    'GET /api/v1/auth/csrf': { status: 200, body: { csrf_token: 'mock-csrf-token' } },
     'POST /api/v1/auth/logout': () => {
         endSession();
 

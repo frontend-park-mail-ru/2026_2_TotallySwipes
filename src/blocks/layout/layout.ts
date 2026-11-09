@@ -1,6 +1,6 @@
 import { getElement } from '../../utils/dom.js';
 import { type PageRender } from '../../router.js';
-import { sidebarTemplate, loadSidebarUser, initSidebarLogout } from '../sidebar/sidebar.js';
+import { sidebarTemplate, loadSidebarUser } from '../sidebar/sidebar.js';
 import layoutHbs from './layout.hbs';
 
 /**
@@ -16,7 +16,6 @@ export function renderLayout(root: HTMLElement) {
 
     const sidebar = getElement(root, '.sidebar');
     loadSidebarUser(sidebar);
-    initSidebarLogout(sidebar);
 
     return getElement(root, '.layout__main');
 }

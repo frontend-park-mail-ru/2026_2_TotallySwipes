@@ -4,6 +4,7 @@ import { showModal } from '../modal/modal.js';
 import { getCurrentUser } from '../../api/api.js';
 import type { BigFive, ProfileShort, TestResult } from '../../api/api.types.js';
 import type { Router } from '../../router.js';
+import { isNetworkError, showOfflineToast } from '../../network.js';
 import { loadResult, clearResult, startDraft } from '../../storage/test-storage.js';
 import testResultHbs from './test-result.hbs';
 
@@ -167,8 +168,11 @@ export function renderTestResultPage(root: HTMLElement, router: Router): void {
             page.innerHTML = testResultHbs(result ? toResultView(result) : { empty: true });
         } catch (error) {
             console.error('Не удалось загрузить пользователя:', error);
+            if (!page.isConnected) return;
 
-            if (page.isConnected) {
+            if (isNetworkError(error)) {
+                showOfflineToast();
+            } else {
                 showModal({ ...ERROR_MODAL, onClose: load });
             }
         }

@@ -50,4 +50,5 @@ export const icons = {
 
 //TODO: вынести отсюда
 export const PHOTO_PLACEHOLDER = '/icons/photo-placeholder.svg';
+export const PHOTO_PLACE_PLACEHOLDER = '/icons/place-sky.svg';
 export const MATCH_COLORS: readonly AccentColor[] = ['lilac', 'mint', 'pink', 'sky', 'sun'];

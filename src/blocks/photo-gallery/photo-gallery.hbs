@@ -1,0 +1,20 @@
+<div class="photo-gallery {{mix}}">
+    <div class="card__header">
+        <h2 class="card__title">Фото</h2>
+        {{#if thumbs}}
+            <span class="card__counter photo-gallery__counter">1 из {{total}}</span>
+        {{/if}}
+    </div>
+    <div class="photo-frame">
+        <img class="photo-frame__image" src="{{main}}" alt="" draggable="false">
+    </div>
+    {{#if thumbs}}
+        <div class="photo-thumbs">
+            {{#each thumbs}}
+                <button class="photo-thumbs__item{{#if active}} photo-thumbs__item_active{{/if}}" type="button">
+                    <img class="photo-thumbs__image" src="{{src}}" alt="" draggable="false">
+                </button>
+            {{/each}}
+        </div>
+    {{/if}}
+</div>

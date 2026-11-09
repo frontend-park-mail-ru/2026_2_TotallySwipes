@@ -4,6 +4,7 @@ import { getElement } from '../../utils/dom.js';
 import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons';
 import { matchCardTemplate, type MatchCardData } from '../match-card/match-card';
 import { showModal } from '../modal/modal';
+import { isNetworkError, showOfflineToast } from '../../network';
 import matchesHbs from './matches.hbs';
 
 //TODO: вынести в общий константы отсюда и из feed.ts
@@ -13,6 +14,9 @@ const LOAD_ERROR_MODAL = {
     text: 'Не удалось загрузить анкеты, похоже, что пропала связь. Попробуйте ещё раз.',
     buttonText: 'Повторить',
 };
+
+const MORE_TEXT = 'Загрузить ещё';
+const RETRY_TEXT = 'Повторить загрузку';
 
 interface MathesState {
     isLoading: boolean;
@@ -34,6 +38,8 @@ function toMatchView(item: Match, offset: number): MatchCardData {
         hasCompatibility,
         matchColor: MATCH_COLORS[offset % MATCH_COLORS.length],
         isNew: item.is_new,
+        canMeetup: item.can_meetup === true,
+        partnerFinished: item.partner_finished === true,
         offset,
     };
 }
@@ -64,6 +70,7 @@ export function renderMatchesPage(root: HTMLElement) {
 
     const gridElement = getElement(page, '.matches__grid');
     const moreButton = getElement<HTMLButtonElement>(page, '.matches__more');
+    const moreText = getElement(moreButton, '.button__text');
     const countElement = getElement(page, '.matches__count');
 
     gridElement.addEventListener('click', (event) => {
@@ -102,6 +109,7 @@ export function renderMatchesPage(root: HTMLElement) {
                 gridElement.insertAdjacentHTML('beforeend', html);
                 state.offset += items.length;
                 state.nextCursor = nextCursor;
+                moreText.textContent = MORE_TEXT;
                 moreButton.classList.toggle('matches__more_hidden', nextCursor === null);
                 countElement.textContent = `${total} ${mutualWord(total)}`;
                 page.classList.toggle('matches_empty', state.offset === 0);
@@ -110,7 +118,13 @@ export function renderMatchesPage(root: HTMLElement) {
                 console.error('Не удалось загрузить симпатии:', error);
                 if (!page.isConnected) return;
 
-                showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
+                if (isNetworkError(error)) {
+                    showOfflineToast();
+                    moreText.textContent = RETRY_TEXT;
+                    moreButton.classList.remove('matches__more_hidden');
+                } else {
+                    showModal({ ...LOAD_ERROR_MODAL, onClose: loadMore });
+                }
             })
             .finally(() => {
                 state.isLoading = false;

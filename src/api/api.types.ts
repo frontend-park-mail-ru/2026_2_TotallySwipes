@@ -43,6 +43,10 @@ export interface Credentials {
     password: string;
 }
 
+export interface CsrfResponse {
+    csrf_token: string;
+}
+
 export interface AuthResponse {
     user_id: number;
     missing: MissingField[];
@@ -70,16 +74,18 @@ export interface ProfileShort {
     missing: MissingField[];
 }
 
-export interface Profile extends UserFacts {
+export interface Profile extends Omit<UserFacts, 'dating_goal'> {
     user_id: number;
     name: string | null;
     birth_date: string | null;
     age: number | null;
     sex: Sex | null;
+    dating_goal: DatingGoal | null;
     about_me: string | null;
     education: Education | null;
     tags: TagKey[];
     photos: Photo[];
+    city: string | null;
     missing: MissingField[];
 }
 
@@ -129,6 +135,10 @@ export interface FeedItem extends UserFacts {
     tags: TagKey[];
     photos: Photo[];
     liked_me: boolean;
+}
+
+export interface MatchedProfile extends FeedItem {
+    match_id: number;
 }
 
 export interface FeedPage {
@@ -220,6 +230,8 @@ export interface Match {
     compatibility: number | null;
     is_new: boolean;
     created_at: string;
+    can_meetup?: boolean;
+    partner_finished?: boolean;
 }
 
 export interface MatchesPage {
@@ -236,6 +248,31 @@ export interface MatchesParams {
 export interface Location {
     city: string;
     address: string | null;
+}
+
+export interface Coordinates {
+    latitude: number;
+    longitude: number;
+}
+
+export interface UserLocation {
+    city: string;
+    district: string | null;
+    coordinates: Coordinates;
+}
+
+export interface LocationResponse {
+    location: UserLocation | null;
+}
+
+/**
+ * Результат предварительного определения места по координатам. Не сохраняется.
+ * Чтобы сохранить, preview_id отправляют в PUT /location/me.
+ */
+export interface LocationPreview {
+    preview_id: string;
+    city: string;
+    district: string | null;
 }
 
 export type EventSearchStatus = 'voting' | 'waiting_partner' | 'completed' | 'cancelled';

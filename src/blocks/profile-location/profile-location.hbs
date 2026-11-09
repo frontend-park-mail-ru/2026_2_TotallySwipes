@@ -1,0 +1,29 @@
+<section class="card card_gap_l profile-location">
+    <h2 class="card__title">Геолокация</h2>
+    <div class="form-field">
+        <div class="profile-location__stage">
+            <div class="profile-location__map">Карта</div>
+            <button class="button tool-button profile-location__locate" type="button" disabled>
+                <span class="button__icon button__icon_mask" style="--icon: url('/icons/pin.svg')"></span>
+                <span class="button__text">Определить автоматически</span>
+            </button>
+        </div>
+        <div class="profile-location__value">
+            <img class="profile-location__pin" src="/icons/pin.svg" alt="">
+            <span class="profile-location__text"></span>
+        </div>
+        <div class="profile-location__confirm" hidden>
+            <span class="profile-location__question">Сохранить это местоположение?</span>
+            <div class="profile-location__buttons">
+                <button class="button button_view_primary profile-location__ok" type="button">
+                    <span class="button__text">Подтвердить</span>
+                </button>
+                <button class="button button_view_outline profile-location__cancel" type="button">
+                    <span class="button__text">Отмена</span>
+                </button>
+            </div>
+        </div>
+        <p class="form-field__hint">В анкете показываем город, район и расстояние до вас</p>
+        <p class="form-field__error" hidden></p>
+    </div>
+</section>

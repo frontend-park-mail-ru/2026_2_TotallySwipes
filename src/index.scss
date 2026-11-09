@@ -22,6 +22,7 @@
 @use './blocks/round-button/round-button';
 @use './blocks/empty-state/empty-state';
 @use './blocks/modal/modal';
+@use './blocks/toast/toast';
 @use './blocks/steps/steps';
 @use './blocks/scale/scale';
 @use './blocks/test/test';
@@ -42,5 +43,14 @@
 @use './blocks/match-card/match-card';
 @use './blocks/place-search/place-search';
 @use './blocks/ticket/ticket';
+@use './blocks/card/card';
+@use './blocks/tool-button/tool-button';
+@use './blocks/photo-frame/photo-frame';
+@use './blocks/photo-thumbs/photo-thumbs';
+@use './blocks/photo-gallery/photo-gallery';
+@use './blocks/profile-view/profile-view';
+@use './blocks/profile-edit/profile-edit';
+@use './blocks/profile-photos/profile-photos';
+@use './blocks/profile-location/profile-location';
 
 @use './blocks/swipe-stack/swipe-stack';

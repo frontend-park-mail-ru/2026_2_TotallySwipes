@@ -1,5 +1,5 @@
 import { ticketTemplate, type TicketData } from '../ticket/ticket';
-import { PHOTO_PLACEHOLDER } from '../../icons';
+import { PHOTO_PLACE_PLACEHOLDER } from '../../icons';
 import { formatEventDate } from '../../utils/format';
 import placeSearchHbs from './place-search.hbs';
 import placeSearchMatchesHbs from './__matches/place-search__matches.hbs';
@@ -24,6 +24,7 @@ import {
 } from '../../storage/place-search-storage';
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button';
 import { pillTemplate } from '../pill/pill';
+import { isNetworkError, showOfflineToast } from '../../network';
 
 interface SearchState {
     searchId: uuid;
@@ -52,7 +53,7 @@ const ACTIONS: RoundButtonData[] = [
 export const WAITING_STATE: EmptyStateData = {
     image: '/icons/ticket-waiting.svg',
     title: 'Ждём партнёра',
-    text: 'Вы оценили все 10 мест. Когда партнёр закончит, покажем места, которые понравились вам обоим, и пришлём уведомление.',
+    text: 'Вы оценили все 10 мест. Когда партнёр закончит, покажем места, которые понравились вам обоим.',
     actions: [{ text: 'К симпатиям', view: 'primary', href: '/matches' }],
     size: 'l',
     sticker: true,
@@ -130,7 +131,7 @@ function toTicketView(event: PlaceEvent): TicketData {
     return {
         id: event.id,
         title: event.name,
-        photoUrl: event.image_url ?? PHOTO_PLACEHOLDER,
+        photoUrl: event.image_url ?? PHOTO_PLACE_PLACEHOLDER,
         time: startsAt.time,
         date: startsAt.date,
         city: event.location.city,
@@ -222,6 +223,13 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
                     break;
                 }
 
+                counterElement.innerHTML = pillTemplate({
+                    icon: '/icons/check.svg',
+                    text: `Совпали ${search.matches.length} места`,
+                    size: 's',
+                    color: 'mint',
+                });
+
                 screenElement.innerHTML = placeSearchMatchesHbs({
                     tickets: search.matches
                         .map((event) => ticketTemplate('place-search__match', toTicketView(event)))
@@ -266,6 +274,11 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
         } catch (error) {
             console.error('Не удалось загрузить подбор мест:', error);
             if (!page.isConnected) {
+                return;
+            }
+
+            if (isNetworkError(error)) {
+                showOfflineToast();
                 return;
             }
 
@@ -345,6 +358,11 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
             console.error('Не удалось отправить результаты подбора:', error);
             if (!page.isConnected) return;
 
+            if (isNetworkError(error)) {
+                showOfflineToast();
+                return;
+            }
+
             const status = error instanceof ApiError ? error.status : null;
 
             switch (status) {
@@ -392,8 +410,10 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
     function updateProgress() {
         undoButton.disabled = state.decisions.length === 0 || isSubmitting;
 
-        const total = state.search?.events.length ?? 0;
-        if (total === 0 || state.search?.status !== 'voting') {
+        if (state.search?.status !== 'voting') return;
+
+        const total = state.search.events.length;
+        if (total === 0) {
             counterElement.innerHTML = '';
             return;
         }
