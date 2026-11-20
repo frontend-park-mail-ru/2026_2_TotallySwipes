@@ -108,3 +108,30 @@
 .round-button:disabled {
     cursor: not-allowed;
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .round-button_size_s,
+    .round-button_size_m {
+        width: 48px;
+        height: 48px;
+    }
+
+    .round-button_size_l {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+@media (hover: none) {
+    .round-button::after {
+        display: none;
+    }
+
+    .round-button:not(:disabled):hover {
+        transform: none;
+    }
+
+    .round-button:not(:disabled):hover:active {
+        transform: scale(0.94);
+    }
+}

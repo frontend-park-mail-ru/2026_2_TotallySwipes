@@ -16,6 +16,7 @@
     justify-self: stretch;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
 }
 
 .test__title {
@@ -26,6 +27,7 @@
 .test__actions {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     gap: 24px;
 }
 
@@ -139,4 +141,133 @@
     height: 16px;
     background-color: currentColor;
     mask: url('/icons/check.svg') center / contain no-repeat;
+}
+
+@media (width > v.$breakpoint-mobile) and (max-height: 720px) {
+    .test {
+        gap: 20px;
+    }
+
+    .test__steps {
+        margin-bottom: 20px;
+    }
+
+    .test__scale,
+    .test__nav {
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .test {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        min-height: calc(100svh - var(--layout-nav-height, 0px));
+        padding: 0;
+    }
+
+    .test__header {
+        box-sizing: border-box;
+        flex-direction: column;
+        align-items: stretch;
+        align-self: center;
+        gap: 0;
+        width: min(100%, 728px);
+        padding-inline: 16px;
+    }
+
+    .test__title {
+        display: flex;
+        align-items: center;
+        min-height: 76px;
+        font-size: clamp(26px, 8.34vw, 30px);
+    }
+
+    .test__actions {
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        gap: 8px;
+        padding-bottom: 16px;
+    }
+
+    .test__skip {
+        height: auto;
+        min-height: 32px;
+        text-align: right;
+    }
+
+    .test__counter {
+        min-height: 32px;
+        padding: 0 12px;
+        border: 0;
+        box-shadow:
+            0 0 0 4px v.$color-surface,
+            0 1px 2px rgba(20, 20, 20, 0.08),
+            v.$shadow-sticker;
+        @include v.text-style('caption-13-bold');
+    }
+
+    .test__card {
+        flex: 1;
+        gap: 24px;
+        padding: 24px 16px 32px;
+        border-radius: 30px 30px 0 0;
+        box-shadow: none;
+    }
+
+    .test__card::after {
+        height: 1px;
+        background: v.$color-border-default;
+        content: '';
+    }
+
+    .test__steps,
+    .test__scale,
+    .test__nav {
+        margin: 0;
+    }
+
+    .test__hint-break,
+    .test__sticker,
+    .test__prev-text,
+    .test__footer {
+        display: none;
+    }
+
+    .test__text {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .test__hint {
+        margin-top: 8px;
+    }
+
+    .test__prev {
+        flex-shrink: 0;
+        justify-content: center;
+        width: 48px;
+        padding: 0;
+        border: 1.5px solid v.$color-border-strong;
+        color: v.$color-text-primary;
+    }
+
+    .test__next,
+    .test__submit {
+        flex: 1;
+        justify-content: center;
+        padding-inline: 12px;
+        text-align: center;
+    }
+
+    .test__prev:disabled,
+    .test__next:disabled,
+    .test__submit:disabled {
+        border-color: v.$color-bg-disabled;
+        background-color: v.$color-bg-disabled;
+        color: v.$color-text-secondary;
+        opacity: 1;
+    }
 }
