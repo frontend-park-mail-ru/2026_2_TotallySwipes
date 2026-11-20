@@ -14,8 +14,18 @@
     background: v.$color-surface;
 }
 
+.auth__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .auth__logo {
     align-self: flex-start;
+}
+
+.auth__heart {
+    display: none;
 }
 
 .auth__pitch {
@@ -136,4 +146,105 @@
     box-shadow:
         0 4px 10px -6px rgba(0, 0, 0, 0.2),
         0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+// Планшет: двухколоночная раскладка сохраняется, интро и стикеры уменьшаются.
+@media (v.$breakpoint-mobile < width <= v.$breakpoint-feed-compact) {
+    .auth__intro {
+        padding: 40px 32px;
+    }
+
+    .auth__pitch {
+        margin-top: 96px;
+    }
+
+    .auth__headline {
+        @include v.text-style('heading-30-extrabold');
+        font-size: 40px;
+        line-height: 44px;
+    }
+
+    .auth__art {
+        zoom: 0.75;
+    }
+}
+
+@media (v.$breakpoint-mobile < width <= 960px) {
+    .auth__art {
+        zoom: 0.55;
+    }
+}
+
+// Мобилка: шапка на сером фоне, форма -- белый лист с закруглёнными верхними углами.
+@media (max-width: v.$breakpoint-mobile) {
+    .auth {
+        display: flex;
+        flex-direction: column;
+        min-height: 100svh;
+        background: v.$color-bg-page;
+    }
+
+    .auth__intro {
+        padding: 24px 16px 24px;
+        background: none;
+    }
+
+    .auth__top {
+        height: 56px;
+    }
+
+    .auth__heart {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        width: 56px;
+        height: 56px;
+        border: 3px solid v.$color-surface;
+        border-radius: 50%;
+        background: v.$color-accent-mint;
+        color: v.$color-accent-mint-ink;
+        box-shadow: v.$shadow-sticker;
+    }
+
+    .auth__heart::before {
+        content: '';
+        width: 24px;
+        height: 24px;
+        background-color: currentColor;
+        mask: url('/icons/heart.svg') center / contain no-repeat;
+    }
+
+    .auth__pitch {
+        margin-top: 24px;
+    }
+
+    .auth__lead,
+    .auth__art {
+        display: none;
+    }
+
+    .auth__headline {
+        @include v.text-style('heading-30-extrabold');
+    }
+
+    .auth__panel {
+        flex: 1;
+        align-items: flex-start;
+        padding: 0;
+        background: none;
+    }
+
+    .auth__card {
+        flex: 1;
+        max-width: none;
+        min-height: 100%;
+        padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+        border-radius: 30px 30px 0 0;
+        box-shadow: none;
+    }
+
+    .auth__tab {
+        height: 40px;
+    }
 }
