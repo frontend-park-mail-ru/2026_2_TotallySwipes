@@ -31,7 +31,7 @@
     color: v.$color-text-secondary;
 }
 
-@media (min-height: 850px) {
+@media (min-height: 850px) and (width > v.$breakpoint-feed-compact) {
     .card_sticky {
         position: sticky;
         top: 24px;
