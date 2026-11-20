@@ -106,3 +106,29 @@
     @include v.text-style('caption-13-regular');
     color: v.$color-text-secondary;
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .profile-photos__tools {
+        top: 12px;
+        right: 12px;
+    }
+
+    .profile-photos__tools .tool-button {
+        height: 44px;
+    }
+
+    .profile-photos__badge {
+        bottom: 8px;
+        left: 8px;
+    }
+
+    .profile-photos__thumbs {
+        justify-content: flex-start;
+    }
+
+    .profile-photos__thumbs .photo-thumbs__item {
+        flex-basis: calc((100% - 24px) / 4);
+        width: auto;
+        aspect-ratio: 64 / 80;
+    }
+}

@@ -119,3 +119,65 @@
 .profile-edit .form-field__error {
     margin-top: 0;
 }
+
+// Планшет и мобилка: две колонки не помещаются рядом с сайдбаром, поэтому всё в одну.
+@media (max-width: v.$breakpoint-feed-compact) {
+    .profile-edit__content,
+    .profile-edit__footer {
+        grid-template-columns: minmax(0, 1fr);
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    .profile-edit__cards,
+    .profile-edit__logout {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .profile-edit {
+        gap: 16px;
+        padding: 16px 16px 24px;
+    }
+
+    .profile-edit__header {
+        height: 48px;
+        gap: 16px;
+    }
+
+    .profile-edit__save-extra {
+        display: none;
+    }
+
+    .profile-edit__saved {
+        text-align: right;
+    }
+
+    .profile-edit__content,
+    .profile-edit__footer,
+    .profile-edit__cards {
+        gap: 16px;
+    }
+
+    .profile-edit .card {
+        padding: 24px;
+    }
+
+    // Как в регистрации: узкие день и год, чтобы значения помещались целиком.
+    .profile-edit__date {
+        grid-template-columns: 63px minmax(0, 1fr) 79px;
+    }
+
+    // Три варианта (курение, алкоголь) должны помещаться в один ряд на 360px.
+    .profile-edit .chips__label {
+        padding: 0 14px;
+    }
+
+    .profile-edit__logout {
+        justify-content: center;
+        justify-self: stretch;
+    }
+}

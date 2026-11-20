@@ -75,3 +75,40 @@
 .profile-location__marker {
     filter: drop-shadow(0 3px 3px rgba(20, 20, 20, 0.35));
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .profile-location__map {
+        aspect-ratio: 7 / 4;
+    }
+
+    .profile-location__locate {
+        top: 8px;
+        right: 8px;
+        padding: 0 12px;
+        white-space: nowrap;
+    }
+
+    .profile-location__locate .button__text {
+        font-size: 14px;
+    }
+
+    .profile-location__map .leaflet-control-zoom {
+        display: none;
+    }
+
+    .profile-location__confirm {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .profile-location__buttons {
+        flex-shrink: 1;
+    }
+
+    .profile-location__ok,
+    .profile-location__cancel {
+        flex: 1;
+        justify-content: center;
+    }
+}
