@@ -5,8 +5,12 @@
             <span class="card__counter photo-gallery__counter">1 из {{total}}</span>
         {{/if}}
     </div>
-    <div class="photo-frame">
-        <img class="photo-frame__image" src="{{main}}" alt="" draggable="false">
+    <div class="photo-gallery__stage">
+        <div class="photo-frame">
+            <img class="photo-frame__image" src="{{main}}" alt="" draggable="false">
+        </div>
+        {{{pager}}}
+        {{{stamp}}}
     </div>
     {{#if thumbs}}
         <div class="photo-thumbs">

@@ -98,3 +98,90 @@
     justify-content: center;
     padding-top: 64px;
 }
+
+// Планшет и мобилка: две колонки не помещаются рядом с сайдбаром, поэтому всё в одну.
+@media (max-width: v.$breakpoint-feed-compact) {
+    .profile-view__content {
+        grid-template-columns: minmax(0, 1fr);
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    .profile-view__photos {
+        position: static;
+    }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .profile-view {
+        position: relative;
+        gap: 16px;
+        padding: 16px 16px 24px;
+    }
+
+    .profile-view__header {
+        height: 44px;
+    }
+
+    .profile-view__cards,
+    .profile-view__content {
+        gap: 16px;
+    }
+
+    .profile-view .profile-view__back {
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border: 1.5px solid v.$color-border-strong;
+        border-radius: 14px;
+        background: v.$color-surface;
+    }
+
+    .profile-view__back .button__text {
+        display: none;
+    }
+
+    .profile-view__back-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .profile-view .card {
+        padding: 24px;
+    }
+
+    .profile-view .profile-view__photos {
+        padding: 0;
+        background: none;
+        box-shadow: none;
+    }
+
+    .profile-view__photos .card__title {
+        display: none;
+    }
+
+    .profile-view__photos .photo-gallery {
+        gap: 0;
+    }
+
+    .profile-view__photos .photo-gallery__counter {
+        position: absolute;
+        top: 31px;
+        right: 16px;
+    }
+
+    .profile-view__photos .photo-frame {
+        aspect-ratio: 4 / 5;
+        border-radius: 24px;
+    }
+
+    .profile-view__photos .photo-thumbs {
+        display: none;
+    }
+
+    .profile-view__intro .card__title {
+        display: none;
+    }
+}
