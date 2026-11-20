@@ -10,6 +10,9 @@
     justify-content: center;
     box-sizing: border-box;
     aspect-ratio: 1;
+    // У панелей и контролов Leaflet z-index от 200 до 1000: без своего контекста наложения
+    // они рисуются поверх кнопки "Определить автоматически" и всего, что лежит над картой.
+    isolation: isolate;
     overflow: hidden;
     border: 1px solid v.$color-border-strong;
     border-radius: 12px;
