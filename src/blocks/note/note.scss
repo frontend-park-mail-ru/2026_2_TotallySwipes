@@ -68,3 +68,26 @@
     @include v.text-style('caption-13-regular');
     color: v.$color-text-secondary;
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .note {
+        flex-direction: row;
+        gap: 8px;
+        padding: 16px;
+        background-color: v.$color-bg-page;
+    }
+
+    .note__header {
+        display: contents;
+    }
+
+    .note__header-icon {
+        margin-top: 1px;
+    }
+
+    .note__title,
+    .note__list,
+    .note__footer {
+        display: none;
+    }
+}

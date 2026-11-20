@@ -9,7 +9,7 @@ const MENU_ITEMS: MenuItem[] = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
     { href: '/matches', text: 'Симпатии', icon: icons.heart },
     { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3, disabled: true },
-    { href: '/test', text: 'Тест совместимости', icon: icons.stars },
+    { href: '/test', text: 'Тест совместимости', shortText: 'Тест', icon: icons.stars },
     { href: '/profile', text: 'Профиль', icon: icons.user },
 ];
 

@@ -23,12 +23,14 @@
     @include v.text-style('body-16-regular');
     color: v.$color-text-secondary;
     width: 300px;
+    max-width: 100%;
 }
 
 .empty-state__actions {
     display: flex;
     justify-content: center;
     gap: 18px;
+    flex-wrap: wrap;
 }
 
 .empty-state__button {
@@ -59,4 +61,21 @@
     box-sizing: border-box;
     height: 48px;
     text-decoration: none;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .empty-state__image {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .empty-state__actions {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .empty-state__button {
+        justify-content: center;
+        text-align: center;
+    }
 }

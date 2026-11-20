@@ -1,5 +1,8 @@
 @use 'sass:map';
 
+$breakpoint-mobile: 820px;
+$breakpoint-feed-compact: 1100px;
+
 $color-bg-page: #f3f3f0;
 $color-bg-subtle: #fbfbfa;
 $color-bg-disabled: #c9c8c2;

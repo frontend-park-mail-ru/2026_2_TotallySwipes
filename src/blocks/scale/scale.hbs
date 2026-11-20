@@ -8,7 +8,9 @@
         </label>
     {{/each}}
 
-    {{#each captions}}
-        <span class="scale__caption scale__caption_align_{{align}}">{{text}}</span>
-    {{/each}}
+    <div class="scale__captions">
+        {{#each captions}}
+            <span class="scale__caption scale__caption_align_{{align}}">{{text}}</span>
+        {{/each}}
+    </div>
 </fieldset>

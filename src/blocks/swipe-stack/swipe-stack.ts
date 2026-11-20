@@ -6,6 +6,8 @@ const ROTATION_COEF = 0.05;
 const ALL_DIRECTIONS: SwipeAction[] = ['like', 'dislike', 'super'];
 
 interface DragInfo {
+    pointerId: number;
+    threshold: number;
     startX: number;
     startY: number;
     card: HTMLElement;
@@ -40,6 +42,7 @@ export function updateLayers(stackElement: HTMLElement) {
             'swipe-stack__card_layer_3',
         );
         card.classList.add(`swipe-stack__card_layer_${index + 1}`);
+        card.toggleAttribute('inert', index !== 0);
     });
 }
 
@@ -50,10 +53,10 @@ export function updateLayers(stackElement: HTMLElement) {
  * @param {number} dx
  * @param {number} dy
  */
-function setStamps(card: HTMLElement, dx: number, dy: number) {
-    card.style.setProperty('--swipe-like', String(clamp01(dx / SWIPE_THRESHOLD)));
-    card.style.setProperty('--swipe-dislike', String(clamp01(-dx / SWIPE_THRESHOLD)));
-    card.style.setProperty('--swipe-super', String(clamp01(-dy / SWIPE_THRESHOLD)));
+function setStamps(card: HTMLElement, dx: number, dy: number, threshold = SWIPE_THRESHOLD) {
+    card.style.setProperty('--swipe-like', String(clamp01(dx / threshold)));
+    card.style.setProperty('--swipe-dislike', String(clamp01(-dx / threshold)));
+    card.style.setProperty('--swipe-super', String(clamp01(-dy / threshold)));
 }
 
 /**
@@ -81,24 +84,36 @@ export function initStack(
     stackElement: HTMLElement,
     { onSwipe, onTap, directions = ALL_DIRECTIONS }: StackOptions,
 ) {
-    let isAnimating = false;
+    let animatingCard: HTMLElement | null = null;
     let drag: DragInfo | null = null;
 
     stackElement.addEventListener('pointerdown', (event) => {
-        if (isAnimating || event.button !== 0 || !(event.target instanceof Element)) return;
+        if (
+            isStackAnimating() ||
+            !event.isPrimary ||
+            event.button !== 0 ||
+            !(event.target instanceof Element)
+        ) {
+            return;
+        }
 
         const top = stackElement.lastElementChild;
 
-        if (!(top instanceof HTMLElement)) {
-            isAnimating = false;
-            return;
-        }
+        if (!(top instanceof HTMLElement)) return;
+        if (drag && drag.card === top) return;
 
         if (event.target.closest('.swipe-stack__card') !== top) return;
 
         if (event.target.closest('a, button')) return;
 
+        let threshold = SWIPE_THRESHOLD;
+        if (event.pointerType === 'touch') {
+            threshold = Math.min(SWIPE_THRESHOLD, Math.ceil(top.clientWidth / 3));
+        }
+
         drag = {
+            pointerId: event.pointerId,
+            threshold,
             startX: event.clientX,
             startY: event.clientY,
             card: top,
@@ -111,7 +126,7 @@ export function initStack(
     });
 
     stackElement.addEventListener('pointermove', (event) => {
-        if (!drag) return;
+        if (!drag || drag.pointerId !== event.pointerId) return;
         const dx = event.clientX - drag.startX;
         const dy = event.clientY - drag.startY;
 
@@ -120,25 +135,30 @@ export function initStack(
 
         drag.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * ROTATION_COEF}deg)`;
 
-        setStamps(drag.card, drag.dx, drag.dy);
+        setStamps(drag.card, dx, dy, drag.threshold);
     });
 
     stackElement.addEventListener('pointerup', (event) => {
-        if (!drag) return;
-
-        drag.card.classList.remove('swipe-stack__card_dragging');
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        const { card, dx, dy, threshold } = drag;
+        drag = null;
+        card.classList.remove('swipe-stack__card_dragging');
+        if (card !== stackElement.lastElementChild) {
+            resetCard(card);
+            return;
+        }
 
         let direction: StackAction | null = null;
 
-        if (Math.abs(drag.dx) > Math.abs(drag.dy)) {
-            if (Math.abs(drag.dx) > SWIPE_THRESHOLD) {
-                if (drag.dx > 0) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (Math.abs(dx) > threshold) {
+                if (dx > 0) {
                     direction = 'like';
                 } else {
                     direction = 'dislike';
                 }
             }
-        } else if (drag.dy < -SWIPE_THRESHOLD) {
+        } else if (dy < -threshold) {
             direction = 'super';
         }
 
@@ -146,27 +166,24 @@ export function initStack(
             direction = null;
         }
 
-        if (Math.abs(drag.dx) < TAP_THRESHOLD && Math.abs(drag.dy) < TAP_THRESHOLD) {
+        if (Math.abs(dx) < TAP_THRESHOLD && Math.abs(dy) < TAP_THRESHOLD) {
             direction = 'tap';
         }
 
         if (direction) {
             if (direction === 'tap') {
-                if (onTap) onTap(drag.card, event.clientX, event.clientY);
-
-                resetCard(drag.card);
+                if (onTap) onTap(card, event.clientX, event.clientY);
+                resetCard(card);
             } else {
-                swipe(drag.card, direction);
+                swipe(card, direction);
             }
         } else {
-            resetCard(drag.card);
+            resetCard(card);
         }
-
-        drag = null;
     });
 
-    stackElement.addEventListener('pointercancel', () => {
-        if (!drag) return;
+    stackElement.addEventListener('pointercancel', (event) => {
+        if (!drag || drag.pointerId !== event.pointerId) return;
         resetCard(drag.card);
         drag.card.classList.remove('swipe-stack__card_dragging');
         drag = null;
@@ -176,7 +193,7 @@ export function initStack(
      * @returns {boolean} Идёт ли сейчас анимация карточки.
      */
     function isStackAnimating() {
-        return isAnimating;
+        return animatingCard !== null && animatingCard.parentElement === stackElement;
     }
 
     /**
@@ -185,26 +202,23 @@ export function initStack(
      * @param {'like'|'dislike'|'super'} direction
      */
     function swipe(card: HTMLElement, direction: SwipeAction) {
-        if (isAnimating) return;
-        isAnimating = true;
+        if (isStackAnimating() || card !== stackElement.lastElementChild) return;
+        if (drag && drag.card === card) return;
 
-        const top = stackElement.lastElementChild;
-        if (!(top instanceof HTMLElement)) {
-            isAnimating = false;
-            return;
-        }
+        animatingCard = card;
+        card.style.transform = '';
+        card.style.setProperty(`--swipe-${direction}`, '1');
+        card.classList.add(`swipe-stack__card_leaving_${direction}`);
 
-        top.style.transform = '';
-        top.style.setProperty(`--swipe-${direction}`, '1');
-        top.classList.add(`swipe-stack__card_leaving_${direction}`);
+        card.addEventListener('transitionend', function finishSwipe(event) {
+            if (event.target !== card || event.propertyName !== 'transform') return;
+            card.removeEventListener('transitionend', finishSwipe);
 
-        top.addEventListener('transitionend', (event) => {
-            if (event.target !== top || event.propertyName !== 'transform') return;
-
-            top.remove();
+            if (animatingCard !== card) return;
+            animatingCard = null;
+            if (card.parentElement !== stackElement) return;
+            card.remove();
             onSwipe(card, direction);
-
-            isAnimating = false;
         });
     }
 
@@ -215,8 +229,8 @@ export function initStack(
      * @param {'like'|'dislike'|'super'} direction - Куда карточка улетала.
      */
     function unswipe(card: HTMLElement, direction: SwipeAction) {
-        if (isAnimating) return;
-        isAnimating = true;
+        if (isStackAnimating() || card !== stackElement.lastElementChild) return;
+        animatingCard = card;
 
         card.style.setProperty(`--swipe-${direction}`, '1');
         card.classList.add(`swipe-stack__card_leaving_${direction}`);
@@ -227,10 +241,11 @@ export function initStack(
         card.style.setProperty(`--swipe-${direction}`, '0');
         card.classList.remove(`swipe-stack__card_leaving_${direction}`);
 
-        card.addEventListener('transitionend', (event) => {
+        card.addEventListener('transitionend', function finishUnswipe(event) {
             if (event.target !== card || event.propertyName !== 'transform') return;
+            card.removeEventListener('transitionend', finishUnswipe);
 
-            isAnimating = false;
+            if (animatingCard === card) animatingCard = null;
         });
     }
 

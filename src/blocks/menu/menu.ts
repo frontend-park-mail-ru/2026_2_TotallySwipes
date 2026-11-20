@@ -3,6 +3,7 @@ import menuHbs from './menu.hbs';
 export interface MenuItem {
     href: string;
     text: string;
+    shortText?: string;
     icon: string;
     counter?: number;
     disabled?: boolean;
