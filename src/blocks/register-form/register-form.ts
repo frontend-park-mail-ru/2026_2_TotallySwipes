@@ -261,6 +261,7 @@ export function initRegisterForm(root: HTMLElement, props: RegisterFormProps = {
                     state: stepIndex < index ? 'done' : stepIndex === index ? 'current' : 'todo',
                 })),
                 isInteractive: false,
+                mix: 'register-form__steps',
             }),
             title: step.title,
             subtitle: step.subtitle,
