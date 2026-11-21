@@ -48,11 +48,22 @@
     position: absolute;
     bottom: 8px;
     left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
     padding: 4px 8px;
     border-radius: 8px;
     background: v.$color-surface;
     @include v.text-style('caption-13-bold');
     color: v.$color-text-primary;
+}
+
+.register-photos__badge-icon {
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
+    background-color: currentColor;
+    mask: var(--icon) center / contain no-repeat;
 }
 
 .register-photos__remove {
