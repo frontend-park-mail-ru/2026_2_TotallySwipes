@@ -62,6 +62,7 @@
 .profile-view__about {
     margin: 0;
     @include v.text-style('body-16-regular');
+    overflow-wrap: anywhere;
 }
 
 .profile-view__compatibility {
