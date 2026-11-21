@@ -39,6 +39,7 @@
 }
 
 .trait-scale__title {
+    overflow-wrap: anywhere;
     @include v.text-style('body-16-semibold');
 }
 
@@ -83,6 +84,30 @@
     display: flex;
     justify-content: space-between;
     gap: 8px;
+    overflow-wrap: anywhere;
     @include v.text-style('caption-13-regular');
     color: v.$color-text-secondary;
+}
+
+.trait-scale__pole:last-child {
+    text-align: right;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .trait-scale {
+        gap: 12px;
+    }
+
+    .trait-scale__track {
+        margin: 0;
+        background-color: v.$color-border-default;
+    }
+
+    .trait-scale__dot {
+        right: -15px;
+        width: 30px;
+        height: 30px;
+        border-width: 3px;
+        box-shadow: none;
+    }
 }

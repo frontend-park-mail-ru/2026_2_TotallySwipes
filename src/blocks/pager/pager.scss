@@ -23,3 +23,19 @@
 .pager__segment_current {
     background: v.$color-text-primary;
 }
+
+@media (max-width: v.$breakpoint-feed-compact) {
+    .pager__bar {
+        gap: 4px;
+    }
+
+    .pager__segment {
+        height: 4px;
+        background: v.$color-surface;
+    }
+
+    .pager__segment_current,
+    .pager__segment_done {
+        background: currentColor;
+    }
+}

@@ -21,7 +21,8 @@
             </h2>
 
             <p class="test__hint">
-                Насколько это про вас? Отметьте первое, что<br>приходит в голову: правильных ответов нет.
+                Насколько это про вас? Отметьте первое, что<br class="test__hint-break">
+                приходит в голову: правильных ответов нет.
             </p>
         </div>
 
@@ -33,7 +34,7 @@
     <div class="test__nav">
         <button type="button" class="button button_view_outline button_size_l test__prev">
             <span class="button__icon button__icon_mask" style="--icon: url('/icons/arrow-left.svg')"></span>
-            <span class="button__text">Предыдущее</span>
+            <span class="button__text test__prev-text">Предыдущее</span>
         </button>
 
         {{#if allAnswered}}

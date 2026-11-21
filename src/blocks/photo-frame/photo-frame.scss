@@ -2,6 +2,7 @@
 
 .photo-frame {
     position: relative;
+    touch-action: pan-y;
     aspect-ratio: 382 / 470;
     overflow: hidden;
     border-radius: 20px;

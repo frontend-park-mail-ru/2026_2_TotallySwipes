@@ -10,6 +10,9 @@
     justify-content: center;
     box-sizing: border-box;
     aspect-ratio: 1;
+    // У панелей и контролов Leaflet z-index от 200 до 1000: без своего контекста наложения
+    // они рисуются поверх кнопки "Определить автоматически" и всего, что лежит над картой.
+    isolation: isolate;
     overflow: hidden;
     border: 1px solid v.$color-border-strong;
     border-radius: 12px;
@@ -71,4 +74,37 @@
 
 .profile-location__marker {
     filter: drop-shadow(0 3px 3px rgba(20, 20, 20, 0.35));
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .profile-location__locate {
+        top: 8px;
+        right: 8px;
+        padding: 0 12px;
+        white-space: nowrap;
+    }
+
+    .profile-location__locate .button__text {
+        font-size: 14px;
+    }
+
+    .profile-location__map .leaflet-control-zoom {
+        display: none;
+    }
+
+    .profile-location__confirm {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .profile-location__buttons {
+        flex-shrink: 1;
+    }
+
+    .profile-location__ok,
+    .profile-location__cancel {
+        flex: 1;
+        justify-content: center;
+    }
 }

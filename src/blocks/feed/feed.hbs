@@ -5,16 +5,21 @@
         {{{filter}}}
     </div>
 
-    <div class="feed__stack swipe-stack">
+    <div class="feed__detail-header">
+        <button class="button button_view_outline button_icon-only feed__collapse" type="button" title="Свернуть">
+            <span class="button__icon button__icon_mask feed__collapse-icon" style="--icon: url('/icons/chevron-up.svg')"></span>
+        </button>
+        <span class="feed__detail-title">Анкеты</span>
+    </div>
 
+    <div class="feed__stack swipe-stack"></div>
+
+    <div class="feed__empty">
+        {{{emptyState}}}
     </div>
 
     <div class="feed__actions">
         {{{actions}}}
-    </div>
-
-    <div class="feed__empty">
-        {{{emptyState}}}
     </div>
 </div>
 

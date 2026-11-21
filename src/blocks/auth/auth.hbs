@@ -1,6 +1,9 @@
 <div class="auth">
-    <section class="auth__intro">
-        <a class="logo auth__logo" href="/" data-link>swipes.</a>
+    <section class="auth__intro{{#if isRegister}} auth__intro_compact{{/if}}">
+        <div class="auth__top">
+            <a class="logo auth__logo" href="/" data-link>swipes.</a>
+            <span class="auth__heart"></span>
+        </div>
         <div class="auth__pitch">
             <h1 class="auth__headline">Знакомства, где видно, что вы совпадаете.</h1>
             <p class="auth__lead">Пройдите короткий тест, и рядом с каждой анкетой появится процент совместимости. Нравится — свайп вправо.</p>

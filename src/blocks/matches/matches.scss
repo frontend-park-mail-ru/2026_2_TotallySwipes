@@ -10,6 +10,7 @@
 
 .matches__header {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: 16px;
 }
@@ -27,7 +28,7 @@
 .matches__grid {
     display: grid;
     gap: 24px;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
     padding-top: 24px;
 }
 
@@ -63,4 +64,38 @@
 .matches_empty .matches__grid,
 .matches_empty .matches__more {
     display: none;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .matches {
+        gap: 0;
+        min-height: calc(100svh - var(--layout-nav-height));
+        padding: 0 16px 32px;
+    }
+
+    .matches__header,
+    .matches__grid {
+        align-self: center;
+        width: min(100%, 600px);
+    }
+
+    .matches__header {
+        gap: 4px 12px;
+        padding-block: 21.5px;
+    }
+
+    .matches__grid {
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding-top: 0;
+    }
+
+    .matches__more {
+        margin-top: 24px;
+    }
+
+    .matches__empty {
+        padding: 24px 16px;
+        border-width: 1px;
+    }
 }

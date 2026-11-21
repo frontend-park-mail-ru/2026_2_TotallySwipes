@@ -1,20 +1,19 @@
 @use '../../variables' as v;
 
 .feed {
-    --stack-height: clamp(360px, calc(100vh - 230px), 572px);
+    --stack-height: clamp(300px, 100svh - 230px, 572px);
 
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 30vw, 400px);
     box-sizing: border-box;
-    min-height: 100vh;
-    /* overflow: hidden; */
+    min-height: 100svh;
 }
 
 .feed__main {
     display: flex;
     flex-direction: column;
     gap: 27px;
-    padding: 25px 40px; /*тут был падинг 34 на 40*/
+    padding: 25px clamp(24px, 2.8vw, 40px);
     border-right: 1px solid v.$color-border-default;
 }
 
@@ -31,7 +30,7 @@
 }
 
 .feed__stack {
-    height: var(--stack-height);
+    width: min(100%, calc(var(--stack-height) * 400 / 572));
     aspect-ratio: 400 / 572;
     align-self: center;
 }
@@ -51,8 +50,8 @@
 .feed__empty {
     display: none;
     box-sizing: border-box;
-    height: var(--stack-height);
-    aspect-ratio: 400 / 572;
+    width: min(100%, 400px);
+    min-height: var(--stack-height);
     align-self: center;
     padding: 32px;
     border: 2px dashed v.$color-border-strong;
@@ -72,14 +71,153 @@
 }
 
 .feed__details {
-    height: 100vh;
+    height: 100svh;
     overflow-y: auto;
     align-self: start;
-    padding: 34px 32px 40px;
+    padding: 34px clamp(16px, 2.3vw, 32px) 40px;
     background-color: v.$color-surface;
     box-sizing: border-box;
 }
 
-.feed__header_button:disabled {
-    cursor: not-allowed;
+.feed__detail-header {
+    display: none;
+}
+
+@media (max-width: v.$breakpoint-feed-compact) {
+    .feed {
+        display: block;
+        min-height: calc(100svh - var(--layout-nav-height, 0px));
+    }
+
+    .feed__main {
+        gap: 24px;
+        padding: 16px 16px 24px;
+        border: 0;
+    }
+
+    .feed__header,
+    .feed__detail-header {
+        width: min(100%, 480px);
+        align-self: center;
+    }
+
+    .feed__title {
+        font-size: clamp(27px, 8.34vw, 30px);
+    }
+
+    .feed__stack {
+        width: min(100%, 400px);
+        max-width: max(288px, calc((100svh - var(--layout-nav-height, 0px) - 248px) * 328 / 480));
+        aspect-ratio: 328 / 480;
+        margin-top: 26px;
+    }
+
+    .feed__collapse-icon {
+        transform: rotate(180deg);
+    }
+
+    .feed__details {
+        display: none;
+    }
+
+    .feed__actions {
+        gap: clamp(8px, calc(10vw - 20px), 16px);
+        min-height: 64px;
+    }
+
+    .feed__empty {
+        min-height: clamp(360px, 100svh - var(--layout-nav-height, 0px) - 196px, 640px);
+        padding: 24px 16px;
+        border-width: 1px;
+    }
+
+    .feed_empty .feed__actions {
+        display: flex;
+    }
+
+    .feed_expanded {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .feed_expanded .feed__main {
+        display: contents;
+    }
+
+    .feed_expanded .feed__header {
+        display: none;
+    }
+
+    .feed_expanded .feed__detail-header {
+        display: flex;
+        box-sizing: border-box;
+        align-items: center;
+        gap: 12px;
+        width: min(100%, 432px);
+        padding: 16px;
+    }
+
+    .feed__detail-title {
+        @include v.text-style('body-16-semibold');
+    }
+
+    .feed_expanded .feed__stack {
+        width: min(100% - 32px, 400px);
+        max-width: none;
+        margin-top: 0;
+        aspect-ratio: 328 / 360;
+    }
+
+    .feed_expanded .feed__card {
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        touch-action: pan-y;
+    }
+
+    .feed_expanded .feed__card[inert] {
+        visibility: hidden;
+    }
+
+    .feed_expanded .feed__card-info {
+        display: none;
+    }
+
+    .feed_expanded .feed__details {
+        display: block;
+        align-self: center;
+        order: 1;
+        width: min(100%, 480px);
+        height: auto;
+        overflow: visible;
+        margin-top: 24px;
+        padding: 24px 16px 32px;
+        border-radius: 30px 30px 0 0;
+    }
+
+    .feed_expanded .feed__actions {
+        position: sticky;
+        z-index: 2;
+        bottom: var(--layout-nav-height, 0px);
+        order: 2;
+        min-height: 0;
+        padding: 16px;
+        border-top: 1px solid v.$color-border-default;
+        background: v.$color-surface;
+    }
+
+    .feed_expanded .feed__action {
+        box-shadow: v.$shadow-sticker;
+    }
+}
+
+@media (max-width: v.$breakpoint-feed-compact) and (max-height: 650px) {
+    .feed__main {
+        gap: 16px;
+        padding-bottom: 16px;
+    }
+
+    .feed__stack {
+        margin-top: 18px;
+    }
 }

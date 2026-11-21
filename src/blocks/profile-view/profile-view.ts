@@ -39,7 +39,13 @@ function profileTemplate(item: MatchedProfile): string {
 
     return profileHbs({
         ...profile,
-        gallery: photoGalleryTemplate({ photos: profile.imgPath }),
+        gallery: photoGalleryTemplate({
+            photos: profile.imgPath,
+            stamp:
+                profile.compatibility !== null
+                    ? { value: profile.compatibility, color: 'mint' }
+                    : undefined,
+        }),
         location: profile.location
             ? locationTemplate('profile-view__location', profile.location)
             : '',

@@ -67,3 +67,32 @@
 .register-form__link:hover {
     text-decoration: underline;
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .register-form__title {
+        margin-top: 24px;
+    }
+
+    .register-form__subtitle {
+        margin-top: 4px;
+    }
+
+    .register-form__steps {
+        flex-wrap: nowrap;
+    }
+
+    .register-form__steps .steps__item {
+        flex-basis: 0;
+    }
+
+    .register-form__steps .steps__label {
+        justify-content: flex-start;
+        width: auto;
+        gap: 4px;
+        padding: 0 8px;
+    }
+
+    .register-form__steps .steps__check {
+        width: 12px;
+    }
+}
