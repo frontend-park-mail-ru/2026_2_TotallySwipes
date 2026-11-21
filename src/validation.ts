@@ -425,7 +425,7 @@ export function validateHeight(value: string): string | null {
     }
 
     if (!/^\d{1,3}$/.test(height) || Number(height) < HEIGHT_MIN || Number(height) > HEIGHT_MAX) {
-        return `Рост должен быть от ${HEIGHT_MIN} до ${HEIGHT_MAX} см`;
+        return `Рост должен быть от ${HEIGHT_MIN} до ${HEIGHT_MAX} см.`;
     }
 
     return null;
