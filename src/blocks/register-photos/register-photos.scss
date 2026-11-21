@@ -80,6 +80,8 @@
 
 .register-photos__slot_filled {
     cursor: grab;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .register-photos__slot_dragging {

@@ -58,6 +58,8 @@
 
 .profile-photos__thumb_filled {
     cursor: grab;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .profile-photos__thumb_dragging {
@@ -130,5 +132,19 @@
         flex-basis: calc((100% - 24px) / 4);
         width: auto;
         aspect-ratio: 64 / 80;
+    }
+}
+
+.profile-photos__hint-touch {
+    display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .profile-photos__hint-mouse {
+        display: none;
+    }
+
+    .profile-photos__hint-touch {
+        display: inline;
     }
 }

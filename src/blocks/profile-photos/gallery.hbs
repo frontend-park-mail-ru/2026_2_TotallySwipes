@@ -20,7 +20,7 @@
 <div class="photo-thumbs profile-photos__thumbs{{#if locked}} profile-photos__thumbs_locked{{/if}}">
     {{#each slots}}
         {{#if url}}
-            <div class="photo-thumbs__item profile-photos__thumb profile-photos__thumb_filled{{#if active}} photo-thumbs__item_active{{/if}}" draggable="{{#if @root.locked}}false{{else}}true{{/if}}" data-index="{{index}}">
+            <div class="photo-thumbs__item profile-photos__thumb profile-photos__thumb_filled{{#if active}} photo-thumbs__item_active{{/if}}" data-index="{{index}}">
                 <img class="photo-thumbs__image" src="{{url}}" alt="" draggable="false">
                 <span class="profile-photos__thumb-index">{{number}}</span>
             </div>
