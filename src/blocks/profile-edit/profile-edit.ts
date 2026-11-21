@@ -81,10 +81,8 @@ interface ProfileValues {
     alcohol: Attitude | null;
 }
 
-const SAVE_LABEL = 'Сохранить';
-const SAVE_EXTRA = ' изменения';
-const SAVING_LABEL = 'Сохранение';
-const SAVING_EXTRA = ' изменений...';
+const SAVE_LABEL = 'Сохранить изменения';
+const SAVING_LABEL = 'Сохранение изменений...';
 
 //TODO: вынести в общие константы отсюда, из feed.ts, matches.ts и profile-view.ts
 const LOAD_ERROR_MODAL = {
@@ -347,8 +345,7 @@ export function renderProfileEditPage(root: HTMLElement) {
     const page = getElement<ProfileForm>(root, '.profile-edit');
     const content = getElement(page, '.profile-edit__content');
     const saveButton = getElement<HTMLButtonElement>(page, '.profile-edit__save');
-    const saveLabel = getElement(saveButton, '.profile-edit__save-label');
-    const saveExtra = getElement(saveButton, '.profile-edit__save-extra');
+    const saveLabel = getElement(saveButton, '.button__text');
     const savedMessage = getElement(page, '.profile-edit__saved');
 
     // Кнопка выхода вне загружаемых карточек: выйти можно, даже если анкета не загрузилась.
@@ -498,7 +495,6 @@ export function renderProfileEditPage(root: HTMLElement) {
     function setSaveState(state: SaveState) {
         saveState = state;
         saveLabel.textContent = state === 'saving' ? SAVING_LABEL : SAVE_LABEL;
-        saveExtra.textContent = state === 'saving' ? SAVING_EXTRA : SAVE_EXTRA;
         saveButton.hidden = state === 'saved';
         savedMessage.hidden = state !== 'saved';
 

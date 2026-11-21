@@ -103,9 +103,12 @@
     color: v.$color-text-secondary;
 }
 
-.profile-edit__logout {
+.profile-edit__actions {
     grid-column: 2;
     justify-self: center;
+}
+
+.profile-edit__logout {
     border-color: v.$color-error-default;
     color: v.$color-error-default;
 }
@@ -132,7 +135,7 @@
     }
 
     .profile-edit__cards,
-    .profile-edit__logout {
+    .profile-edit__actions {
         grid-column: 1;
     }
 }
@@ -148,12 +151,17 @@
         gap: 16px;
     }
 
-    .profile-edit__save-extra {
-        display: none;
+    .profile-edit__actions {
+        justify-self: stretch;
+    }
+
+    .profile-edit__save {
+        justify-content: center;
+        width: 100%;
     }
 
     .profile-edit__saved {
-        text-align: right;
+        justify-content: center;
     }
 
     .profile-edit__content,
@@ -174,10 +182,5 @@
     // Три варианта (курение, алкоголь) должны помещаться в один ряд на 360px.
     .profile-edit .chips__label {
         padding: 0 14px;
-    }
-
-    .profile-edit__logout {
-        justify-content: center;
-        justify-self: stretch;
     }
 }
