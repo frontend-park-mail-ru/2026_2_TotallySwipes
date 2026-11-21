@@ -34,4 +34,8 @@
         filter: v.$filter-sticker;
         pointer-events: none;
     }
+
+    .photo-gallery__stamp .match-stamp__value {
+        transform: rotate(9deg);
+    }
 }

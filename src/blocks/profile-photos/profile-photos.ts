@@ -2,6 +2,7 @@ import type { Photo } from '../../api/api.types.js';
 import { PHOTO_PLACEHOLDER, icons } from '../../icons.js';
 import { PhotoQueue, REPLACE_AT_LIMIT_MESSAGE } from '../../photos/photo-queue.js';
 import { initPhotoDrag } from '../../photos/photo-drag.js';
+import { initPhotoSwipe } from '../../photos/photo-swipe.js';
 import { getElement } from '../../utils/dom.js';
 import { PHOTO_MAX_COUNT, PHOTO_TYPES } from '../../validation.js';
 import { setFormFieldError } from '../form-field/form-field.js';
@@ -100,6 +101,20 @@ export function initProfilePhotos(
         onMove(from, to) {
             setFormFieldError(fileInput, null);
             queue.move(from, to);
+        },
+    });
+
+    initPhotoSwipe(gallery, {
+        frameSelector: '.photo-frame',
+        onSwipe(step) {
+            const next = selectedIndex + step;
+
+            if (queue.isSaving || next < 0 || next >= queue.photos.length) {
+                return;
+            }
+
+            selectedId = queue.photos[next].id;
+            render();
         },
     });
 

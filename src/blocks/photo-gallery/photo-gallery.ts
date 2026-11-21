@@ -1,5 +1,6 @@
 import { getElement } from '../../utils/dom.js';
 import type { AccentColor } from '../../colors.js';
+import { initPhotoSwipe } from '../../photos/photo-swipe.js';
 import { changeCurrentPager, pagerTemplate } from '../pager/pager.js';
 import photoGalleryHbs from './photo-gallery.hbs';
 
@@ -54,7 +55,7 @@ export function photoGalleryTemplate({ photos, stamp, mix = '' }: PhotoGalleryPr
 
 /**
  * Включает переключение фото по клику на миниатюру, а на мобилке, где миниатюр нет,
- * ещё и по тапу на левую или правую половину фото.
+ * ещё и по тапу на левую или правую половину фото. Касанием фото листаются и свайпом.
  *
  * @param gallery - Корневой элемент галереи.
  */
@@ -98,6 +99,17 @@ export function initPhotoGallery(gallery: HTMLElement): void {
         if (thumb) {
             show(thumbs.indexOf(thumb));
         }
+    });
+
+    initPhotoSwipe(gallery, {
+        frameSelector: '.photo-frame',
+        onSwipe(step) {
+            const next = current + step;
+
+            if (next >= 0 && next < thumbs.length) {
+                show(next);
+            }
+        },
     });
 
     frame.addEventListener('click', (event) => {

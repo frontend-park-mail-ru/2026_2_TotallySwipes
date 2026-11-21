@@ -124,10 +124,6 @@
         left: 8px;
     }
 
-    .profile-photos__thumbs {
-        justify-content: flex-start;
-    }
-
     .profile-photos__thumbs .photo-thumbs__item {
         flex-basis: calc((100% - 24px) / 4);
         width: auto;
