@@ -274,7 +274,7 @@ export function validateBirthDate(day: string, month: string, year: string): str
     const age = today.getFullYear() - y - (hadBirthday ? 0 : 1);
 
     if (age < MIN_AGE) {
-        return `Регистрация доступна только с ${MIN_AGE} лет.`;
+        return `Пользоваться сервисом можно только с ${MIN_AGE} лет.`;
     }
 
     if (age > MAX_AGE) {
