@@ -10,7 +10,12 @@
             <img class="photo-frame__image" src="{{main}}" alt="" draggable="false">
         </div>
         {{{pager}}}
-        {{{stamp}}}
+        {{#if stamp}}
+            <div class="match-stamp match-stamp_color_{{stamp.color}} photo-gallery__stamp">
+                <img class="match-stamp__image" src="/icons/badge-compat-{{stamp.color}}.svg" alt="" draggable="false">
+                <span class="match-stamp__value">{{stamp.value}}%</span>
+            </div>
+        {{/if}}
     </div>
     {{#if thumbs}}
         <div class="photo-thumbs">

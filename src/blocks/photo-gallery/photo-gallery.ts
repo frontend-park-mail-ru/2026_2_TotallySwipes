@@ -44,12 +44,7 @@ export function photoGalleryTemplate({ photos, stamp, mix = '' }: PhotoGalleryPr
         total: photos.length,
         thumbs,
         pager: thumbs ? pagerTemplate('photo-gallery__pager', 1, photos.length) : '',
-        stamp: stamp
-            ? `<div class="match-stamp match-stamp_color_${stamp.color} photo-gallery__stamp">
-                <img class="match-stamp__image" src="/icons/badge-compat-${stamp.color}.svg" alt="" draggable="false">
-                <span class="match-stamp__value">${stamp.value}%</span>
-            </div>`
-            : '',
+        stamp,
     });
 }
 
