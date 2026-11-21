@@ -90,6 +90,15 @@ export function initPhotoGallery(gallery: HTMLElement): void {
         changeCurrentPager(pager, index);
     }
 
+    /**
+     * Листает фото на шаг вперёд или назад. После последнего идёт первое, перед первым последнее.
+     *
+     * @param step - 1 - следующее фото, -1 - предыдущее.
+     */
+    function showNext(step: 1 | -1) {
+        show((current + step + thumbs.length) % thumbs.length);
+    }
+
     thumbsElement.addEventListener('click', (event) => {
         const thumb =
             event.target instanceof Element
@@ -103,13 +112,7 @@ export function initPhotoGallery(gallery: HTMLElement): void {
 
     initPhotoSwipe(gallery, {
         frameSelector: '.photo-frame',
-        onSwipe(step) {
-            const next = current + step;
-
-            if (next >= 0 && next < thumbs.length) {
-                show(next);
-            }
-        },
+        onSwipe: showNext,
     });
 
     frame.addEventListener('click', (event) => {
@@ -119,8 +122,6 @@ export function initPhotoGallery(gallery: HTMLElement): void {
         }
 
         const { left, width } = frame.getBoundingClientRect();
-        const step = event.clientX < left + width / 2 ? -1 : 1;
-
-        show((current + step + thumbs.length) % thumbs.length);
+        showNext(event.clientX < left + width / 2 ? -1 : 1);
     });
 }
