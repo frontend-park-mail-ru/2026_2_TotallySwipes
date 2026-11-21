@@ -77,10 +77,6 @@
 }
 
 @media (max-width: v.$breakpoint-mobile) {
-    .profile-location__map {
-        aspect-ratio: 7 / 4;
-    }
-
     .profile-location__locate {
         top: 8px;
         right: 8px;
