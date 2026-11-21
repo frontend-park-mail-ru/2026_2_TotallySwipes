@@ -102,6 +102,13 @@
 
 // Планшет и мобилка: две колонки не помещаются рядом с сайдбаром, поэтому всё в одну.
 @media (max-width: v.$breakpoint-feed-compact) {
+    .profile-view__header {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
     .profile-view__content {
         grid-template-columns: minmax(0, 1fr);
         box-sizing: border-box;
@@ -113,7 +120,6 @@
 
 @media (max-width: v.$breakpoint-mobile) {
     .profile-view {
-        position: relative;
         gap: 16px;
         padding: 16px 16px 24px;
     }
@@ -125,6 +131,10 @@
     .profile-view__cards,
     .profile-view__content {
         gap: 16px;
+    }
+
+    .profile-view__content {
+        position: relative;
     }
 
     .profile-view .profile-view__back {
@@ -165,8 +175,8 @@
 
     .profile-view__photos .photo-gallery__counter {
         position: absolute;
-        top: 31px;
-        right: 16px;
+        top: -45px;
+        right: 0;
     }
 
     .profile-view__photos .photo-frame {

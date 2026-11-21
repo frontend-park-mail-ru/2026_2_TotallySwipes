@@ -125,6 +125,7 @@
 
 // Планшет и мобилка: две колонки не помещаются рядом с сайдбаром, поэтому всё в одну.
 @media (max-width: v.$breakpoint-feed-compact) {
+    .profile-edit__header,
     .profile-edit__content,
     .profile-edit__footer {
         grid-template-columns: minmax(0, 1fr);
