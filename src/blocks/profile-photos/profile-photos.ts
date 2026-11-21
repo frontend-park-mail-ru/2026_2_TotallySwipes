@@ -9,6 +9,9 @@ import { setFormFieldError } from '../form-field/form-field.js';
 import galleryHbs from './gallery.hbs';
 import profilePhotosHbs from './profile-photos.hbs';
 
+/** Мобилка, как `$breakpoint-mobile` в variables.scss: только там фото листаются тапом. */
+const MOBILE_MEDIA = '(max-width: 820px)';
+
 /**
  * Рендерит блок "Фото профиля": карточку с большим фото, миниатюрами и кнопками.
  * Содержимое появляется после {@link initProfilePhotos}.
@@ -91,6 +94,15 @@ export function initProfilePhotos(
         } else if (event.target.closest('.profile-photos__remove') && selectedId !== null) {
             setFormFieldError(fileInput, null);
             queue.remove(selectedId);
+        } else {
+            const frame = event.target.closest<HTMLElement>('.photo-frame');
+
+            // Тап по левой или правой половине большого фото, но не по кнопкам поверх него.
+            if (frame && !event.target.closest('button') && matchMedia(MOBILE_MEDIA).matches) {
+                const { left, width } = frame.getBoundingClientRect();
+
+                selectStep(event.clientX < left + width / 2 ? -1 : 1);
+            }
         }
     });
 
@@ -106,16 +118,7 @@ export function initProfilePhotos(
 
     initPhotoSwipe(gallery, {
         frameSelector: '.photo-frame',
-        onSwipe(step) {
-            const next = selectedIndex + step;
-
-            if (queue.isSaving || next < 0 || next >= queue.photos.length) {
-                return;
-            }
-
-            selectedId = queue.photos[next].id;
-            render();
-        },
+        onSwipe: selectStep,
     });
 
     fileInput.addEventListener('change', () => {
@@ -143,6 +146,23 @@ export function initProfilePhotos(
             queue.replace(selectedId, file);
         }
     });
+
+    /**
+     * Выбирает соседнее фото. На первом и последнем фото листание останавливается,
+     * а пока идёт сохранение, не работает совсем.
+     *
+     * @param step - 1 - следующее фото, -1 - предыдущее.
+     */
+    function selectStep(step: 1 | -1) {
+        const next = selectedIndex + step;
+
+        if (queue.isSaving || next < 0 || next >= queue.photos.length) {
+            return;
+        }
+
+        selectedId = queue.photos[next].id;
+        render();
+    }
 
     /**
      * Перерисовывает фото и счётчик по текущему списку.
