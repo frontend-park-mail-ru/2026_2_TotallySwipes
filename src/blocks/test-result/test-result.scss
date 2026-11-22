@@ -11,6 +11,15 @@
     padding: 24px 32px;
 }
 
+.test-result__appbar,
+.test-result__privacy {
+    display: none;
+}
+
+.test-result__panel {
+    display: contents;
+}
+
 .test-result__card {
     grid-column: 1 / span 8;
     display: flex;
@@ -60,6 +69,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .test-result__title {
@@ -85,6 +96,7 @@
 
 .test-result__actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
 }
 
@@ -92,9 +104,12 @@
     box-sizing: border-box;
     justify-content: center;
     gap: 8px;
-    height: 48px;
-    padding: 0 24px;
+    height: auto;
+    min-height: 48px;
+    max-width: 100%;
+    padding: 10px 24px;
     border-radius: 14px;
+    text-align: center;
     text-decoration: none;
 }
 
@@ -105,4 +120,112 @@
 
 .test-result__note {
     grid-column: 9 / span 4;
+}
+
+@media (v.$breakpoint-mobile < width <= 1120px) {
+    .test-result__card,
+    .test-result__note {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .test-result {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        min-height: calc(100svh - var(--layout-nav-height, 0px));
+        padding: 0;
+    }
+
+    .test-result__appbar {
+        display: flex;
+        box-sizing: border-box;
+        align-items: center;
+        gap: 12px;
+        width: min(100%, 728px);
+        min-height: 76px;
+        padding: 16px 16px;
+    }
+
+    .test-result__back_mobile {
+        flex-shrink: 0;
+        align-self: center;
+        justify-content: center;
+        width: 44px;
+        border: 1.5px solid v.$color-border-strong;
+        border-radius: 12px;
+        background: v.$color-surface;
+        color: v.$color-text-primary;
+    }
+
+    .test-result__appbar-title {
+        @include v.text-style('heading-30-extrabold');
+    }
+
+    .test-result__card {
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .test-result__panel,
+    .test-result__card_empty {
+        display: flex;
+        box-sizing: border-box;
+        flex: 1;
+        flex-direction: column;
+        gap: 24px;
+        width: min(100%, 728px);
+        padding: 24px 16px 32px;
+        border-radius: 30px 30px 0 0;
+        background: v.$color-surface;
+        box-shadow: none;
+    }
+
+    .test-result__back_desktop,
+    .test-result__icon_desktop {
+        display: none;
+    }
+
+    .test-result__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .test-result__sticker {
+        width: 96px;
+        height: 96px;
+    }
+
+    .test-result__summary {
+        gap: 16px;
+    }
+
+    .test-result__traits {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .test-result__actions {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .test-result__button {
+        padding: 10px 16px;
+    }
+
+    .test-result__button_restart {
+        border-width: 1.5px;
+    }
+
+    .test-result__privacy {
+        display: block;
+        margin: 0;
+        color: v.$color-text-secondary;
+        @include v.text-style('caption-13-regular');
+    }
 }

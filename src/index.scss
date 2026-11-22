@@ -15,6 +15,7 @@
 @use './blocks/facts/facts';
 @use './blocks/pill/pill';
 @use './blocks/button/button';
+@use './blocks/swipe-stack/swipe-stack';
 @use './blocks/profile-card/profile-card';
 @use './blocks/match-stamp/match-stamp';
 @use './blocks/pager/pager';
@@ -52,5 +53,3 @@
 @use './blocks/profile-edit/profile-edit';
 @use './blocks/profile-photos/profile-photos';
 @use './blocks/profile-location/profile-location';
-
-@use './blocks/swipe-stack/swipe-stack';

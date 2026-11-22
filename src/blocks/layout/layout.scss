@@ -2,7 +2,8 @@
 
 .layout {
     display: grid;
-    grid-template-columns: 272px 1fr;
+    grid-template-columns: clamp(232px, 22vw, 272px) minmax(0, 1fr);
+    box-sizing: border-box;
     min-height: 100vh;
     overflow: clip;
 }
@@ -12,6 +13,7 @@
     top: 0;
     height: 100vh;
     box-sizing: border-box;
+    overflow-y: auto;
     padding: 32px 18px 24px;
     border-right: 1px solid v.$color-border-default;
     background: v.$color-surface;
@@ -19,4 +21,25 @@
 
 .layout__main {
     background: v.$color-bg-page;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .layout {
+        --layout-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --layout-nav-height: calc(71px + var(--layout-safe-area-bottom));
+
+        display: block;
+        min-height: 100svh;
+        padding-bottom: var(--layout-nav-height);
+    }
+
+    .layout__sidebar {
+        position: fixed;
+        z-index: 4;
+        inset: auto 0 0;
+        height: var(--layout-nav-height);
+        padding: 8px 4px calc(8px + var(--layout-safe-area-bottom));
+        border: 0;
+        border-top: 1px solid v.$color-border-default;
+    }
 }

@@ -1,5 +1,7 @@
 @use '../../variables.scss' as v;
 
+$mobile-width: 440px;
+
 .place-search {
     display: flex;
     min-height: 100vh;
@@ -68,21 +70,24 @@
 }
 
 .place-search__match {
-    box-sizing: border-box;
     width: min(100%, 864px);
-    aspect-ratio: 864 / 384;
     box-shadow: v.$shadow-popover;
 }
 
 .place-search__stack {
     width: min(100%, 864px);
-    aspect-ratio: 864 / 384;
+}
+
+.place-search__stack .swipe-stack__card_layer_1 {
+    position: relative;
+    inset: auto;
 }
 
 .place-search__empty {
     box-sizing: border-box;
     width: min(100%, 864px);
     aspect-ratio: 864 / 384;
+    min-height: min-content;
     padding: 32px;
     border: 2px dashed v.$color-border-strong;
     border-radius: 30px;
@@ -98,4 +103,71 @@
 
 .place-search__actions:hover {
     position: relative;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .place-search {
+        gap: 0;
+        min-height: calc(100svh - var(--layout-nav-height));
+        padding: 0 16px;
+    }
+
+    .place-search__header {
+        flex-direction: column;
+        align-items: stretch;
+        align-self: center;
+        gap: 0;
+        width: min(100%, $mobile-width);
+    }
+
+    .place-search__heading {
+        gap: 12px;
+        min-height: 76px;
+    }
+
+    .place-search__back {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border: 1.5px solid v.$color-border-strong;
+        border-radius: 12px;
+    }
+
+    .place-search__counter:not(:empty) {
+        padding-bottom: 16px;
+    }
+
+    .place-search__content {
+        padding-block: 8px 24px;
+    }
+
+    .place-search__voting {
+        gap: 24px;
+    }
+
+    .place-search__stack,
+    .place-search__match,
+    .place-search__empty {
+        width: min(100%, $mobile-width);
+    }
+
+    .place-search__stack {
+        touch-action: pan-y;
+    }
+
+    .place-search__actions {
+        gap: 16px;
+        min-height: 64px;
+    }
+
+    .place-search__matches {
+        gap: 32px;
+    }
+
+    .place-search__empty {
+        gap: 8px;
+        padding: 0;
+        aspect-ratio: auto;
+        border: 0;
+    }
 }

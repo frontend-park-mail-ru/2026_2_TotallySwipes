@@ -13,6 +13,7 @@ import profileCardHbs from './profile-card.hbs';
 
 interface ProfileCardData extends ProfileData {
     matchColor: AccentColor;
+    infoMix?: string;
 }
 
 type Side = 'right' | 'left';

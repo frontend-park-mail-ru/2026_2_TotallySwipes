@@ -161,9 +161,10 @@ function cardHtml(index: number, state: FeedState): string {
     const profile = state.profiles[index];
     if (!profile) return '';
 
-    return profileCardTemplate('swipe-stack__card', {
+    return profileCardTemplate('feed__card swipe-stack__card', {
         ...profile,
         matchColor: MATCH_COLORS[index % MATCH_COLORS.length],
+        infoMix: 'feed__card-info',
     });
 }
 
@@ -202,7 +203,7 @@ export function renderFeedPage(root: HTMLElement, router: Router) {
 
     page.innerHTML = feedHbs({
         details: details,
-        actions: ACTIONS.map((action) => roundButtonTemplate(action)).join(''),
+        actions: ACTIONS.map((action) => roundButtonTemplate(action, 'feed__action')).join(''),
         emptyState: emptyStateTemplate(EMPTY_STATE),
         filter: feedFilterTemplate({ label: 'Фильтр' }),
     });
@@ -219,6 +220,7 @@ export function renderFeedPage(root: HTMLElement, router: Router) {
             const swiped = state.profiles.find((profile) => profile.id === Number(card.dataset.id));
             // const swiped = state.profiles[state.index];
             if (!swiped) return;
+            page.classList.remove('feed_expanded');
             // lastSwipe = direction;
             const current: LastSwipe = {
                 direction: direction,
@@ -270,6 +272,19 @@ export function renderFeedPage(root: HTMLElement, router: Router) {
             detailsElement.innerHTML = detailsHtml(state);
         },
         onTap: nextPhoto,
+    });
+
+    const collapseButton = getElement(page, '.feed__collapse');
+    collapseButton.addEventListener('click', () => {
+        page.classList.remove('feed_expanded');
+        window.scrollTo(0, 0);
+    });
+    stackElement.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element) || !event.target.closest('.profile-card__expand'))
+            return;
+
+        page.classList.add('feed_expanded');
+        window.scrollTo(0, 0);
     });
 
     const actionsElement = getElement(page, '.feed__actions');
