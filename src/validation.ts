@@ -22,6 +22,8 @@ const PASSWORD_MAX_BYTE_LENGTH = 72;
 const NAME_MAX_LENGTH = 64;
 
 const MIN_AGE = 18;
+// Совпадает с верхней границей возраста в поиске: старше в ленте всё равно никого не найти.
+const MAX_AGE = 100;
 
 const SEARCH_AGE_MIN = 18;
 const SEARCH_AGE_MAX = 100;
@@ -272,7 +274,11 @@ export function validateBirthDate(day: string, month: string, year: string): str
     const age = today.getFullYear() - y - (hadBirthday ? 0 : 1);
 
     if (age < MIN_AGE) {
-        return `Регистрация доступна только с ${MIN_AGE} лет.`;
+        return `Пользоваться сервисом можно только с ${MIN_AGE} лет.`;
+    }
+
+    if (age > MAX_AGE) {
+        return 'Укажите настоящую дату рождения.';
     }
 
     return null;
@@ -419,7 +425,7 @@ export function validateHeight(value: string): string | null {
     }
 
     if (!/^\d{1,3}$/.test(height) || Number(height) < HEIGHT_MIN || Number(height) > HEIGHT_MAX) {
-        return `Рост должен быть от ${HEIGHT_MIN} до ${HEIGHT_MAX} см`;
+        return `Рост должен быть от ${HEIGHT_MIN} до ${HEIGHT_MAX} см.`;
     }
 
     return null;

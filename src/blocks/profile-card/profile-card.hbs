@@ -18,10 +18,15 @@
 
     </div>
 
-    <div class="profile-card__info">
-        <div class="profile-card__title">
-            <span class="profile-card__name">{{name}}</span>,&nbsp;<span class="profile-card__age">{{age}}</span>
+    <div class="profile-card__info{{#if infoMix}} {{infoMix}}{{/if}}">
+        <div class="profile-card__summary">
+            <div class="profile-card__title">
+                <span class="profile-card__name">{{name}}</span>,&nbsp;<span class="profile-card__age">{{age}}</span>
+            </div>
+            {{{location}}}
         </div>
-        {{{location}}}
+        <button class="button button_view_outline button_icon-only profile-card__expand" type="button" title="Подробнее">
+            <span class="button__icon button__icon_mask" style="--icon: url('/icons/chevron-up.svg')"></span>
+        </button>
     </div>
 </article>

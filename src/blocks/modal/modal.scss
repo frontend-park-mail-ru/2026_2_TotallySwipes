@@ -57,3 +57,19 @@
     height: 48px;
     border-radius: 14px;
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .modal {
+        width: calc(100% - 32px);
+        padding: 24px;
+    }
+
+    .modal__actions {
+        flex-wrap: wrap;
+    }
+
+    .modal__button {
+        flex: 1;
+        min-width: 0;
+    }
+}

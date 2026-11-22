@@ -45,7 +45,7 @@
     pointer-events: none;
 }
 
-.match-card:hover .match-card__bottom {
+.match-card:is(:hover, :focus-within) .match-card__bottom {
     transform: translateY(0);
 }
 
@@ -63,7 +63,7 @@
     pointer-events: auto;
 }
 
-.match-card:hover .match-card__menu {
+.match-card:is(:hover, :focus-within) .match-card__menu {
     opacity: 1;
 }
 
@@ -124,4 +124,69 @@
 
 .match-card__waiting {
     transform: rotate(-3deg);
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .match-card__surface {
+        width: 100%;
+        aspect-ratio: 158 / 200;
+        min-height: 200px;
+    }
+
+    .match-card__bottom {
+        gap: 4px;
+        transform: none;
+    }
+
+    .match-card__menu {
+        opacity: 1;
+    }
+
+    .match-card__menu_no-meetup,
+    .match-card__message {
+        display: none;
+    }
+
+    .match-card__button {
+        height: auto;
+        min-height: 44px;
+        padding: 6px 8px;
+        gap: 6px;
+        white-space: normal;
+    }
+
+    .match-card__meetup-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .match-card__meetup-text {
+        @include v.text-style('caption-13-bold');
+    }
+
+    .match-card__info {
+        box-sizing: border-box;
+        max-width: 100%;
+        margin: 0;
+        padding: 4px 8px;
+    }
+
+    .match-card__stamp {
+        top: 4px;
+        right: 4px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .match-card__pills {
+        top: 6px;
+        left: 6px;
+        max-width: calc(100% - 62px);
+    }
+
+    .match-card__new,
+    .match-card__waiting {
+        max-width: 100%;
+        overflow: hidden;
+    }
 }

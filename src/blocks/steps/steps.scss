@@ -87,3 +87,26 @@
     background-color: var(--steps-ink);
     color: v.$color-on-primary;
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .steps {
+        flex-wrap: wrap;
+    }
+
+    .steps__item {
+        flex-basis: 24px;
+        min-width: 0;
+    }
+
+    .steps__label {
+        justify-content: center;
+        width: 100%;
+        gap: 2px;
+        padding: 0;
+    }
+
+    .steps__check {
+        width: 8px;
+        flex-shrink: 0;
+    }
+}

@@ -87,5 +87,54 @@
     color: v.$color-text-secondary;
 }
 
-.profile-card__location {
+.profile-card__expand {
+    display: none;
+}
+
+@media (max-width: v.$breakpoint-feed-compact) {
+    .profile-card__expand {
+        display: flex;
+        flex-shrink: 0;
+    }
+
+    .profile-card {
+        padding: 8px;
+        box-shadow: v.$shadow-popover;
+        touch-action: none;
+    }
+
+    .profile-card[inert] {
+        box-shadow: v.$shadow-panel;
+    }
+
+    .profile-card__info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 12px 8px 8px;
+    }
+
+    .profile-card__summary {
+        min-width: 0;
+    }
+
+    .profile-card__location {
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .profile-card__pager {
+        top: 4px;
+        inset-inline: 8px;
+        color: v.$color-success-default;
+    }
+
+    .profile-card__stamp {
+        top: -24px;
+        right: -16px;
+        width: 104px;
+        height: 104px;
+        filter: v.$filter-sticker;
+    }
 }

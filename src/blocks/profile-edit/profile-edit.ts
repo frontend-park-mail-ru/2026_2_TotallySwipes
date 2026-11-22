@@ -181,7 +181,6 @@ function fieldsTemplate(profile: Profile): string {
             type: 'text',
             inputmode: 'numeric',
             label: 'Рост',
-            hint: 'От 100 до 250 см',
             suffix: 'см',
         }),
         educations: EDUCATIONS,
