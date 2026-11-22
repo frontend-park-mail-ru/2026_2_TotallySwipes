@@ -25,7 +25,8 @@
 
 @media (max-width: v.$breakpoint-mobile) {
     .layout {
-        --layout-nav-height: 71px;
+        --layout-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --layout-nav-height: calc(71px + var(--layout-safe-area-bottom));
 
         display: block;
         min-height: 100svh;
@@ -37,7 +38,7 @@
         z-index: 4;
         inset: auto 0 0;
         height: var(--layout-nav-height);
-        padding: 8px 4px;
+        padding: 8px 4px calc(8px + var(--layout-safe-area-bottom));
         border: 0;
         border-top: 1px solid v.$color-border-default;
     }

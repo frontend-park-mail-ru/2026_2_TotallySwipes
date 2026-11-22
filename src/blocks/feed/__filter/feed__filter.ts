@@ -134,12 +134,14 @@ export function initFeedFilter(root: HTMLElement, { onApply }: FeedFilterParams)
     function open() {
         fillCurrent();
         form.hidden = false;
+        button.setAttribute('aria-expanded', 'true');
         document.addEventListener('click', onDocumentClick);
         document.addEventListener('keydown', onDocumentKeydown);
     }
 
     function close() {
         form.hidden = true;
+        button.setAttribute('aria-expanded', 'false');
         document.removeEventListener('click', onDocumentClick);
         document.removeEventListener('keydown', onDocumentKeydown);
     }
