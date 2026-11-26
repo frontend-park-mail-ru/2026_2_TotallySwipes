@@ -1,0 +1,14 @@
+<div class="messages__header">
+    <h1 class="messages__title">Сообщения</h1>
+    <span class="messages__count"{{#unless unreadLabel}} hidden{{/unless}}>{{unreadLabel}}</span>
+</div>
+
+{{#if notice}}
+    <p class="messages__notice" role="status">{{notice}}</p>
+{{else}}
+    <div class="messages__panel">
+        {{{dialogList}}}
+        <section class="chat messages__chat" aria-label="Переписка">{{{chat}}}</section>
+    </div>
+{{/if}}
+

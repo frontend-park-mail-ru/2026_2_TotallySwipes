@@ -1,0 +1,14 @@
+.chat-history {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+}
+
+.chat-history__message_direction_in {
+    align-self: flex-start;
+}
+
+.chat-history__message_direction_out {
+    align-self: flex-end;
+}

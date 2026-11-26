@@ -53,3 +53,10 @@
 @use './blocks/profile-edit/profile-edit';
 @use './blocks/profile-photos/profile-photos';
 @use './blocks/profile-location/profile-location';
+@use './blocks/messages/messages';
+@use './blocks/dialog-list/dialog-list';
+@use './blocks/dialog-row/dialog-row';
+@use './blocks/chat/chat';
+@use './blocks/chat-history/chat-history';
+@use './blocks/chat-message/chat-message';
+@use './blocks/chat-composer/chat-composer';

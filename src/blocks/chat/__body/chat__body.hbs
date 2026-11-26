@@ -1,0 +1,33 @@
+{{#if bubbles}}
+    <div class="chat-history">
+        {{#if hasOlderMessages}}
+            <button class="button button_view_outline chat-history__more" type="button">Загрузить ещё сообщения</button>
+        {{/if}}
+        {{#each bubbles}}
+            {{{this}}}
+        {{/each}}
+    </div>
+{{else}}
+    <div class="chat__empty">
+        {{#if notice}}
+            <p class="chat__notice" role="status">{{notice}}</p>
+        {{else if isEmpty}}
+            <div class="chat__empty-copy">
+                <h2 class="chat__empty-title">Начните разговор</h2>
+                {{#if interests}}
+                    <p class="chat__empty-description">Общие интересы — отличный повод начать общение</p>
+                {{/if}}
+            </div>
+            {{#if interests}}
+                <div class="chat__interests">{{{interests}}}</div>
+            {{/if}}
+        {{else if hasDetails}}
+            <p class="chat__notice" role="status">История сообщений пока недоступна</p>
+        {{else}}
+            <img class="chat__empty-illustration" src="/icons/chat-empty-stickers.svg" alt="" width="192" height="88">
+            <h2 class="chat__empty-title">Кому написать?</h2>
+        {{/if}}
+    </div>
+{{/if}}
+
+

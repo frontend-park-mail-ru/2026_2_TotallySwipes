@@ -1,0 +1,284 @@
+import type { ChatCard, ChatDetails, ChatMessage } from '../../api/api.types.js';
+import type { AccentColor } from '../../colors.js';
+import { interestColor, interestIconUrl, interestLabel } from '../../interests.js';
+import { getElement } from '../../utils/dom.js';
+import chatComposerHbs from '../chat-composer/chat-composer.hbs';
+import chatMessageHbs from '../chat-message/chat-message.hbs';
+import { pillTemplate } from '../pill/pill.js';
+import chatBodyHbs from './__body/chat__body.hbs';
+import chatHbs from './chat.hbs';
+
+const interestColors = new Map<string, AccentColor>([
+    ['hiking', 'sun'],
+    ['coffee', 'lilac'],
+]);
+
+const mediaLabels: Partial<Record<ChatMessage['type'], string>> = {
+    voice: 'Голосовое сообщение',
+    video_note: 'Кружочек',
+};
+
+interface ChatViewState {
+    details?: ChatDetails;
+    preview?: ChatCard;
+    notice?: string;
+    messages?: ChatMessage[];
+    hasOlderMessages?: boolean;
+}
+
+function chatMessageTemplate(
+    message: ChatMessage,
+    userId: number,
+    peerLastReadSeq: number,
+): string {
+    const isOutgoing = message.sender_id === userId;
+    const isIncoming = message.sender_id !== null && !isOutgoing;
+    const isRead = message.seq <= peerLastReadSeq;
+    const direction = isOutgoing ? 'out' : 'in';
+
+    return chatMessageHbs({
+        text: message.text ?? mediaLabels[message.type] ?? 'Сообщение недоступно',
+        seq: message.seq,
+        isOutgoing,
+        isIncoming,
+        isRead,
+        statusLabel: isRead ? 'Прочитано' : 'Отправлено',
+        mix: `chat-history__message chat-history__message_direction_${direction}`,
+    });
+}
+
+function chatBodyTemplate(
+    { details, notice, messages, hasOlderMessages }: ChatViewState,
+    userId: number,
+): string {
+    if (!details) return chatBodyHbs({ notice });
+
+    const interests = details.is_empty
+        ? details.common_tags
+              .map((tag) =>
+                  pillTemplate({
+                      color: interestColors.get(tag) ?? interestColor(tag),
+                      icon: interestIconUrl(tag),
+                      text: interestLabel(tag),
+                      size: 'l',
+                      mix: 'chat__interest',
+                  }),
+              )
+              .join('')
+        : '';
+
+    const bubbles = (messages ?? []).map((message) =>
+        chatMessageTemplate(message, userId, details.peer_last_read_seq),
+    );
+
+    return chatBodyHbs({
+        hasDetails: true,
+        isEmpty: details.is_empty,
+        interests,
+        bubbles,
+        hasOlderMessages,
+    });
+}
+
+function initChatHeader(header: HTMLElement) {
+    const profileLink = getElement<HTMLAnchorElement>(header, '.chat__peer');
+    const meetingLink = getElement<HTMLAnchorElement>(header, '.chat__meeting');
+    const photo = getElement<HTMLImageElement>(header, '.chat__photo');
+    const initial = getElement(header, '.chat__initial');
+    const nameText = getElement(header, '.chat__name-text');
+    const ageText = getElement(header, '.chat__age');
+
+    return ({ peer, match_id: matchId }: ChatCard) => {
+        const name = peer.name ?? 'Собеседник';
+        profileLink.href = `/profile/${peer.user_id}`;
+        meetingLink.href = `/matches/${matchId}/places`;
+        nameText.textContent = name;
+        ageText.textContent = peer.age === null ? '' : `,\u00a0${peer.age}`;
+        ageText.hidden = peer.age === null;
+        initial.textContent = name.charAt(0);
+        initial.hidden = Boolean(peer.avatar_url);
+        photo.hidden = !peer.avatar_url;
+        if (peer.avatar_url && photo.getAttribute('src') !== peer.avatar_url) {
+            photo.src = peer.avatar_url;
+        }
+    };
+}
+
+export function chatTemplate(): string {
+    return chatHbs({ body: chatBodyHbs({}), composer: chatComposerHbs() });
+}
+
+export function initChatPanel(
+    panel: HTMLElement,
+    userId: number,
+    onVisibleRead: (chatId: string, seq: number) => void,
+    onLoadOlderMessages: () => void,
+) {
+    const header = getElement(panel, '.chat__header');
+    const updateHeader = initChatHeader(header);
+    const body = getElement(panel, '.chat__body');
+    const composer = getElement(panel, '.chat__composer');
+    const input = getElement<HTMLInputElement>(composer, '.chat-composer__input');
+    let currentChatId: string | undefined;
+    let currentDetails: ChatDetails | undefined;
+    let renderedMessageIds = new Set<string>();
+    const listeners = new AbortController();
+
+    function checkVisibleRead() {
+        if (!currentDetails || !panel.isConnected || document.hidden || listeners.signal.aborted)
+            return;
+
+        const viewport = body.getBoundingClientRect();
+        const top = Math.max(viewport.top, 0);
+        const bottom = Math.min(viewport.bottom, window.innerHeight);
+        let seq = 0;
+        for (const message of body.querySelectorAll<HTMLElement>('[data-incoming][data-seq]')) {
+            const bounds = message.getBoundingClientRect();
+            if (bounds.width > 0 && bounds.bottom > top && bounds.bottom <= bottom) {
+                seq = Math.max(seq, Number(message.dataset.seq));
+            }
+        }
+        if (seq > 0) onVisibleRead(currentDetails.chat.chat_id, seq);
+    }
+
+    const readListenerOptions = { passive: true, signal: listeners.signal };
+    body.addEventListener(
+        'scroll',
+        () => {
+            checkVisibleRead();
+            if (body.scrollTop <= 1) onLoadOlderMessages();
+        },
+        readListenerOptions,
+    );
+    body.addEventListener(
+        'click',
+        (event) => {
+            if (event.target instanceof Element && event.target.closest('.chat-history__more')) {
+                onLoadOlderMessages();
+            }
+        },
+        { signal: listeners.signal },
+    );
+    window.addEventListener('scroll', checkVisibleRead, readListenerOptions);
+    window.addEventListener('resize', checkVisibleRead, readListenerOptions);
+    document.addEventListener('visibilitychange', checkVisibleRead, readListenerOptions);
+
+    function dispose() {
+        listeners.abort();
+    }
+
+    function updatePeerReadPosition(peerId: number, seq: number) {
+        if (!currentDetails || currentDetails.chat.peer.user_id !== peerId) return;
+        if (seq <= currentDetails.peer_last_read_seq) return;
+
+        currentDetails = { ...currentDetails, peer_last_read_seq: seq };
+        for (const message of body.querySelectorAll<HTMLElement>('.chat-message[data-seq]')) {
+            if (Number(message.dataset.seq) > seq) continue;
+
+            const status = message.querySelector(
+                '.chat-message__status:not(.chat-message__status_read)',
+            );
+            if (!status) continue;
+
+            status.classList.add('chat-message__status_read');
+            status.setAttribute('aria-label', 'Прочитано');
+        }
+    }
+
+    function updateChat(state: ChatViewState = {}) {
+        const { details, preview, messages = [] } = state;
+        currentDetails = details;
+        const chat = details?.chat ?? preview;
+        if (currentChatId !== chat?.chat_id) {
+            currentChatId = chat?.chat_id;
+            input.value = '';
+        }
+
+        if (chat) updateHeader(chat);
+        header.hidden = !chat;
+        composer.hidden = !chat;
+        input.readOnly = !details;
+        input.disabled = details?.messaging.can_send === false;
+
+        const messageIds = new Set<string>();
+        const uniqueMessages = messages.filter(({ message_id }) => {
+            if (messageIds.has(message_id)) return false;
+
+            messageIds.add(message_id);
+            return true;
+        });
+        body.innerHTML = chatBodyTemplate({ ...state, messages: uniqueMessages }, userId);
+        renderedMessageIds = messageIds;
+        body.scrollTop = details ? body.scrollHeight : 0;
+    }
+
+    function updateHistoryButton(state: 'loading' | 'ready' | 'retry') {
+        const button = body.querySelector<HTMLButtonElement>('.chat-history__more');
+        if (!button) return;
+
+        button.disabled = state === 'loading';
+        button.textContent = {
+            loading: 'Загрузка истории…',
+            ready: 'Загрузить ещё сообщения',
+            retry: 'Повторить загрузку истории',
+        }[state];
+    }
+
+    function prependMessages(messages: ChatMessage[], hasOlderMessages: boolean) {
+        const button = body.querySelector('.chat-history__more');
+        if (!currentDetails || !button) return;
+
+        const anchor = button.nextElementSibling;
+        const anchorTop = anchor?.getBoundingClientRect().top ?? 0;
+        const bubbles: string[] = [];
+        for (const message of messages) {
+            if (renderedMessageIds.has(message.message_id)) continue;
+
+            bubbles.push(chatMessageTemplate(message, userId, currentDetails.peer_last_read_seq));
+            renderedMessageIds.add(message.message_id);
+        }
+
+        button.insertAdjacentHTML('afterend', bubbles.join(''));
+        if (hasOlderMessages) updateHistoryButton('ready');
+        else button.remove();
+
+        if (anchor) {
+            const offset = anchor.getBoundingClientRect().top - anchorTop;
+            body.scrollTop += offset;
+        }
+        checkVisibleRead();
+    }
+
+    function appendMessage(chatId: string, message: ChatMessage) {
+        if (!panel.isConnected || !currentDetails || currentDetails.chat.chat_id !== chatId) return;
+        if (renderedMessageIds.has(message.message_id)) return;
+
+        const scrollToEnd =
+            message.sender_id === userId ||
+            body.scrollHeight - body.scrollTop - body.clientHeight <= 1;
+        const history = body.querySelector('.chat-history');
+
+        if (history) {
+            history.insertAdjacentHTML(
+                'beforeend',
+                chatMessageTemplate(message, userId, currentDetails.peer_last_read_seq),
+            );
+            renderedMessageIds.add(message.message_id);
+        } else {
+            updateChat({ details: { ...currentDetails, is_empty: false }, messages: [message] });
+        }
+
+        if (scrollToEnd) body.scrollTop = body.scrollHeight;
+        checkVisibleRead();
+    }
+
+    return {
+        updateChat,
+        appendMessage,
+        prependMessages,
+        updateHistoryButton,
+        updatePeerReadPosition,
+        checkVisibleRead,
+        dispose,
+    };
+}

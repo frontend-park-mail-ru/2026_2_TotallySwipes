@@ -1,0 +1,43 @@
+@use '../../variables' as v;
+
+.chat-composer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-top: 1px solid v.$color-border-default;
+    background: v.$color-surface;
+}
+
+.chat-composer__input {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    height: 48px;
+    padding: 0 16px;
+    border: 1px solid v.$color-border-strong;
+    border-radius: 12px;
+    background: v.$color-surface;
+    color: v.$color-text-primary;
+    @include v.text-style('body-16-regular');
+}
+
+.chat-composer__input::placeholder {
+    color: v.$color-text-placeholder;
+}
+
+.chat-composer__record {
+    flex: none;
+}
+
+.chat-composer__record[hidden] {
+    display: none;
+}
+
+.chat-composer__send {
+    flex: none;
+}
+
+.chat-composer__send[hidden] {
+    display: none;
+}

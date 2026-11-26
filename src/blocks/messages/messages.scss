@@ -1,0 +1,44 @@
+@use '../../variables.scss' as v;
+
+.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-sizing: border-box;
+    height: 100dvh;
+    padding: 24px 32px 32px;
+}
+
+.messages__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 16px;
+}
+
+.messages__title {
+    margin: 0;
+    @include v.text-style('heading-30-extrabold');
+}
+
+.messages__count {
+    @include v.text-style('caption-13-regular');
+    color: v.$color-text-secondary;
+}
+
+.messages__panel {
+    display: grid;
+    grid-template-columns: clamp(280px, 33%, 360px) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 20px;
+    background: v.$color-surface;
+    box-shadow: v.$shadow-panel;
+}
+
+.messages__notice {
+    margin: 0;
+    color: v.$color-text-secondary;
+}

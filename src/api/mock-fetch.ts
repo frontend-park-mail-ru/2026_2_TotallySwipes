@@ -31,9 +31,15 @@ export async function mockFetch(url: string, options: RequestInit = {}): Promise
         return jsonResponse(denied.body, denied.status);
     }
 
+    const path = parsedUrl.pathname;
+    const chatPath = path.replace(
+        /^(\/api\/v1\/chats\/)[^/]+(\/(?:messages|seen))?$/,
+        '$1{chat_id}$2',
+    );
     const route =
-        MOCK_ROUTES[`${method} ${parsedUrl.pathname}`] ??
-        MOCK_ROUTES[`${method} ${parsedUrl.pathname.replace(/\/\d+(?=\/|$)/g, '/{id}')}`];
+        MOCK_ROUTES[`${method} ${path}`] ??
+        MOCK_ROUTES[`${method} ${chatPath}`] ??
+        MOCK_ROUTES[`${method} ${path.replace(/\/\d+(?=\/|$)/g, '/{id}')}`];
     if (!route) {
         return jsonResponse({ error: { code: 'NOT_FOUND', message: 'Not found' } }, 404);
     }

@@ -18,6 +18,17 @@ export function menuTemplate(items: MenuItem[], mix: string = ''): string {
     return menuHbs({ items, mix });
 }
 
+export function setMenuItemCounter(menu: HTMLElement, route: string, counter: number) {
+    const link = menu.querySelector(`.menu__link[href="${CSS.escape(route)}"]`);
+    if (!link) return;
+
+    const badge = link.querySelector<HTMLElement>('.menu__counter');
+    if (!badge) return;
+
+    badge.textContent = String(counter);
+    badge.hidden = counter === 0;
+}
+
 /**
  * Словарь страниц, для которых нужно подсветить в меню не их собственный раздел, а какой-то другой.
  * Формат словаря: Префикс страницы -> href пункта меню.

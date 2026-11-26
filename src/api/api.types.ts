@@ -245,6 +245,98 @@ export interface MatchesParams {
     cursor?: Cursor;
 }
 
+export interface ChatSummary {
+    new_chats_count: number;
+    unread_chats_count: number;
+    unread_messages_count: number;
+    version: number;
+}
+
+export interface ChatPeer {
+    user_id: number;
+    name: string | null;
+    age: number | null;
+    avatar_url: string | null;
+}
+
+export type ChatMessageType = 'text' | 'voice' | 'video_note' | 'system';
+
+export interface ChatLastMessage {
+    message_id: string;
+    seq: number;
+    sender_id: number | null;
+    type: ChatMessageType;
+    text_preview: string | null;
+    duration_seconds: number | null;
+    created_at: string;
+    is_read_by_peer: boolean | null;
+}
+
+export interface ChatCard {
+    chat_id: string;
+    match_id: number;
+    peer: ChatPeer;
+    is_new: boolean;
+    unread_count: number;
+    last_message: ChatLastMessage | null;
+    created_at: string;
+    last_activity_at: string;
+    version: number;
+}
+
+export interface ChatsResponse {
+    items: ChatCard[];
+}
+
+export interface ChatDetails {
+    chat: ChatCard;
+    is_empty: boolean;
+    common_tags: string[];
+    last_read_seq: number;
+    peer_last_read_seq: number;
+    messaging: {
+        can_send: boolean;
+        restriction: string | null;
+    };
+}
+
+export interface ChatReadPosition {
+    chat_id: string;
+    user_id: number;
+    last_read_seq: number;
+}
+
+export interface ChatAttachment {
+    url: string;
+    duration_seconds: number;
+}
+
+export interface ChatMessage {
+    message_id: string;
+    seq: number;
+    sender_id: number | null;
+    type: ChatMessageType;
+    text: string | null;
+    attachment: ChatAttachment | null;
+    created_at: string;
+    edited_at: string | null;
+    deleted_at: string | null;
+    version: number;
+}
+
+export interface ChatMessagesPage {
+    items: ChatMessage[];
+    direction: 'older' | 'newer';
+    next_cursor: number | null;
+    has_more: boolean;
+}
+
+export interface ChatMessagesParams {
+    limit?: number;
+    before_seq?: number;
+    after_seq?: number;
+}
+
 export interface Location {
     city: string;
     address: string | null;
