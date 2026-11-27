@@ -1,5 +1,41 @@
+@use '../../variables' as v;
+
 .photo-gallery {
     display: flex;
     flex-direction: column;
     gap: 16px;
+}
+
+.photo-gallery__stage {
+    position: relative;
+}
+
+.photo-gallery__pager,
+.photo-gallery__stamp {
+    display: none;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .photo-gallery__pager {
+        position: absolute;
+        top: 4px;
+        inset-inline: 8px;
+        display: block;
+        color: v.$color-success-default;
+    }
+
+    .photo-gallery__stamp {
+        position: absolute;
+        top: -16px;
+        right: -8px;
+        display: grid;
+        width: 104px;
+        height: 104px;
+        filter: v.$filter-sticker;
+        pointer-events: none;
+    }
+
+    .photo-gallery__stamp .match-stamp__value {
+        transform: rotate(9deg);
+    }
 }

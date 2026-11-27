@@ -3,10 +3,13 @@
         <li class="menu__item">
             <a class="menu__link{{#if disabled}} menu__link_disabled{{/if}}"{{#unless disabled}} href="{{href}}" data-link{{/unless}}>
                 <span class="menu__icon">{{{icon}}}</span>
-                <span class="menu__text">{{text}}</span>
-                {{#if counter}}{{#unless disabled}}
-                    <span class="counter menu__counter">{{counter}}</span>
-                {{/unless}}{{/if}}
+                <span class="menu__text{{#if shortText}} menu__text_full{{/if}}">{{text}}</span>
+                {{#if shortText}}<span class="menu__text menu__text_short">{{shortText}}</span>{{/if}}
+                {{#if counter includeZero=true}}
+                    {{#unless disabled}}
+                        <span class="counter menu__counter"{{#unless counter}} hidden{{/unless}}>{{counter}}</span>
+                    {{/unless}}
+                {{/if}}
             </a>
         </li>
     {{/each}}

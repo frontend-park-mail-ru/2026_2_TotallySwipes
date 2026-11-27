@@ -1,0 +1,125 @@
+@use '../../variables' as v;
+
+.chat-message {
+    box-sizing: border-box;
+    max-inline-size: min(100%, 480px);
+    color: v.$color-text-primary;
+    @include v.text-style('body-16-regular');
+}
+
+.chat-message__bubble {
+    padding: 8px 12px;
+    border-radius: 16px;
+}
+
+.chat-message__bubble_direction_in {
+    border-end-start-radius: 4px;
+    background: v.$color-surface;
+    box-shadow: v.$shadow-panel;
+}
+
+.chat-message__bubble_direction_out {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    border-end-end-radius: 4px;
+    background: v.$color-accent-lilac;
+}
+
+.chat-message__status {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background-color: v.$color-accent-lilac-ink;
+    mask: url('/icons/check.svg') center / contain no-repeat;
+}
+
+.chat-message__status_read {
+    mask-image: url('/icons/check-check.svg');
+}
+
+.chat-message__bubble_state_failed {
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    box-sizing: border-box;
+    inline-size: fit-content;
+    margin-inline-start: auto;
+    background: v.$color-surface;
+    box-shadow: inset 0 0 0 1.5px v.$color-error-default;
+}
+
+.chat-message__body {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.chat-message__time {
+    flex: none;
+    color: v.$color-accent-lilac-ink;
+    @include v.text-style('caption-13-regular');
+}
+
+.chat-message__meta {
+    display: contents;
+}
+
+.chat-message__timestamp {
+    display: none;
+}
+
+.chat-message__error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-block-start: 4px;
+    color: v.$color-error-default;
+    @include v.text-style('caption-13-regular');
+}
+
+.chat-message__retry {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    @include v.text-style('caption-13-bold');
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .chat-message {
+        max-inline-size: min(100% - 48px, 480px);
+    }
+
+    .chat-message__bubble_direction_in {
+        border-radius: 16px;
+        box-shadow: inset 0 0 0 1px v.$color-border-default;
+    }
+
+    .chat-message__bubble_direction_out {
+        display: block;
+        border-radius: 16px;
+        color: v.$color-accent-lilac-ink;
+    }
+
+    .chat-message__meta {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .chat-message__timestamp {
+        display: block;
+        color: v.$color-text-secondary;
+    }
+
+    .chat-message__timestamp_out {
+        color: v.$color-accent-lilac-ink;
+    }
+}

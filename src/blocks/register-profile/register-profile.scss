@@ -1,5 +1,13 @@
+@use '../../variables' as v;
+
 .register-profile__date {
     display: grid;
     grid-template-columns: 95px 1fr 119px;
     gap: 8px;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .register-profile__date {
+        grid-template-columns: 63px 1fr 79px;
+    }
 }

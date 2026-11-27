@@ -1,0 +1,22 @@
+<div class="messages__header">
+    <h1 class="messages__title">Сообщения</h1>
+    <span class="messages__count"{{#unless unreadLabel}} hidden{{/unless}}>
+        <span class="messages__count-full">{{unreadLabel}}</span>
+        <span class="messages__count-short">{{shortUnreadLabel}}</span>
+    </span>
+</div>
+
+{{#if notice}}
+    <div class="messages__status">
+        <a class="button button_view_plain button_icon-only messages__back" href="/messages" data-link aria-label="Назад к сообщениям">
+            <span class="button__icon button__icon_mask" aria-hidden="true" style="--icon: url('/icons/arrow-left.svg')"></span>
+        </a>
+        <p class="messages__notice" role="status">{{notice}}</p>
+    </div>
+{{else}}
+    <div class="messages__panel">
+        {{{dialogList}}}
+        <section class="chat messages__chat" aria-label="Переписка">{{{chat}}}</section>
+    </div>
+{{/if}}
+

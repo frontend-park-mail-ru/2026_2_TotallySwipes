@@ -1,0 +1,23 @@
+@use '../../variables' as v;
+
+.dialog-list {
+    min-width: 0;
+    margin: 0;
+    padding: 8px;
+    overflow-y: auto;
+    border-right: 1px solid v.$color-border-default;
+    list-style: none;
+}
+
+@media (max-width: v.$breakpoint-feed-compact) {
+    .dialog-list {
+        border-right: 0;
+    }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .dialog-list {
+        overscroll-behavior-y: contain;
+        padding: 0;
+    }
+}

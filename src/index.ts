@@ -1,8 +1,8 @@
 import { Router } from './router.js';
 import { getElement } from './utils/dom.js';
-import { logout, onUnauthorized } from './api/api.js';
+import { getChatSummary, logout, onUnauthorized } from './api/api.js';
 import { isNetworkError, showOfflineToast } from './network.js';
-import type { AuthResponse } from './api/api.types.js';
+import type { AuthResponse, ChatSummary } from './api/api.types.js';
 import { restoreSession, isAuthenticated, isProfileComplete, setAuthenticated } from './session.js';
 import { withLayout } from './blocks/layout/layout.js';
 import { setActiveMenuLink } from './blocks/menu/menu.js';
@@ -15,6 +15,14 @@ import { renderMatchesPage } from './blocks/matches/matches.js';
 import { renderPlaceSearchPage } from './blocks/place-search/place-search.js';
 import { renderProfileViewPage } from './blocks/profile-view/profile-view.js';
 import { renderProfileEditPage } from './blocks/profile-edit/profile-edit.js';
+import {
+    renderMessagesPage,
+    updateMessagesPage,
+    updateMessagesUnreadCount,
+} from './blocks/messages/messages.js';
+import { createChatSocket } from './api/chat-socket.js';
+import { createChatSummary } from './chat-summary.js';
+import { updateSidebarUnreadCount } from './blocks/sidebar/sidebar.js';
 
 const GUEST_PATHS = ['/login', '/register'];
 const ONBOARDING_PATH = '/register';
@@ -38,10 +46,74 @@ const OFFLINE_MODAL = {
 function startApp() {
     const router = new Router(getElement(document, '#root'));
 
+    const chatSummary = createChatSummary();
+    let summaryRequestVersion = 0;
+
+    function handleChatSummary(summary: ChatSummary) {
+        if (!chatSummary.applyChatSummary(summary)) return;
+
+        updateSidebarUnreadCount(summary.unread_chats_count);
+        updateMessagesUnreadCount(summary.unread_chats_count);
+    }
+
+    const chatSocket = createChatSocket(handleChatSummary);
+    chatSocket.subscribeToReconnect(() => {
+        refreshChatSummary();
+    });
+    let unsubscribeFromMessages: (() => void) | undefined;
+
+    async function startChatSession() {
+        if (!isAuthenticated()) return;
+
+        chatSocket.connect();
+        await refreshChatSummary();
+    }
+
+    async function refreshChatSummary() {
+        const requestVersion = ++summaryRequestVersion;
+
+        try {
+            const summary = await getChatSummary();
+            if (requestVersion === summaryRequestVersion && isAuthenticated()) {
+                handleChatSummary(summary);
+            }
+        } catch (error) {
+            if (requestVersion === summaryRequestVersion) {
+                console.error('Не удалось загрузить сводку чатов:', error);
+            }
+        }
+    }
+
+    function endChatSession() {
+        summaryRequestVersion++;
+        chatSummary.clear();
+        chatSocket.disconnect();
+    }
+
+    const messagesPage = withLayout((root, router, params) => {
+        clearMessagesSubscription();
+        unsubscribeFromMessages = renderMessagesPage(
+            root,
+            router,
+            params,
+            chatSocket,
+            chatSummary.getUnreadChatCount,
+        );
+    }, updateMessagesPage);
+
+    function clearMessagesSubscription() {
+        if (!unsubscribeFromMessages) return;
+
+        unsubscribeFromMessages();
+        unsubscribeFromMessages = undefined;
+    }
+
     onUnauthorized(() => {
         if (!isAuthenticated()) {
             return;
         }
+
+        endChatSession();
 
         setAuthenticated(false);
         router.go('/login', { replace: true });
@@ -55,6 +127,7 @@ function startApp() {
     function handleLogin(response: AuthResponse) {
         setAuthenticated(true, response.missing);
         router.go('/');
+        startChatSession();
     }
 
     /**
@@ -74,6 +147,11 @@ function startApp() {
 
         try {
             await restoreSession();
+            if (isAuthenticated()) {
+                startChatSession();
+            } else {
+                endChatSession();
+            }
         } catch (error) {
             console.error('Не удалось проверить сессию после регистрации:', error);
             if (isNetworkError(error)) {
@@ -106,6 +184,7 @@ function startApp() {
     async function handleLogout() {
         try {
             await logout();
+            endChatSession();
         } catch (error) {
             console.error('Не удалось завершить сессию на сервере:', error);
             if (isNetworkError(error)) {
@@ -146,6 +225,8 @@ function startApp() {
         .register('/matches', withLayout(renderMatchesPage))
         .register('/matches/:matchId/places', withLayout(renderPlaceSearchPage))
         .register('/profile', withLayout(renderProfileEditPage))
+        .register('/messages', messagesPage)
+        .register('/messages/:chatId', messagesPage)
         .register(
             '/profile/:userId',
             withLayout((container, _router, params) =>
@@ -175,9 +256,16 @@ function startApp() {
 
             return isGuestPath ? '/' : null;
         })
-        .onChange(setActiveMenuLink);
+        .onChange((path) => {
+            setActiveMenuLink(path);
+            updateSidebarUnreadCount(chatSummary.getUnreadChatCount());
+            if (path === '/messages' || /^\/messages\/[^/]+$/.test(path)) return;
+
+            clearMessagesSubscription();
+        });
 
     router.start();
+    startChatSession();
 }
 
 /**

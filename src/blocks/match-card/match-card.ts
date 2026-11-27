@@ -3,6 +3,7 @@ import matchCardHbs from './match-card.hbs';
 
 export interface MatchCardData {
     matchId: number;
+    chatHref?: string;
     userId: number;
     name: string;
     age: number;

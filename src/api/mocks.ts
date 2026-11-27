@@ -1,5 +1,6 @@
 import type {
     Attitude,
+    ChatCard,
     Credentials,
     DatingGoal,
     Coordinates,
@@ -15,6 +16,16 @@ import type {
     UpdateProfileRequest,
     UserLocation,
 } from './api.types.js';
+import {
+    appendMockChatMessage,
+    createMockChatCards,
+    createMockChatDetails,
+    getMockChatIdForMatch,
+    getMockChatMessagesPage,
+    markMockChatRead,
+    markMockChatSeen,
+    summarizeMockChats,
+} from './chat-mocks.js';
 
 interface MockResponse {
     status: number;
@@ -141,6 +152,42 @@ let mockProfile: MockProfile = {
     ...EMPTY_DETAILS,
     ...(JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? ADMIN_PROFILE),
 };
+
+function mockChatCards() {
+    return createMockChatCards(mockProfile.user_id, MATCH_ITEMS);
+}
+
+function mockChatId(url: URL): string {
+    const [segment] = url.pathname.slice('/api/v1/chats/'.length).split('/');
+    return decodeURIComponent(segment);
+}
+
+function findMockChat(chatId: string) {
+    return mockChatCards().find((card) => card.chat_id === chatId);
+}
+
+function mockChatChanges(chat: ChatCard) {
+    return {
+        chat: createMockChatDetails(chat, mockProfile.user_id).chat,
+        summary: summarizeMockChats(mockChatCards()),
+    };
+}
+
+export function mockSendChatMessage(chatId: string, text: string, clientMessageId: string) {
+    const chat = findMockChat(chatId);
+    if (!chat) return null;
+
+    const message = appendMockChatMessage(chat, mockProfile.user_id, text, clientMessageId);
+    return { message, ...mockChatChanges(chat) };
+}
+
+export function mockReadChat(chatId: string, lastReadSeq: number) {
+    const chat = findMockChat(chatId);
+    if (!chat) return null;
+
+    const position = markMockChatRead(chat, mockProfile.user_id, lastReadSeq);
+    return { position, ...mockChatChanges(chat) };
+}
 
 const LOCATION_KEY = 'mock-location';
 
@@ -363,6 +410,7 @@ const MATCH_NAMES = [
 
 const MATCH_ITEMS = MATCH_NAMES.map((name, index) => ({
     match_id: 100 - index,
+    chat_id: getMockChatIdForMatch(100 - index),
     user_id: 200 + index,
     name: index === 7 ? null : name,
     age: index === 9 ? null : 22 + (index % 8),
@@ -843,6 +891,52 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
         status: 204,
     },
     'GET /api/v1/matches': matchesPage,
+    'GET /api/v1/chats': () => ({ status: 200, body: { items: mockChatCards() } }),
+    'GET /api/v1/chats/summary': () => ({ status: 200, body: summarizeMockChats(mockChatCards()) }),
+    'GET /api/v1/chats/{chat_id}': (url) => {
+        const chat = findMockChat(mockChatId(url));
+
+        return chat
+            ? { status: 200, body: createMockChatDetails(chat, mockProfile.user_id) }
+            : error(404, 'CHAT_NOT_FOUND', 'Диалог не найден');
+    },
+    'GET /api/v1/chats/{chat_id}/messages': (url) => {
+        const chat = findMockChat(mockChatId(url));
+        if (!chat) return error(404, 'CHAT_NOT_FOUND', 'Диалог не найден');
+
+        const limit = Number(url.searchParams.get('limit') ?? 50);
+        const before = url.searchParams.get('before_seq');
+        const after = url.searchParams.get('after_seq');
+        const beforeSeq = before === null ? undefined : Number(before);
+        const afterSeq = after === null ? undefined : Number(after);
+
+        if (
+            !Number.isInteger(limit) ||
+            limit < 1 ||
+            limit > 100 ||
+            (beforeSeq !== undefined && (!Number.isSafeInteger(beforeSeq) || beforeSeq < 1)) ||
+            (afterSeq !== undefined && (!Number.isSafeInteger(afterSeq) || afterSeq < 0)) ||
+            (beforeSeq !== undefined && afterSeq !== undefined)
+        ) {
+            return error(400, 'VALIDATION_ERROR', 'Некорректные параметры истории');
+        }
+
+        return {
+            status: 200,
+            body: getMockChatMessagesPage(chat, mockProfile.user_id, {
+                limit,
+                before_seq: beforeSeq,
+                after_seq: afterSeq,
+            }),
+        };
+    },
+    'POST /api/v1/chats/{chat_id}/seen': (url) => {
+        const chat = findMockChat(mockChatId(url));
+        if (!chat) return error(404, 'CHAT_NOT_FOUND', 'Диалог не найден');
+
+        markMockChatSeen(chat, mockProfile.user_id);
+        return { status: 204 };
+    },
     'POST /api/v1/matches/{id}/seen': (url) => {
         const matchId = Number(url.pathname.split('/').at(-2));
 

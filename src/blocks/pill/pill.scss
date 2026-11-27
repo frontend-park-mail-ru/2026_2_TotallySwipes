@@ -36,6 +36,15 @@
     @include v.text-style('caption-13-bold');
 }
 
+.pill_size_l {
+    padding: 8px 16px;
+}
+
+.pill_size_l .pill__icon {
+    width: 20px;
+    height: 20px;
+}
+
 .pill_color_pink {
     --pill-bg: #{v.$color-accent-pink};
     --pill-ink: #{v.$color-accent-pink-ink};

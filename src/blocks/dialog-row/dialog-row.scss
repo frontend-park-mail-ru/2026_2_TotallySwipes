@@ -1,0 +1,125 @@
+@use '../../variables' as v;
+
+.dialog-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-sizing: border-box;
+    min-height: 72px;
+    padding: 12px;
+    border-radius: 14px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.dialog-row_active {
+    background: v.$color-bg-page;
+}
+
+.dialog-row__avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: v.$color-accent-sky;
+    object-fit: cover;
+    @include v.text-style('body-16-semibold');
+}
+
+.dialog-row__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.dialog-row__line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.dialog-row__name {
+    display: flex;
+    min-width: 0;
+    @include v.text-style('body-16-semibold');
+}
+
+.dialog-row__name-text,
+.dialog-row__preview-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.dialog-row__age {
+    flex: none;
+    @include v.text-style('body-16-regular');
+}
+
+.dialog-row__time,
+.dialog-row__preview {
+    @include v.text-style('caption-13-regular');
+    color: v.$color-text-secondary;
+}
+
+.dialog-row__time {
+    flex: none;
+}
+
+.dialog-row__preview {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.dialog-row__preview-icon,
+.dialog-row__preview-prefix,
+.dialog-row__badge {
+    flex: none;
+}
+
+.dialog-row__preview-prefix,
+.dialog-row_unread .dialog-row__preview {
+    color: v.$color-text-primary;
+}
+
+.dialog-row_unread .dialog-row__time {
+    @include v.text-style('caption-13-bold');
+    color: v.$color-accent-pink-ink;
+}
+
+.dialog-row__badge {
+    min-width: 24px;
+}
+
+.dialog-row__status {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background-color: v.$color-accent-lilac-ink;
+    mask: url('/icons/check.svg') center / contain no-repeat;
+}
+
+.dialog-row__status_read {
+    mask-image: url('/icons/check-check.svg');
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .dialog-row {
+        padding-inline: 16px;
+        border-bottom: 1px solid v.$color-border-default;
+        border-radius: 0;
+    }
+
+    .dialog-row__age {
+        color: v.$color-text-secondary;
+        @include v.text-style('body-16-semibold');
+    }
+
+    .dialog-row__preview {
+        @include v.text-style('body-16-regular');
+    }
+}

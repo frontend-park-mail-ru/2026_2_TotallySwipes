@@ -1,0 +1,34 @@
+<a class="dialog-row{{#if unreadCount}} dialog-row_unread{{/if}}" href="{{href}}" data-link data-chat-id="{{chatId}}">
+    {{#if avatarUrl}}
+        <img src="{{avatarUrl}}" class="dialog-row__avatar" alt="" width="48" height="48">
+    {{else}}
+        <span class="dialog-row__avatar" aria-hidden="true">{{initial}}</span>
+    {{/if}}
+
+    <div class="dialog-row__content">
+        <div class="dialog-row__line">
+            <span class="dialog-row__name">
+                <span class="dialog-row__name-text">{{name}}</span>{{#if age}}<span class="dialog-row__age">,&nbsp;{{age}}</span>{{/if}}
+            </span>
+            <time class="dialog-row__time" datetime="{{activityAt}}">{{activityLabel}}</time>
+        </div>
+
+        <div class="dialog-row__line">
+            <span class="dialog-row__preview">
+                {{#if isVoice}}
+                    <img class="dialog-row__preview-icon" src="/icons/microphone.svg" alt="" width="16" height="16">
+                {{/if}}
+                {{#if isOutgoing}}<span class="dialog-row__preview-prefix">Вы:</span>{{/if}}
+                <span class="dialog-row__preview-text">{{preview}}</span>
+            </span>
+
+            {{#if unreadCount}}
+                <span class="counter dialog-row__badge" role="img" aria-label="Непрочитанных сообщений: {{unreadCount}}">{{unreadCount}}</span>
+            {{else if isNew}}
+                <span class="counter dialog-row__badge">Новый</span>
+            {{else if isOutgoing}}
+                <span class="dialog-row__status{{#if isRead}} dialog-row__status_read{{/if}}" role="img" aria-label="{{statusLabel}}"></span>
+            {{/if}}
+        </div>
+    </div>
+</a>

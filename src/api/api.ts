@@ -1,5 +1,10 @@
 import type {
     AuthResponse,
+    ChatDetails,
+    ChatMessagesPage,
+    ChatMessagesParams,
+    ChatsResponse,
+    ChatSummary,
     CompatibilityTest,
     Coordinates,
     CsrfResponse,
@@ -23,9 +28,8 @@ import type {
     TestResult,
     UpdateProfileRequest,
 } from './api.types.js';
-import { mockFetch } from './mock-fetch.js';
+import { fetchApi } from './mock-fetch.js';
 
-const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true';
 const API_URL = import.meta.env.VITE_API_URL;
 
 const SWIPE_ACTIONS = {
@@ -249,7 +253,7 @@ async function sendOnce<T>(
 
     let response: Response;
     try {
-        response = USE_MOCKS ? await mockFetch(url, init) : await fetch(url, init);
+        response = await fetchApi(url, init);
     } catch (error) {
         throw new NetworkError(error);
     }
@@ -537,6 +541,31 @@ export function getMatches({ limit = 12, cursor }: MatchesParams = {}): Promise<
 export function sendMatchSeen(matchId: number) {
     return request(`/matches/${matchId}/seen`, {
         method: 'POST',
+    });
+}
+
+export function getChatSummary(): Promise<ChatSummary> {
+    return request<ChatSummary>('/chats/summary');
+}
+
+export function getChats(): Promise<ChatsResponse> {
+    return request<ChatsResponse>('/chats');
+}
+
+export function getChatDetails(chatId: string): Promise<ChatDetails> {
+    return request<ChatDetails>(`/chats/${encodeURIComponent(chatId)}`);
+}
+
+export function sendChatSeen(chatId: string): Promise<void> {
+    return request<void>(`/chats/${encodeURIComponent(chatId)}/seen`, { method: 'POST' });
+}
+
+export function getChatMessages(
+    chatId: string,
+    { limit, before_seq, after_seq }: ChatMessagesParams = {},
+): Promise<ChatMessagesPage> {
+    return request<ChatMessagesPage>(`/chats/${encodeURIComponent(chatId)}/messages`, {
+        query: { limit, before_seq, after_seq },
     });
 }
 

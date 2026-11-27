@@ -52,3 +52,73 @@
 .menu__counter {
     margin-left: auto;
 }
+
+.menu__text_short {
+    display: none;
+}
+
+.menu__counter[hidden] {
+    display: none;
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .menu {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0;
+    }
+
+    .menu__link {
+        position: relative;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 4px;
+        height: 100%;
+        padding: 0;
+        @include v.text-style('caption-13-regular');
+        font-size: clamp(11px, 3.62vw, 13px);
+    }
+
+    .menu__link:hover,
+    .menu__link_active,
+    .menu__link_active:hover {
+        background: none;
+    }
+
+    .menu__link_active,
+    .menu__link_active:hover {
+        color: v.$color-text-primary;
+        font-weight: 700;
+    }
+
+    .menu__icon {
+        align-items: center;
+        justify-content: center;
+        width: min(100%, 48px);
+        height: 32px;
+        border-radius: 12px;
+    }
+
+    .menu__link_active .menu__icon {
+        background: v.$color-primary;
+        color: v.$color-on-primary;
+    }
+
+    .menu__text {
+        white-space: nowrap;
+    }
+
+    .menu__text_full {
+        display: none;
+    }
+
+    .menu__text_short {
+        display: inline;
+    }
+
+    .menu__counter {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+}

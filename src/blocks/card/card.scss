@@ -31,7 +31,13 @@
     color: v.$color-text-secondary;
 }
 
-@media (min-height: 850px) {
+@media (max-width: v.$breakpoint-mobile) {
+    .card__title {
+        @include v.text-style('caption-13-bold');
+    }
+}
+
+@media (min-height: 850px) and (width > v.$breakpoint-feed-compact) {
     .card_sticky {
         position: sticky;
         top: 24px;

@@ -1,6 +1,7 @@
 import { getMatches, sendMatchSeen } from '../../api/api';
 import type { Cursor, Match } from '../../api/api.types';
 import { getElement } from '../../utils/dom.js';
+import { pluralize } from '../../utils/format.js';
 import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons';
 import { matchCardTemplate, type MatchCardData } from '../match-card/match-card';
 import { showModal } from '../modal/modal';
@@ -30,6 +31,7 @@ function toMatchView(item: Match, offset: number): MatchCardData {
     const hasCompatibility = compatibility !== null;
     return {
         matchId: item.match_id,
+        chatHref: item.chat_id ? `/messages/${encodeURIComponent(item.chat_id)}` : undefined,
         userId: item.user_id,
         name: item.name,
         age: item.age,
@@ -42,16 +44,6 @@ function toMatchView(item: Match, offset: number): MatchCardData {
         partnerFinished: item.partner_finished === true,
         offset,
     };
-}
-
-function mutualWord(count: number): string {
-    const lastTwo = count % 100;
-    const last = lastTwo % 10;
-
-    if (lastTwo >= 11 && lastTwo <= 14) return 'взаимных';
-    if (last === 1) return 'взаимная';
-    if (last >= 2 && last <= 4) return 'взаимные';
-    return 'взаимных';
 }
 
 export function renderMatchesPage(root: HTMLElement) {
@@ -111,7 +103,8 @@ export function renderMatchesPage(root: HTMLElement) {
                 state.nextCursor = nextCursor;
                 moreText.textContent = MORE_TEXT;
                 moreButton.classList.toggle('matches__more_hidden', nextCursor === null);
-                countElement.textContent = `${total} ${mutualWord(total)}`;
+                const word = pluralize(total, 'взаимная', 'взаимные', 'взаимных');
+                countElement.textContent = `${total} ${word}`;
                 page.classList.toggle('matches_empty', state.offset === 0);
             })
             .catch((error) => {

@@ -1,6 +1,6 @@
 import { icons } from '../../icons.js';
 import { getCurrentUser } from '../../api/api.js';
-import { type MenuItem, menuTemplate } from '../menu/menu.js';
+import { type MenuItem, menuTemplate, setMenuItemCounter } from '../menu/menu.js';
 import { userPreviewTemplate } from '../user-preview/user-preview.js';
 import sidebarHbs from './sidebar.hbs';
 import { getElement } from '../../utils/dom.js';
@@ -8,12 +8,15 @@ import { getElement } from '../../utils/dom.js';
 const MENU_ITEMS: MenuItem[] = [
     { href: '/', text: 'Анкеты', icon: icons.cards },
     { href: '/matches', text: 'Симпатии', icon: icons.heart },
-    { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 3, disabled: true },
-    { href: '/test', text: 'Тест совместимости', icon: icons.stars },
+    { href: '/messages', text: 'Сообщения', icon: icons.chat, counter: 0 },
+    { href: '/test', text: 'Тест совместимости', shortText: 'Тест', icon: icons.stars },
     { href: '/profile', text: 'Профиль', icon: icons.user },
 ];
 
-// TODO: брать счётчики с бэкенда
+export function updateSidebarUnreadCount(counter: number) {
+    const menu = document.querySelector<HTMLElement>('.sidebar__menu');
+    if (menu) setMenuItemCounter(menu, '/messages', counter);
+}
 
 /**
  * @param {string} [mix]
