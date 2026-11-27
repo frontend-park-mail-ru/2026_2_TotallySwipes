@@ -26,6 +26,11 @@
     color: v.$color-text-secondary;
 }
 
+.messages__count-short,
+.messages__back {
+    display: none;
+}
+
 .messages__panel {
     display: grid;
     grid-template-columns: clamp(280px, 33%, 360px) minmax(0, 1fr);
@@ -41,4 +46,85 @@
 .messages__notice {
     margin: 0;
     color: v.$color-text-secondary;
+}
+
+@media (max-width: v.$breakpoint-feed-compact) {
+    .messages__panel {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .messages:not(.messages_chat-open) .messages__chat {
+        display: none;
+    }
+
+    .messages_chat-open .messages__header,
+    .messages_chat-open .messages__dialogs {
+        display: none;
+    }
+
+    .messages__status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .messages_chat-open .messages__back {
+        display: flex;
+        width: 40px;
+        flex: none;
+        color: inherit;
+    }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .messages {
+        gap: 0;
+        height: calc(100dvh - var(--layout-nav-height));
+        padding: 0;
+    }
+
+    .messages_chat-open {
+        height: auto;
+    }
+
+    .messages_chat-open .messages__chat {
+        height: var(--chat-viewport-height, 100dvh);
+    }
+
+    .messages__header {
+        align-content: center;
+        gap: 0 12px;
+        box-sizing: border-box;
+        min-height: 76px;
+        padding: 16px;
+    }
+
+    .messages__count-full {
+        display: none;
+    }
+
+    .messages__count-short {
+        display: inline;
+    }
+
+    .messages__panel {
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .messages__status {
+        padding-inline: 16px;
+    }
+
+    .messages_chat-open .messages__status {
+        box-sizing: border-box;
+        min-height: 100dvh;
+        align-items: flex-start;
+        padding-block-start: 8px;
+    }
+
+    .messages_chat-open .messages__notice {
+        padding-block: 10px;
+    }
 }

@@ -1,4 +1,12 @@
+import { installMockChatSocket } from './mock-chat-socket.js';
 import { MOCK_ROUTES, checkAccess } from './mocks.js';
+
+const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true';
+if (USE_MOCKS) installMockChatSocket();
+
+export function fetchApi(url: string, options: RequestInit): Promise<Response> {
+    return USE_MOCKS ? mockFetch(url, options) : fetch(url, options);
+}
 
 /**
  * Разбирает тело запроса для мок-обработчиков: FormData в объект, строку - как JSON.
@@ -22,7 +30,7 @@ function parseBody(body: RequestInit['body']): unknown {
  * @param {RequestInit} [options]
  * @returns {Promise<Response>}
  */
-export async function mockFetch(url: string, options: RequestInit = {}): Promise<Response> {
+async function mockFetch(url: string, options: RequestInit = {}): Promise<Response> {
     const method = (options.method ?? 'GET').toUpperCase();
     const parsedUrl = new URL(url, location.origin);
 

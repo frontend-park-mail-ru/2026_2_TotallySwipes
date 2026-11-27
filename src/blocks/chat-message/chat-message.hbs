@@ -1,16 +1,23 @@
-<div class="chat-message{{#if mix}} {{mix}}{{/if}}"{{#if seq}} data-seq="{{seq}}"{{/if}}{{#if isIncoming}} data-incoming{{/if}}>
+<div class="chat-message{{#if mix}} {{mix}}{{/if}}"{{#if seq}} data-seq="{{seq}}"{{/if}}{{#if isIncoming}} data-incoming{{/if}} {{#if isFailed}}{{#if messageId}} data-message-id="{{messageId}}" {{/if}}{{/if}}>
     <div class="chat-message__bubble{{#if isFailed}} chat-message__bubble_state_failed{{else}} chat-message__bubble_direction_{{#if isOutgoing}}out{{else}}in{{/if}}{{/if}}">
         <p class="chat-message__body">{{text}}</p>
-        {{#if isFailed}}{{#if time}}
-            <span class="chat-message__time">{{time}}</span>
-        {{/if}}{{else if isOutgoing}}
-            <span class="chat-message__status{{#if isRead}} chat-message__status_read{{/if}}" role="img" aria-label="{{statusLabel}}"></span>
+        {{#if isFailed}}
+            {{#if time}}
+                <span class="chat-message__time">{{time}}</span>
+            {{/if}}
+        {{else}}
+            <div class="chat-message__meta">
+                <time class="chat-message__time chat-message__timestamp{{#if isOutgoing}} chat-message__timestamp_out{{/if}}" datetime="{{timestamp}}">{{time}}</time>
+                {{#if isOutgoing}}
+                    <span class="chat-message__status{{#if isRead}} chat-message__status_read{{/if}}" role="img" aria-label="{{statusLabel}}"></span>
+                {{/if}}
+            </div>
         {{/if}}
     </div>
     {{#if isFailed}}
         <div class="chat-message__error">
             <span>Не отправлено</span>
-            <span aria-hidden="true">·</span>
+
             <button class="chat-message__retry" type="button">Повторить</button>
         </div>
     {{/if}}

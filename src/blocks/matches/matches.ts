@@ -31,6 +31,7 @@ function toMatchView(item: Match, offset: number): MatchCardData {
     const hasCompatibility = compatibility !== null;
     return {
         matchId: item.match_id,
+        chatHref: item.chat_id ? `/messages/${encodeURIComponent(item.chat_id)}` : undefined,
         userId: item.user_id,
         name: item.name,
         age: item.age,

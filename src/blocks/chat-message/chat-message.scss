@@ -61,6 +61,14 @@
     @include v.text-style('caption-13-regular');
 }
 
+.chat-message__meta {
+    display: contents;
+}
+
+.chat-message__timestamp {
+    display: none;
+}
+
 .chat-message__error {
     display: flex;
     flex-wrap: wrap;
@@ -80,4 +88,38 @@
     text-decoration: underline;
     cursor: pointer;
     @include v.text-style('caption-13-bold');
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .chat-message {
+        max-inline-size: min(100% - 48px, 480px);
+    }
+
+    .chat-message__bubble_direction_in {
+        border-radius: 16px;
+        box-shadow: inset 0 0 0 1px v.$color-border-default;
+    }
+
+    .chat-message__bubble_direction_out {
+        display: block;
+        border-radius: 16px;
+        color: v.$color-accent-lilac-ink;
+    }
+
+    .chat-message__meta {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .chat-message__timestamp {
+        display: block;
+        color: v.$color-text-secondary;
+    }
+
+    .chat-message__timestamp_out {
+        color: v.$color-accent-lilac-ink;
+    }
 }

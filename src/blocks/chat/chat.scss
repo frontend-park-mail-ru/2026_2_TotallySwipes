@@ -136,18 +136,78 @@
     flex: none;
 }
 
-.chat__header[hidden],
+.chat__back,
+.chat__header_empty,
+.chat__peer[hidden],
+.chat__actions[hidden],
 .chat__avatar[hidden],
+.chat__load-more[hidden],
 .chat__composer[hidden] {
     display: none;
 }
 
 @media (max-width: v.$breakpoint-feed-compact) {
     .chat__header {
-        padding-inline: 16px;
+        display: flex;
+        gap: 8px;
+        padding: 8px 16px;
     }
 
-    .chat__meeting {
+    .chat__back {
+        display: flex;
+        flex: none;
+        width: 40px;
+        color: inherit;
+    }
+
+    .chat__meeting,
+    .chat__more {
+        justify-content: center;
+        height: 44px;
+        width: 44px;
+        box-sizing: border-box;
+        padding: 0;
+        border-radius: 12px;
+    }
+
+    .chat__header-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .chat__meeting-text {
+        display: none;
+    }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+    .chat__age {
+        @include v.text-style('body-16-semibold');
+    }
+
+    .chat__body {
+        overscroll-behavior-y: contain;
+    }
+
+    .chat__empty {
+        padding: 32px 16px;
+    }
+
+    .chat__interests {
+        gap: 4px;
+    }
+
+    .chat__interest {
         padding-inline: 12px;
+        rotate: 1.5deg;
+    }
+
+    .chat__interest:nth-child(even) {
+        rotate: -1.2deg;
+    }
+
+    .chat__interest .pill__icon {
+        width: 16px;
+        height: 16px;
     }
 }

@@ -106,3 +106,20 @@
 .dialog-row__status_read {
     mask-image: url('/icons/check-check.svg');
 }
+
+@media (max-width: v.$breakpoint-mobile) {
+    .dialog-row {
+        padding-inline: 16px;
+        border-bottom: 1px solid v.$color-border-default;
+        border-radius: 0;
+    }
+
+    .dialog-row__age {
+        color: v.$color-text-secondary;
+        @include v.text-style('body-16-semibold');
+    }
+
+    .dialog-row__preview {
+        @include v.text-style('body-16-regular');
+    }
+}

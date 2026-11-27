@@ -1,20 +1,24 @@
-<header class="chat__header" hidden>
-    <a class="chat__peer" data-link>
+<header class="chat__header chat__header_empty">
+    <a class="button button_view_plain button_icon-only chat__back" href="/messages" data-link aria-label="Назад к сообщениям">
+        <span class="button__icon button__icon_mask chat__header-icon" aria-hidden="true" style="--icon: url('/icons/arrow-left.svg')"></span>
+    </a>
+    <a class="chat__peer" data-link hidden>
         <img class="chat__avatar chat__photo" alt="" width="40" height="40" hidden>
         <span class="chat__avatar chat__initial" aria-hidden="true" hidden></span>
         <span class="chat__name">
             <span class="chat__name-text"></span><span class="chat__age" hidden></span>
         </span>
     </a>
-    <div class="chat__actions">
-        <a class="button button_view_secondary button_size_l chat__meeting" data-link>
-            <img class="button__icon" src="/icons/calendar.svg" alt="" width="20" height="20">
-            <span class="button__text">Назначить встречу</span>
+    <div class="chat__actions" hidden>
+        <a class="button button_view_secondary button_size_l chat__meeting" data-link aria-label="Назначить встречу">
+            <img class="button__icon chat__header-icon" src="/icons/calendar.svg" alt="" width="20" height="20">
+            <span class="button__text chat__meeting-text">Назначить встречу</span>
         </a>
         <button class="button button_view_outline button_size_l button_icon-only chat__more" type="button" aria-label="Ещё" disabled>
-            <img class="button__icon" src="/icons/dots.svg" alt="" width="20" height="20">
+            <img class="button__icon chat__header-icon" src="/icons/dots.svg" alt="" width="20" height="20">
         </button>
     </div>
 </header>
+<button class="button button_view_outline chat__load-more" type="button" hidden>Загрузить ещё</button>
 <div class="chat__body">{{{body}}}</div>
 {{{composer}}}

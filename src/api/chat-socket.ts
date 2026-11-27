@@ -1,13 +1,18 @@
 import type { ChatCard, ChatMessage, ChatReadPosition, ChatSummary } from './api.types.js';
 
+export const CHAT_SOCKET_URL = import.meta.env.VITE_WS_URL;
+
 const SEND_TIMEOUT_MS = 10_000;
+const FIRST_RECONNECT_DELAY_MS = 1_000;
+const MAX_RECONNECT_DELAY_MS = 30_000;
 
 interface MessageCreatedData {
     chat_id: string;
+    client_message_id?: string | null;
     message: ChatMessage;
 }
 
-type MessageCreatedHandler = (chatId: string, message: ChatMessage) => void;
+type MessageCreatedHandler = (chatId: string, message: ChatMessage, messageId?: string) => void;
 type ChatUpdatedHandler = (card: ChatCard) => void;
 type ChatReadHandler = (position: ChatReadPosition) => void;
 type ChatSummaryHandler = (summary: ChatSummary) => void;
@@ -49,10 +54,15 @@ function isReadPosition(data: Partial<ChatReadPosition> | undefined): data is Ch
 
 export function createChatSocket(chatSummaryHandler: ChatSummaryHandler) {
     let socket: WebSocket | undefined;
+    let active = false;
+    let interrupted = false;
+    let reconnectTimer: number | undefined;
+    let reconnectDelay = FIRST_RECONNECT_DELAY_MS;
     let messageHandler: MessageCreatedHandler | undefined;
     let chatUpdatedHandler: ChatUpdatedHandler | undefined;
     let chatReadHandler: ChatReadHandler | undefined;
     const pendingCommands = new Map<string, PendingCommand>();
+    const reconnectHandlers = new Set<() => void>();
 
     function takePendingCommand(requestId: string) {
         const pending = pendingCommands.get(requestId);
@@ -96,7 +106,36 @@ export function createChatSocket(chatSummaryHandler: ChatSummaryHandler) {
         };
     }
 
+    function subscribeToReconnect(handler: () => void) {
+        reconnectHandlers.add(handler);
+        return () => {
+            reconnectHandlers.delete(handler);
+        };
+    }
+
     function connect() {
+        if (!active) {
+            active = true;
+            window.addEventListener('online', openSocket);
+            window.addEventListener('offline', handleOffline);
+        }
+
+        openSocket();
+    }
+
+    function handleOffline() {
+        interrupted = true;
+        window.clearTimeout(reconnectTimer);
+        closeSocket();
+    }
+
+    function openSocket() {
+        window.clearTimeout(reconnectTimer);
+        if (!active) return;
+        if (!navigator.onLine) {
+            handleOffline();
+            return;
+        }
         if (
             socket &&
             (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)
@@ -104,21 +143,39 @@ export function createChatSocket(chatSummaryHandler: ChatSummaryHandler) {
             return;
         }
 
-        if (socket) disconnect();
+        closeSocket();
 
-        const connection = new WebSocket('wss://totallyswipes.ru/ws');
+        let connection: WebSocket;
+        try {
+            connection = new WebSocket(CHAT_SOCKET_URL);
+        } catch (error) {
+            console.error('Не удалось открыть WebSocket чата:', error);
+            return;
+        }
         socket = connection;
 
         connection.onopen = () => {
+            if (socket !== connection) return;
+
             console.log('Сокет открыт');
+            reconnectDelay = FIRST_RECONNECT_DELAY_MS;
+            if (interrupted) {
+                interrupted = false;
+                for (const handler of reconnectHandlers) handler();
+            }
         };
 
         connection.onclose = () => {
-            if (socket === connection) {
-                socket = undefined;
-                rejectPendingCommands();
-            }
+            if (socket !== connection) return;
+
+            socket = undefined;
+            rejectPendingCommands();
+            interrupted = true;
             console.log('Сокет закрыт');
+            if (!navigator.onLine) return;
+
+            reconnectTimer = window.setTimeout(openSocket, reconnectDelay);
+            reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY_MS);
         };
 
         connection.onerror = () => {
@@ -148,7 +205,14 @@ export function createChatSocket(chatSummaryHandler: ChatSummaryHandler) {
                     ) {
                         return;
                     }
-                    if (messageHandler) messageHandler(data.chat_id, data.message);
+                    const messageId = data.client_message_id;
+                    if (messageHandler) {
+                        messageHandler(
+                            data.chat_id,
+                            data.message,
+                            typeof messageId === 'string' ? messageId : undefined,
+                        );
+                    }
                     break;
                 }
 
@@ -234,6 +298,16 @@ export function createChatSocket(chatSummaryHandler: ChatSummaryHandler) {
     }
 
     function disconnect() {
+        active = false;
+        interrupted = false;
+        reconnectDelay = FIRST_RECONNECT_DELAY_MS;
+        window.clearTimeout(reconnectTimer);
+        window.removeEventListener('online', openSocket);
+        window.removeEventListener('offline', handleOffline);
+        closeSocket();
+    }
+
+    function closeSocket() {
         const connection = socket;
         if (!connection) return;
 
@@ -312,6 +386,7 @@ export function createChatSocket(chatSummaryHandler: ChatSummaryHandler) {
         subscribeToMessages,
         subscribeToChatUpdates,
         subscribeToReadUpdates,
+        subscribeToReconnect,
     };
 }
 

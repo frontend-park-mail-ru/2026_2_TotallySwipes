@@ -1,7 +1,6 @@
 import type {
     AuthResponse,
     ChatDetails,
-    ChatMessage,
     ChatMessagesPage,
     ChatMessagesParams,
     ChatsResponse,
@@ -29,10 +28,8 @@ import type {
     TestResult,
     UpdateProfileRequest,
 } from './api.types.js';
-import { mockFetch } from './mock-fetch.js';
-import { checkAccess, mockSendChatMessage } from './mocks.js';
+import { fetchApi } from './mock-fetch.js';
 
-const USE_MOCKS = import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === 'true';
 const API_URL = import.meta.env.VITE_API_URL;
 
 const SWIPE_ACTIONS = {
@@ -256,7 +253,7 @@ async function sendOnce<T>(
 
     let response: Response;
     try {
-        response = USE_MOCKS ? await mockFetch(url, init) : await fetch(url, init);
+        response = await fetchApi(url, init);
     } catch (error) {
         throw new NetworkError(error);
     }
@@ -570,19 +567,6 @@ export function getChatMessages(
     return request<ChatMessagesPage>(`/chats/${encodeURIComponent(chatId)}/messages`, {
         query: { limit, before_seq, after_seq },
     });
-}
-
-export async function sendMockChatMessage(chatId: string, text: string): Promise<ChatMessage> {
-    if (!USE_MOCKS) throw new Error('Моковая отправка доступна только в режиме моков');
-    if (checkAccess('/api/v1/chats')) {
-        throw new ApiError(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
-    }
-    if (!text.trim()) throw new ApiError(400, 'VALIDATION_ERROR', 'Введите текст сообщения');
-
-    const message = mockSendChatMessage(chatId, text);
-    if (!message) throw new ApiError(404, 'CHAT_NOT_FOUND', 'Диалог не найден');
-
-    return message;
 }
 
 export function createPlaceSearch({ matchId, city }: PlaceSearchParams): Promise<EventsPage> {

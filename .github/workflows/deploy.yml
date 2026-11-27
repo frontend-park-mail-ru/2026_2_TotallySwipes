@@ -82,6 +82,10 @@ jobs:
           docker pull "$IMAGE"
           docker logout ghcr.io
 
+          if ! docker network inspect totallyswipes-edge >/dev/null 2>&1; then
+            docker network create totallyswipes-edge
+          fi
+
           rollback() {
             docker logs --tail 50 front 2>/dev/null || true
             docker rm -f front 2>/dev/null || true
@@ -99,14 +103,24 @@ jobs:
             docker rename front front_prev
           fi
 
-          docker run -d --name front --restart unless-stopped -p 443:8000 \
-            -v /home/ubuntu/app/certs:/certs:ro \
-            -e TLS_CERT_FILE=/certs/fullchain.pem \
-            -e TLS_KEY_FILE=/certs/privkey.pem \
+          docker run -d --name front --restart unless-stopped \
+            --network totallyswipes-edge \
+            --network-alias frontend \
+            -e PORT=8000 \
+            -e TLS_CERT_FILE= \
+            -e TLS_KEY_FILE= \
             "$IMAGE" || rollback
 
           for i in $(seq 1 15); do
-            if curl -fsSk -o /dev/null https://127.0.0.1/; then
+            if docker exec front node -e '
+              const http = require("node:http");
+              const request = http.get("http://127.0.0.1:8000/", response => {
+                response.resume();
+                process.exit(response.statusCode === 200 ? 0 : 1);
+              });
+              request.setTimeout(3000, () => request.destroy());
+              request.on("error", () => process.exit(1));
+            '; then
               echo "front is up"
               docker rm -f front_prev 2>/dev/null || true
               docker image prune -f

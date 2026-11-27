@@ -1,8 +1,5 @@
 {{#if bubbles}}
     <div class="chat-history">
-        {{#if hasOlderMessages}}
-            <button class="button button_view_outline chat-history__more" type="button">Загрузить ещё сообщения</button>
-        {{/if}}
         {{#each bubbles}}
             {{{this}}}
         {{/each}}
@@ -11,6 +8,9 @@
     <div class="chat__empty">
         {{#if notice}}
             <p class="chat__notice" role="status">{{notice}}</p>
+            {{#if canRetryLoad}}
+                <button class="button button_view_outline button_size_l chat__retry-load" type="button">Повторить загрузку</button>
+            {{/if}}
         {{else if isEmpty}}
             <div class="chat__empty-copy">
                 <h2 class="chat__empty-title">Начните разговор</h2>

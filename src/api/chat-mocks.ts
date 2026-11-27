@@ -5,6 +5,7 @@ import type {
     ChatMessage,
     ChatMessagesPage,
     ChatMessagesParams,
+    ChatReadPosition,
     ChatSummary,
 } from './api.types.js';
 
@@ -28,7 +29,18 @@ interface MockChatState {
     history: ChatMessage[];
 }
 
+interface MockMatchProfile {
+    match_id: number;
+    user_id: number;
+    name: string | null;
+    age: number | null;
+    photo_url: string | null;
+    created_at: string;
+}
+
 const updatedChats = new Map<string, MockChatState>();
+const sentMessages = new Map<string, ChatMessage>();
+const mockStartedAt = new Date();
 
 function mockChatKey(userId: number, chatId: string): string {
     return `${userId}:${chatId}`;
@@ -125,9 +137,15 @@ const CHATS: MockChat[] = [
     },
 ];
 
-export function createMockChatCards(currentUserId: number): ChatCard[] {
-    const today = new Date();
+export function getMockChatIdForMatch(matchId: number): string {
+    const index = CHATS.findIndex((chat) => chat.matchId === matchId);
+    return index === -1 ? String(matchId) : String(index + 1);
+}
 
+export function createMockChatCards(
+    currentUserId: number,
+    matches: MockMatchProfile[],
+): ChatCard[] {
     const cards = CHATS.map(
         (
             {
@@ -149,9 +167,10 @@ export function createMockChatCards(currentUserId: number): ChatCard[] {
             const updated = updatedChats.get(mockChatKey(currentUserId, chatId));
             if (updated) return updated.details.chat;
 
-            const activity = new Date(today);
-            activity.setDate(today.getDate() - daysAgo);
+            const activity = new Date(mockStartedAt);
+            activity.setDate(mockStartedAt.getDate() - daysAgo);
             activity.setHours(...time, 0, 0);
+            if (activity >= mockStartedAt) activity.setDate(activity.getDate() - 1);
             const activityAt = activity.toISOString();
             const createdAt = new Date(activity);
             if (message) createdAt.setDate(activity.getDate() - 1);
@@ -187,6 +206,35 @@ export function createMockChatCards(currentUserId: number): ChatCard[] {
         },
     );
 
+    const existingMatches = new Set(cards.map((card) => card.match_id));
+    for (const match of matches) {
+        if (existingMatches.has(match.match_id)) continue;
+
+        const chatId = getMockChatIdForMatch(match.match_id);
+        const updated = updatedChats.get(mockChatKey(currentUserId, chatId));
+        const createdAt = new Date(
+            Math.min(Date.parse(match.created_at), mockStartedAt.getTime() - 1),
+        ).toISOString();
+        cards.push(
+            updated?.details.chat ?? {
+                chat_id: chatId,
+                match_id: match.match_id,
+                peer: {
+                    user_id: match.user_id,
+                    name: match.name,
+                    age: match.age,
+                    avatar_url: match.photo_url,
+                },
+                is_new: true,
+                unread_count: 0,
+                last_message: null,
+                created_at: createdAt,
+                last_activity_at: createdAt,
+                version: 1,
+            },
+        );
+    }
+
     return cards.sort((a, b) => b.last_activity_at.localeCompare(a.last_activity_at));
 }
 
@@ -195,7 +243,7 @@ export function summarizeMockChats(chats: ChatCard[]): ChatSummary {
         new_chats_count: chats.filter((chat) => chat.is_new).length,
         unread_chats_count: chats.filter((chat) => chat.unread_count > 0).length,
         unread_messages_count: chats.reduce((count, chat) => count + chat.unread_count, 0),
-        version: 1,
+        version: chats.reduce((version, chat) => version + chat.version - 1, 1),
     };
 }
 
@@ -308,7 +356,40 @@ export function markMockChatSeen(chat: ChatCard, userId: number) {
     });
 }
 
-export function appendMockChatMessage(chat: ChatCard, userId: number, text: string): ChatMessage {
+export function markMockChatRead(chat: ChatCard, userId: number, seq: number): ChatReadPosition {
+    const details = createMockChatDetails(chat, userId);
+    const lastReadSeq = Math.max(details.last_read_seq, Math.min(seq, chat.last_message?.seq ?? 0));
+    if (lastReadSeq > details.last_read_seq) {
+        const history = getMockChatHistory(chat, userId);
+        const unreadCount = history.filter(
+            (message) =>
+                message.seq > lastReadSeq &&
+                message.sender_id !== userId &&
+                message.sender_id !== null,
+        ).length;
+        updatedChats.set(mockChatKey(userId, chat.chat_id), {
+            details: {
+                ...details,
+                last_read_seq: lastReadSeq,
+                chat: { ...chat, unread_count: unreadCount, version: chat.version + 1 },
+            },
+            history,
+        });
+    }
+
+    return { chat_id: chat.chat_id, user_id: userId, last_read_seq: lastReadSeq };
+}
+
+export function appendMockChatMessage(
+    chat: ChatCard,
+    userId: number,
+    text: string,
+    clientMessageId: string,
+): ChatMessage {
+    const key = JSON.stringify([userId, chat.chat_id, clientMessageId]);
+    const sent = sentMessages.get(key);
+    if (sent) return { ...sent };
+
     const details = createMockChatDetails(chat, userId);
     const history = getMockChatHistory(chat, userId);
     const { chat: currentChat } = details;
@@ -350,5 +431,6 @@ export function appendMockChatMessage(chat: ChatCard, userId: number, text: stri
         },
     });
 
+    sentMessages.set(key, message);
     return { ...message };
 }

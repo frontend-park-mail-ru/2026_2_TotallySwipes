@@ -223,6 +223,7 @@ export interface TestResult {
 
 export interface Match {
     match_id: number;
+    chat_id: string;
     user_id: number;
     name: string;
     age: number;

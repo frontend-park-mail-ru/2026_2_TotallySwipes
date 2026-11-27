@@ -18,10 +18,13 @@ const mediaLabels: Partial<Record<ChatMessage['type'], string>> = {
     video_note: 'Кружочек',
 };
 
+const timeFormat = new Intl.DateTimeFormat('ru', { hour: '2-digit', minute: '2-digit' });
+
 interface ChatViewState {
     details?: ChatDetails;
     preview?: ChatCard;
     notice?: string;
+    canRetryLoad?: boolean;
     messages?: ChatMessage[];
     hasOlderMessages?: boolean;
 }
@@ -38,6 +41,8 @@ function chatMessageTemplate(
 
     return chatMessageHbs({
         text: message.text ?? mediaLabels[message.type] ?? 'Сообщение недоступно',
+        timestamp: message.created_at,
+        time: timeFormat.format(new Date(message.created_at)),
         seq: message.seq,
         isOutgoing,
         isIncoming,
@@ -48,10 +53,10 @@ function chatMessageTemplate(
 }
 
 function chatBodyTemplate(
-    { details, notice, messages, hasOlderMessages }: ChatViewState,
+    { details, notice, canRetryLoad, messages }: ChatViewState,
     userId: number,
 ): string {
-    if (!details) return chatBodyHbs({ notice });
+    if (!details) return chatBodyHbs({ notice, canRetryLoad });
 
     const interests = details.is_empty
         ? details.common_tags
@@ -76,19 +81,25 @@ function chatBodyTemplate(
         isEmpty: details.is_empty,
         interests,
         bubbles,
-        hasOlderMessages,
     });
 }
 
 function initChatHeader(header: HTMLElement) {
     const profileLink = getElement<HTMLAnchorElement>(header, '.chat__peer');
+    const actions = getElement(header, '.chat__actions');
     const meetingLink = getElement<HTMLAnchorElement>(header, '.chat__meeting');
     const photo = getElement<HTMLImageElement>(header, '.chat__photo');
     const initial = getElement(header, '.chat__initial');
     const nameText = getElement(header, '.chat__name-text');
     const ageText = getElement(header, '.chat__age');
 
-    return ({ peer, match_id: matchId }: ChatCard) => {
+    return (chat: ChatCard | undefined) => {
+        header.classList.toggle('chat__header_empty', !chat);
+        profileLink.hidden = !chat;
+        actions.hidden = !chat;
+        if (!chat) return;
+
+        const { peer, match_id: matchId } = chat;
         const name = peer.name ?? 'Собеседник';
         profileLink.href = `/profile/${peer.user_id}`;
         meetingLink.href = `/matches/${matchId}/places`;
@@ -113,14 +124,18 @@ export function initChatPanel(
     userId: number,
     onVisibleRead: (chatId: string, seq: number) => void,
     onLoadOlderMessages: () => void,
+    onRetry: (messageId: string) => void,
+    onRetryLoad: () => void,
 ) {
     const header = getElement(panel, '.chat__header');
     const updateHeader = initChatHeader(header);
     const body = getElement(panel, '.chat__body');
+    const historyButton = getElement<HTMLButtonElement>(panel, '.chat__load-more');
     const composer = getElement(panel, '.chat__composer');
     const input = getElement<HTMLInputElement>(composer, '.chat-composer__input');
     let currentChatId: string | undefined;
     let currentDetails: ChatDetails | undefined;
+    let hasOlderMessages = false;
     let renderedMessageIds = new Set<string>();
     const listeners = new AbortController();
 
@@ -141,27 +156,54 @@ export function initChatPanel(
         if (seq > 0) onVisibleRead(currentDetails.chat.chat_id, seq);
     }
 
+    function updateHistoryButtonVisibility() {
+        historyButton.hidden = !hasOlderMessages || body.scrollTop > 1;
+    }
+
+    function updateViewport() {
+        updateHistoryButtonVisibility();
+        checkVisibleRead();
+    }
+
     const readListenerOptions = { passive: true, signal: listeners.signal };
-    body.addEventListener(
-        'scroll',
-        () => {
-            checkVisibleRead();
-            if (body.scrollTop <= 1) onLoadOlderMessages();
-        },
-        readListenerOptions,
-    );
+    const viewport = window.visualViewport;
+    if (viewport) {
+        const resizeChat = () => {
+            const wasAtEnd = body.scrollHeight - body.scrollTop - body.clientHeight <= 1;
+            if (viewport.scale === 1) {
+                panel.style.setProperty('--chat-viewport-height', `${viewport.height}px`);
+            } else {
+                panel.style.removeProperty('--chat-viewport-height');
+            }
+            if (wasAtEnd) body.scrollTop = body.scrollHeight;
+            updateViewport();
+        };
+        viewport.addEventListener('resize', resizeChat, readListenerOptions);
+        resizeChat();
+    }
+    body.addEventListener('scroll', updateViewport, readListenerOptions);
+    historyButton.addEventListener('click', onLoadOlderMessages, { signal: listeners.signal });
+    window.addEventListener('scroll', checkVisibleRead, readListenerOptions);
+    window.addEventListener('resize', updateViewport, readListenerOptions);
+    document.addEventListener('visibilitychange', checkVisibleRead, readListenerOptions);
+
     body.addEventListener(
         'click',
         (event) => {
-            if (event.target instanceof Element && event.target.closest('.chat-history__more')) {
-                onLoadOlderMessages();
+            if (!(event.target instanceof Element)) return;
+
+            if (event.target.closest('.chat__retry-load')) {
+                onRetryLoad();
+                return;
             }
+
+            const button = event.target.closest('.chat-message__retry');
+            const bubble = button?.closest<HTMLElement>('.chat-message');
+            const messageId = bubble?.dataset.messageId;
+            if (messageId) onRetry(messageId);
         },
         { signal: listeners.signal },
     );
-    window.addEventListener('scroll', checkVisibleRead, readListenerOptions);
-    window.addEventListener('resize', checkVisibleRead, readListenerOptions);
-    document.addEventListener('visibilitychange', checkVisibleRead, readListenerOptions);
 
     function dispose() {
         listeners.abort();
@@ -194,11 +236,12 @@ export function initChatPanel(
             input.value = '';
         }
 
-        if (chat) updateHeader(chat);
-        header.hidden = !chat;
+        updateHeader(chat);
         composer.hidden = !chat;
         input.readOnly = !details;
         input.disabled = details?.messaging.can_send === false;
+        hasOlderMessages = state.hasOlderMessages === true;
+        updateHistoryButton('ready');
 
         const messageIds = new Set<string>();
         const uniqueMessages = messages.filter(({ message_id }) => {
@@ -210,26 +253,22 @@ export function initChatPanel(
         body.innerHTML = chatBodyTemplate({ ...state, messages: uniqueMessages }, userId);
         renderedMessageIds = messageIds;
         body.scrollTop = details ? body.scrollHeight : 0;
+        updateHistoryButtonVisibility();
     }
 
     function updateHistoryButton(state: 'loading' | 'ready' | 'retry') {
-        const button = body.querySelector<HTMLButtonElement>('.chat-history__more');
-        if (!button) return;
-
-        button.disabled = state === 'loading';
-        button.textContent = {
+        historyButton.disabled = state === 'loading';
+        historyButton.textContent = {
             loading: 'Загрузка истории…',
-            ready: 'Загрузить ещё сообщения',
+            ready: 'Загрузить ещё',
             retry: 'Повторить загрузку истории',
         }[state];
     }
 
-    function prependMessages(messages: ChatMessage[], hasOlderMessages: boolean) {
-        const button = body.querySelector('.chat-history__more');
-        if (!currentDetails || !button) return;
+    function prependMessages(messages: ChatMessage[], hasMore: boolean) {
+        const history = body.querySelector('.chat-history');
+        if (!currentDetails || !history) return;
 
-        const anchor = button.nextElementSibling;
-        const anchorTop = anchor?.getBoundingClientRect().top ?? 0;
         const bubbles: string[] = [];
         for (const message of messages) {
             if (renderedMessageIds.has(message.message_id)) continue;
@@ -238,19 +277,50 @@ export function initChatPanel(
             renderedMessageIds.add(message.message_id);
         }
 
-        button.insertAdjacentHTML('afterend', bubbles.join(''));
-        if (hasOlderMessages) updateHistoryButton('ready');
-        else button.remove();
+        if (bubbles.length > 0) {
+            const firstMessage = history.firstElementChild;
+            const previousTop = firstMessage?.getBoundingClientRect().top;
+            history.insertAdjacentHTML('afterbegin', bubbles.join(''));
+            historyButton.hidden = true;
 
-        if (anchor) {
-            const offset = anchor.getBoundingClientRect().top - anchorTop;
-            body.scrollTop += offset;
+            if (firstMessage && previousTop !== undefined) {
+                body.scrollTop += firstMessage.getBoundingClientRect().top - previousTop;
+            }
         }
-        checkVisibleRead();
+
+        hasOlderMessages = hasMore;
+        updateHistoryButton('ready');
+        updateViewport();
     }
 
-    function appendMessage(chatId: string, message: ChatMessage) {
+    function appendFailedMessage(chatId: string, text: string, messageId: string) {
+        if (!currentDetails || currentDetails.chat.chat_id !== chatId) return;
+
+        const bubble = chatMessageHbs({
+            text,
+            isFailed: true,
+            messageId,
+            mix: 'chat-history__message chat-history__message_direction_out',
+        });
+
+        const history = body.querySelector('.chat-history');
+        if (history) {
+            history.insertAdjacentHTML('beforeend', bubble);
+        } else {
+            body.innerHTML = chatBodyHbs({ bubbles: [bubble] });
+        }
+
+        body.scrollTop = body.scrollHeight;
+        updateHistoryButtonVisibility();
+    }
+
+    function appendMessage(chatId: string, message: ChatMessage, messageId?: string) {
         if (!panel.isConnected || !currentDetails || currentDetails.chat.chat_id !== chatId) return;
+        if (messageId) {
+            body.querySelector(
+                `.chat-message[data-message-id="${CSS.escape(messageId)}"]`,
+            )?.remove();
+        }
         if (renderedMessageIds.has(message.message_id)) return;
 
         const scrollToEnd =
@@ -269,12 +339,13 @@ export function initChatPanel(
         }
 
         if (scrollToEnd) body.scrollTop = body.scrollHeight;
-        checkVisibleRead();
+        updateViewport();
     }
 
     return {
         updateChat,
         appendMessage,
+        appendFailedMessage,
         prependMessages,
         updateHistoryButton,
         updatePeerReadPosition,

@@ -1,5 +1,6 @@
 import type {
     Attitude,
+    ChatCard,
     Credentials,
     DatingGoal,
     Coordinates,
@@ -19,7 +20,9 @@ import {
     appendMockChatMessage,
     createMockChatCards,
     createMockChatDetails,
+    getMockChatIdForMatch,
     getMockChatMessagesPage,
+    markMockChatRead,
     markMockChatSeen,
     summarizeMockChats,
 } from './chat-mocks.js';
@@ -151,7 +154,7 @@ let mockProfile: MockProfile = {
 };
 
 function mockChatCards() {
-    return createMockChatCards(mockProfile.user_id);
+    return createMockChatCards(mockProfile.user_id, MATCH_ITEMS);
 }
 
 function mockChatId(url: URL): string {
@@ -163,9 +166,27 @@ function findMockChat(chatId: string) {
     return mockChatCards().find((card) => card.chat_id === chatId);
 }
 
-export function mockSendChatMessage(chatId: string, text: string) {
+function mockChatChanges(chat: ChatCard) {
+    return {
+        chat: createMockChatDetails(chat, mockProfile.user_id).chat,
+        summary: summarizeMockChats(mockChatCards()),
+    };
+}
+
+export function mockSendChatMessage(chatId: string, text: string, clientMessageId: string) {
     const chat = findMockChat(chatId);
-    return chat ? appendMockChatMessage(chat, mockProfile.user_id, text) : null;
+    if (!chat) return null;
+
+    const message = appendMockChatMessage(chat, mockProfile.user_id, text, clientMessageId);
+    return { message, ...mockChatChanges(chat) };
+}
+
+export function mockReadChat(chatId: string, lastReadSeq: number) {
+    const chat = findMockChat(chatId);
+    if (!chat) return null;
+
+    const position = markMockChatRead(chat, mockProfile.user_id, lastReadSeq);
+    return { position, ...mockChatChanges(chat) };
 }
 
 const LOCATION_KEY = 'mock-location';
@@ -389,6 +410,7 @@ const MATCH_NAMES = [
 
 const MATCH_ITEMS = MATCH_NAMES.map((name, index) => ({
     match_id: 100 - index,
+    chat_id: getMockChatIdForMatch(100 - index),
     user_id: 200 + index,
     name: index === 7 ? null : name,
     age: index === 9 ? null : 22 + (index % 8),

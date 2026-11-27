@@ -57,13 +57,20 @@ function startApp() {
     }
 
     const chatSocket = createChatSocket(handleChatSummary);
+    chatSocket.subscribeToReconnect(() => {
+        refreshChatSummary();
+    });
     let unsubscribeFromMessages: (() => void) | undefined;
 
     async function startChatSession() {
         if (!isAuthenticated()) return;
 
-        const requestVersion = ++summaryRequestVersion;
         chatSocket.connect();
+        await refreshChatSummary();
+    }
+
+    async function refreshChatSummary() {
+        const requestVersion = ++summaryRequestVersion;
 
         try {
             const summary = await getChatSummary();
@@ -120,7 +127,7 @@ function startApp() {
     function handleLogin(response: AuthResponse) {
         setAuthenticated(true, response.missing);
         router.go('/');
-        void startChatSession();
+        startChatSession();
     }
 
     /**
@@ -141,7 +148,7 @@ function startApp() {
         try {
             await restoreSession();
             if (isAuthenticated()) {
-                void startChatSession();
+                startChatSession();
             } else {
                 endChatSession();
             }
@@ -258,7 +265,7 @@ function startApp() {
         });
 
     router.start();
-    void startChatSession();
+    startChatSession();
 }
 
 /**

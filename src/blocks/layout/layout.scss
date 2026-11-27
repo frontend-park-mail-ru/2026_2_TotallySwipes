@@ -42,4 +42,13 @@
         border: 0;
         border-top: 1px solid v.$color-border-default;
     }
+
+    .layout_mobile-fullscreen {
+        min-height: 0;
+        padding-bottom: 0;
+    }
+
+    .layout_mobile-fullscreen .layout__sidebar {
+        display: none;
+    }
 }
