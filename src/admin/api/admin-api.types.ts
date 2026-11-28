@@ -111,6 +111,19 @@ export interface Override {
     created_by: UserRef;
 }
 
+/**
+ * Тело POST /admin/configs/{id}/overrides. Пользователь задаётся ровно одним полем:
+ * user_id или email. Повторный вызов для того же пользователя меняет enabled.
+ */
+export interface OverrideUpsert {
+    /** ID пользователя. Не передаётся, если задан email. */
+    user_id?: number;
+    /** Email пользователя. Не передаётся, если задан user_id. */
+    email?: string;
+    /** true -- включить флаг пользователю принудительно, false -- выключить. */
+    enabled: boolean;
+}
+
 /** Карточка настройки. */
 export interface ConfigDetails extends Config {
     /** Персональные исключения. У config список пустой. */

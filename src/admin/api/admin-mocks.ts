@@ -8,6 +8,7 @@ import type {
     ConfigValue,
     NumberConstraints,
     Override,
+    OverrideUpsert,
     Scope,
     ScopeInfo,
     UserRef,
@@ -38,6 +39,16 @@ const NAME_PATTERN = /^[a-z0-9_]{1,64}$/;
 const MAX_STRING_LENGTH = 4096;
 const MAX_DESCRIPTION_LENGTH = 1000;
 const PHOTO_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_OVERRIDES = 10_000;
+
+// Пользователи продукта, которых можно добавить в исключения. Остальные получат 404 USER_NOT_FOUND.
+const USERS: UserRef[] = [
+    ADMIN,
+    { user_id: 104, email: 'tester@swipes.ru' },
+    { user_id: 230, email: 'no-timepad@swipes.ru' },
+    { user_id: 311, email: 'anna@swipes.ru' },
+    { user_id: 412, email: 'boris@swipes.ru' },
+];
 
 /** Всё, что моки хранят в localStorage. */
 interface MockStore {
@@ -172,11 +183,15 @@ function adminOnly(handler: MockHandler): MockRoute {
 }
 
 /**
- * @param {URL} url - Адрес вида /api/v1/admin/configs/12.
- * @returns {Config|undefined} Настройка с id из адреса.
+ * Находит настройку по id из адреса. id стоит сразу после /configs/, поэтому функция
+ * работает и для /configs/12, и для /configs/12/overrides/104.
+ *
+ * @param {URL} url - Адрес вида /api/v1/admin/configs/12...
+ * @returns {Config|undefined}
  */
 function findConfig(url: URL): Config | undefined {
-    const id = Number(url.pathname.split('/').pop());
+    const segments = url.pathname.split('/');
+    const id = Number(segments[segments.indexOf('configs') + 1]);
     return store.configs.find((config) => config.id === id);
 }
 
@@ -575,8 +590,132 @@ function deleteConfig(url: URL): MockResponse {
     return { status: 204 };
 }
 
+/**
+ * Проверяет тело POST /overrides: ровно одно из полей user_id или email и enabled.
+ *
+ * @param {OverrideUpsert} data
+ * @returns {Object<string, string>} Ошибки по полям. Пустой объект -- ошибок нет.
+ */
+function validateOverride(data: OverrideUpsert): Record<string, string> {
+    const fields: Record<string, string> = {};
+    const { user_id: userId, email } = data;
+
+    if (userId !== undefined && email !== undefined) {
+        fields.email = 'Укажите что-то одно: email или user_id';
+    } else if (userId === undefined && email === undefined) {
+        fields.email = 'Укажите email или user_id';
+    } else if (userId !== undefined) {
+        if (!Number.isInteger(userId) || userId < 1) {
+            fields.user_id = 'ID должен быть целым числом больше 0';
+        }
+    } else if (typeof email !== 'string' || !email.includes('@')) {
+        fields.email = 'Некорректный email';
+    }
+
+    if (typeof data.enabled !== 'boolean') {
+        fields.enabled = 'Нужно true или false';
+    }
+
+    return fields;
+}
+
+/**
+ * Ищет пользователя по user_id или email. Email сравнивается без учёта регистра.
+ *
+ * @param {OverrideUpsert} data
+ * @returns {UserRef|undefined}
+ */
+function findUser(data: OverrideUpsert): UserRef | undefined {
+    if (data.user_id !== undefined) {
+        return USERS.find((user) => user.user_id === data.user_id);
+    }
+
+    const email = data.email?.trim().toLowerCase();
+    return USERS.find((user) => user.email === email);
+}
+
+/**
+ * POST /admin/configs/{id}/overrides: 200 с исключением. Если у пользователя исключение
+ * уже есть, меняет enabled, а время и автор создания остаются прежними.
+ *
+ * @param {URL} url
+ * @param {{body: *}} request
+ * @returns {MockResponse}
+ */
+function upsertOverride(url: URL, { body }: { body: unknown }): MockResponse {
+    const config = findConfig(url);
+    if (!config) {
+        return notFound();
+    }
+    if (config.kind !== 'flag') {
+        return error(400, 'NOT_A_FLAG', 'Исключения доступны только для флагов');
+    }
+
+    const data = body as OverrideUpsert;
+    const fields = validateOverride(data);
+    if (Object.keys(fields).length > 0) {
+        return validationError(fields);
+    }
+
+    const user = findUser(data);
+    if (!user) {
+        return error(404, 'USER_NOT_FOUND', 'Пользователь не найден');
+    }
+
+    const overrides = (store.overrides[config.id] ??= []);
+    const existing = overrides.find((item) => item.user_id === user.user_id);
+
+    if (existing) {
+        existing.enabled = data.enabled;
+        saveStore();
+        return { status: 200, body: existing };
+    }
+
+    if (overrides.length >= MAX_OVERRIDES) {
+        return error(
+            400,
+            'TOO_MANY_OVERRIDES',
+            'Слишком много исключений (максимум 10000). Используйте процент раскатки',
+        );
+    }
+
+    const override: Override = {
+        user_id: user.user_id,
+        email: user.email,
+        enabled: data.enabled,
+        created_at: now(),
+        created_by: ADMIN,
+    };
+    overrides.push(override);
+    config.overrides_count = overrides.length;
+    saveStore();
+
+    return { status: 200, body: override };
+}
+
+/**
+ * DELETE /admin/configs/{id}/overrides/{user_id}: 204, даже если исключения не было.
+ *
+ * @param {URL} url
+ * @returns {MockResponse}
+ */
+function deleteOverride(url: URL): MockResponse {
+    const config = findConfig(url);
+    if (!config) {
+        return notFound();
+    }
+
+    const userId = Number(url.pathname.split('/').pop());
+    const overrides = store.overrides[config.id] ?? [];
+    store.overrides[config.id] = overrides.filter((item) => item.user_id !== userId);
+    config.overrides_count = store.overrides[config.id].length;
+    saveStore();
+
+    return { status: 204 };
+}
+
 // mockFetch заменяет числа в пути на {id}, поэтому запрос /admin/configs/12 попадает
-// в маршрут /admin/configs/{id}.
+// в маршрут /admin/configs/{id}, а /configs/12/overrides/104 -- в /configs/{id}/overrides/{id}.
 export const ADMIN_MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/admin/me': adminOnly(() => ({ status: 200, body: ADMIN })),
     'GET /api/v1/admin/scopes': adminOnly(() => ({ status: 200, body: { items: SCOPES } })),
@@ -585,4 +724,6 @@ export const ADMIN_MOCK_ROUTES: Record<string, MockRoute> = {
     'GET /api/v1/admin/configs/{id}': adminOnly(getConfig),
     'PUT /api/v1/admin/configs/{id}': adminOnly(updateConfig),
     'DELETE /api/v1/admin/configs/{id}': adminOnly(deleteConfig),
+    'POST /api/v1/admin/configs/{id}/overrides': adminOnly(upsertOverride),
+    'DELETE /api/v1/admin/configs/{id}/overrides/{id}': adminOnly(deleteOverride),
 };

@@ -5,6 +5,8 @@ import type {
     ConfigDetails,
     ConfigsFilter,
     ConfigUpdate,
+    Override,
+    OverrideUpsert,
     ItemsResponse,
     ScopeInfo,
     UserRef,
@@ -112,5 +114,38 @@ export function deleteConfig(configId: number, version: number): Promise<null> {
     return request<null>(`${ADMIN}/configs/${configId}`, {
         method: 'DELETE',
         query: { version },
+    });
+}
+
+/**
+ * Принудительно включает или выключает флаг одному пользователю. Если исключение
+ * для этого пользователя уже есть, меняет у него enabled. Глобальное выключение
+ * (value = false) сильнее любого исключения.
+ *
+ * @param {number} configId - ID флага.
+ * @param {OverrideUpsert} data - user_id или email и решение enabled.
+ * @returns {Promise<Override>} Сохранённое исключение.
+ * @throws {ApiError} 400 NOT_A_FLAG, TOO_MANY_OVERRIDES или VALIDATION_ERROR,
+ * 404 NOT_FOUND или USER_NOT_FOUND.
+ */
+export function upsertOverride(configId: number, data: OverrideUpsert): Promise<Override> {
+    return request<Override>(`${ADMIN}/configs/${configId}/overrides`, {
+        method: 'POST',
+        body: data,
+    });
+}
+
+/**
+ * Удаляет исключение. Пользователь снова попадает под процент раскатки.
+ * Если исключения не было, сервер всё равно отвечает 204.
+ *
+ * @param {number} configId - ID флага.
+ * @param {number} userId
+ * @returns {Promise<null>} У ответа 204 тела нет.
+ * @throws {ApiError} 404 NOT_FOUND, если флага нет.
+ */
+export function deleteOverride(configId: number, userId: number): Promise<null> {
+    return request<null>(`${ADMIN}/configs/${configId}/overrides/${userId}`, {
+        method: 'DELETE',
     });
 }
