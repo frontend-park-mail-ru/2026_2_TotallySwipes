@@ -1,6 +1,8 @@
 import { ApiError, deletePhoto, reorderPhotos, uploadPhoto } from '../api/api.js';
 import type { Photo, PhotosResponse } from '../api/api.types.js';
 import { PHOTO_MAX_COUNT, validatePhotoCount, validatePhotoFile } from '../validation.js';
+import { refreshRuntimeConfig } from '../runtime-config.js';
+import { getPhotoPolicy } from './photo-policy.js';
 
 const NETWORK_ERROR_MESSAGE =
     'Не удалось сохранить фото. Проверьте соединение и попробуйте ещё раз.';
@@ -109,7 +111,8 @@ export class PhotoQueue {
     upload(file: File): void {
         this.enqueue(async () => {
             const error =
-                validatePhotoCount(this.currentPhotos.length + 1) ?? validatePhotoFile(file);
+                validatePhotoCount(this.currentPhotos.length + 1) ??
+                validatePhotoFile(file, getPhotoPolicy());
 
             if (error) {
                 this.listener?.onError(error);
@@ -162,7 +165,7 @@ export class PhotoQueue {
      */
     replace(id: number, file: File): void {
         this.enqueue(async () => {
-            const error = validatePhotoFile(file);
+            const error = validatePhotoFile(file, getPhotoPolicy());
 
             if (error) {
                 this.listener?.onError(error);
@@ -205,6 +208,11 @@ export class PhotoQueue {
             try {
                 await action();
             } catch (error) {
+                // Сервер уже применил новые правила, а снимок на фронте ещё старый.
+                if (error instanceof ApiError && error.code === 'PHOTO_POLICY') {
+                    refreshRuntimeConfig();
+                }
+
                 this.listener?.onError(photoErrorMessage(error));
             }
 

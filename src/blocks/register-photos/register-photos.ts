@@ -1,5 +1,6 @@
 import { setFormFieldError, validateFormFields } from '../form-field/form-field.js';
-import { PHOTO_MAX_COUNT, PHOTO_TYPES, validatePhotoCount } from '../../validation.js';
+import { PHOTO_MAX_COUNT, validatePhotoCount } from '../../validation.js';
+import { bindPhotoAccept, getPhotoAccept } from '../../photos/photo-policy.js';
 import type { Photo } from '../../api/api.types.js';
 import { icons } from '../../icons.js';
 import { getElement } from '../../utils/dom.js';
@@ -54,7 +55,7 @@ function initPhotosData(data: RegisterData): asserts data is PhotosData {
 export const photosStep: RegisterStepLogic = {
     template(data) {
         return registerPhotosHbs({
-            accept: PHOTO_TYPES.join(','),
+            accept: getPhotoAccept(),
             grid: gridTemplate(data.photoQueue?.photos ?? [], data.photoQueue?.isSaving ?? false),
         });
     },
@@ -64,6 +65,7 @@ export const photosStep: RegisterStepLogic = {
 
         const queue = data.photoQueue;
         const fileInput = getElement<HTMLInputElement>(form, '.register-photos__file');
+        bindPhotoAccept([fileInput]);
 
         // Вернулись на шаг во время сохранения: слушатель заменяется на эту форму,
         // и очередь перерисует сетку, когда действия завершатся.

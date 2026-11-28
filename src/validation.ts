@@ -1,3 +1,5 @@
+import type { PhotoPolicy } from './photos/photo-policy.js';
+
 const EMAIL_MAX_LENGTH = 254;
 const EMAIL_LOCAL_MAX_LENGTH = 64;
 const EMAIL_DOMAIN_MIN_LENGTH = 4;
@@ -30,7 +32,6 @@ const SEARCH_AGE_MAX = 100;
 
 const PHOTO_MIN_COUNT = 1;
 export const PHOTO_MAX_COUNT = 6;
-const PHOTO_MAX_SIZE_MB = 5;
 
 /**
  * Допустимые форматы фото: MIME-тип и название для сообщения об ошибке.
@@ -42,12 +43,26 @@ const PHOTO_FORMATS: Record<string, string> = {
 };
 
 /**
- * MIME-типы допустимых фото.
+ * MIME-типы фото, которые умеет принимать продукт. Какие из них разрешены сейчас,
+ * задаёт OnlineConf, см. photos/photo-policy.ts.
  */
 export const PHOTO_TYPES = Object.keys(PHOTO_FORMATS);
 
-const PHOTO_FORMAT_NAMES = Object.values(PHOTO_FORMATS);
-const PHOTO_FORMATS_LABEL = `${PHOTO_FORMAT_NAMES.slice(0, -1).join(', ')} и ${PHOTO_FORMAT_NAMES.at(-1)}`;
+/**
+ * Перечисляет форматы для сообщения об ошибке.
+ *
+ * @param types - Разрешённые MIME-типы.
+ * @returns Например, "в форматах JPG, JPEG, PNG и WebP" или "в формате PNG".
+ */
+function photoFormatsLabel(types: string[]): string {
+    const names = types.map((type) => PHOTO_FORMATS[type] ?? type);
+
+    if (names.length === 1) {
+        return `в формате ${names[0]}`;
+    }
+
+    return `в форматах ${names.slice(0, -1).join(', ')} и ${names.at(-1)}`;
+}
 
 export const INTERESTS_MAX_COUNT = 7;
 
@@ -321,15 +336,16 @@ export function validateSearchAge(from: string, to: string): string | null {
  * Валидирует файл фото.
  *
  * @param file - Выбранный файл.
+ * @param policy - Текущие правила загрузки из getPhotoPolicy().
  * @returns Текст ошибки или `null`, если ошибки нет.
  */
-export function validatePhotoFile(file: File): string | null {
-    if (!PHOTO_TYPES.includes(file.type)) {
-        return `Подходят только фото в форматах ${PHOTO_FORMATS_LABEL}.`;
+export function validatePhotoFile(file: File, policy: PhotoPolicy): string | null {
+    if (!policy.allowed_mime_types.includes(file.type)) {
+        return `Подходят только фото ${photoFormatsLabel(policy.allowed_mime_types)}.`;
     }
 
-    if (file.size > PHOTO_MAX_SIZE_MB * 1024 * 1024) {
-        return `Фото не должно быть больше ${PHOTO_MAX_SIZE_MB} МБ.`;
+    if (file.size > policy.max_file_size_mb * 1024 * 1024) {
+        return `Фото не должно быть больше ${policy.max_file_size_mb} МБ.`;
     }
 
     return null;

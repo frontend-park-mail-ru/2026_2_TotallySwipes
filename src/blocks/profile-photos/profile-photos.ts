@@ -4,7 +4,8 @@ import { PhotoQueue, REPLACE_AT_LIMIT_MESSAGE } from '../../photos/photo-queue.j
 import { initPhotoDrag } from '../../photos/photo-drag.js';
 import { initPhotoSwipe } from '../../photos/photo-swipe.js';
 import { getElement } from '../../utils/dom.js';
-import { PHOTO_MAX_COUNT, PHOTO_TYPES } from '../../validation.js';
+import { PHOTO_MAX_COUNT } from '../../validation.js';
+import { bindPhotoAccept, getPhotoAccept } from '../../photos/photo-policy.js';
 import { setFormFieldError } from '../form-field/form-field.js';
 import galleryHbs from './gallery.hbs';
 import profilePhotosHbs from './profile-photos.hbs';
@@ -20,7 +21,7 @@ const MOBILE_MEDIA = '(max-width: 820px)';
  * @returns HTML-строка карточки.
  */
 export function profilePhotosTemplate(mix: string = ''): string {
-    return profilePhotosHbs({ accept: PHOTO_TYPES.join(','), mix });
+    return profilePhotosHbs({ accept: getPhotoAccept(), mix });
 }
 
 /**
@@ -50,6 +51,7 @@ export function initProfilePhotos(
     const count = getElement(root, '.profile-photos__count');
     const fileInput = getElement<HTMLInputElement>(root, '.profile-photos__file');
     const replaceInput = getElement<HTMLInputElement>(root, '.profile-photos__replace-file');
+    bindPhotoAccept([fileInput, replaceInput]);
 
     // Выбранное фото запоминается по id, чтобы оно не потерялось при перестановке.
     // Индекс нужен, когда выбранное фото исчезло -- выбирается соседнее.
