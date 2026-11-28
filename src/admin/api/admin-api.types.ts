@@ -117,6 +117,48 @@ export interface ConfigDetails extends Config {
     overrides: Override[];
 }
 
+/** Тело POST /admin/configs: новая настройка. */
+export interface ConfigCreate {
+    /** Область, к которой относится настройка. */
+    scope: Scope;
+    /** Имя внутри scope: латиница в нижнем регистре, цифры и _, до 64 символов. */
+    name: string;
+    /** Флаг или конфиг. */
+    kind: ConfigKind;
+    /** Тип значения. У флага обязательно bool. */
+    value_type: ValueType;
+    /** Начальное значение, должно подходить под value_type. */
+    value: ConfigValue;
+    /** Процент пользователей 0--100. Обязателен у флага, у config не передаётся или null. */
+    rollout_percent?: number | null;
+    /** Ограничения для числа. */
+    constraints?: NumberConstraints | null;
+    /** [extra] ID регламента раскатки, только у флага. */
+    rollout_policy_id?: number | null;
+    /** Отдавать ли настройку в продуктовый GET /api/v1/config. По умолчанию false. */
+    client_visible?: boolean;
+    /** Описание для админов, до 1000 символов. По умолчанию пустая строка. */
+    description?: string;
+}
+
+/** Тело PUT /admin/configs/{id}. scope, name, kind и value_type изменить нельзя. */
+export interface ConfigUpdate {
+    /** Новое значение, должно подходить под value_type записи. */
+    value: ConfigValue;
+    /** Процент пользователей 0--100, только у флага. */
+    rollout_percent?: number | null;
+    /** Ограничения для числа. */
+    constraints?: NumberConstraints | null;
+    /** [extra] ID регламента раскатки, только у флага. */
+    rollout_policy_id?: number | null;
+    /** Отдавать ли настройку в продуктовый GET /api/v1/config. */
+    client_visible: boolean;
+    /** Описание для админов, до 1000 символов. */
+    description: string;
+    /** version из последнего GET. Если запись уже изменили, сервер ответит 409 VERSION_CONFLICT. */
+    version: number;
+}
+
 /** Фильтры списка. Если поле не задано, фильтр не применяется. */
 export interface ConfigsFilter {
     /** Только записи этого scope. */

@@ -1,8 +1,10 @@
 import { ApiError, request } from '../../api/api.js';
 import type {
     Config,
+    ConfigCreate,
     ConfigDetails,
     ConfigsFilter,
+    ConfigUpdate,
     ItemsResponse,
     ScopeInfo,
     UserRef,
@@ -73,4 +75,42 @@ export async function listConfigs(filter: ConfigsFilter = {}): Promise<Config[]>
  */
 export function getConfig(configId: number): Promise<ConfigDetails> {
     return request<ConfigDetails>(`${ADMIN}/configs/${configId}`);
+}
+
+/**
+ * Создаёт конфиг или флаг.
+ *
+ * @param {ConfigCreate} data
+ * @returns {Promise<Config>} Созданная запись, по её id можно открыть карточку.
+ * @throws {ApiError} 400 VALIDATION_ERROR с ошибками в fields, 409 ALREADY_EXISTS, если scope.name занят.
+ */
+export function createConfig(data: ConfigCreate): Promise<Config> {
+    return request<Config>(`${ADMIN}/configs`, { method: 'POST', body: data });
+}
+
+/**
+ * Сохраняет изменения настройки. В data.version передаётся версия из последнего GET.
+ *
+ * @param {number} configId
+ * @param {ConfigUpdate} data
+ * @returns {Promise<Config>} Запись после сохранения, с новой версией.
+ * @throws {ApiError} 400 VALIDATION_ERROR, 404 NOT_FOUND, 409 VERSION_CONFLICT, если запись уже изменили.
+ */
+export function updateConfig(configId: number, data: ConfigUpdate): Promise<Config> {
+    return request<Config>(`${ADMIN}/configs/${configId}`, { method: 'PUT', body: data });
+}
+
+/**
+ * Удаляет настройку. Продукт после этого берёт значение по умолчанию из кода.
+ *
+ * @param {number} configId
+ * @param {number} version - Версия из последнего GET.
+ * @returns {Promise<null>} У ответа 204 тела нет.
+ * @throws {ApiError} 404 NOT_FOUND, 409 VERSION_CONFLICT, если запись уже изменили.
+ */
+export function deleteConfig(configId: number, version: number): Promise<null> {
+    return request<null>(`${ADMIN}/configs/${configId}`, {
+        method: 'DELETE',
+        query: { version },
+    });
 }

@@ -40,7 +40,7 @@ export interface MockResponse {
  * Обработчик запроса, который строит ответ по URL и телу.
  * Тело уже разобрано из JSON или FormData и не проверяется: обработчики приводят его к типу из API.
  */
-type MockHandler = (url: URL, request: { body: unknown }) => MockResponse;
+export type MockHandler = (url: URL, request: { body: unknown }) => MockResponse;
 
 /** Маршрут мока: готовый ответ или обработчик, который его строит. */
 export type MockRoute = MockResponse | MockHandler;
