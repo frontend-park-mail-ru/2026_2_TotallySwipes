@@ -1,6 +1,6 @@
 import { Router } from './router.js';
 import { getElement } from './utils/dom.js';
-import { getChatSummary, logout, onUnauthorized } from './api/api.js';
+import { getChatSummary, logout, onFeatureDisabled, onUnauthorized } from './api/api.js';
 import { isNetworkError, showOfflineToast } from './network.js';
 import type { AuthResponse, ChatSummary } from './api/api.types.js';
 import { restoreSession, isAuthenticated, isProfileComplete, setAuthenticated } from './session.js';
@@ -23,7 +23,7 @@ import {
 import { createChatSocket } from './api/chat-socket.js';
 import { createChatSummary } from './chat-summary.js';
 import { updateSidebarUnreadCount } from './blocks/sidebar/sidebar.js';
-import { startRuntimeConfig, stopRuntimeConfig } from './runtime-config.js';
+import { refreshRuntimeConfig, startRuntimeConfig, stopRuntimeConfig } from './runtime-config.js';
 
 const GUEST_PATHS = ['/login', '/register'];
 const ONBOARDING_PATH = '/register';
@@ -108,6 +108,10 @@ function startApp() {
         unsubscribeFromMessages();
         unsubscribeFromMessages = undefined;
     }
+
+    onFeatureDisabled(() => {
+        refreshRuntimeConfig();
+    });
 
     onUnauthorized(() => {
         if (!isAuthenticated()) {

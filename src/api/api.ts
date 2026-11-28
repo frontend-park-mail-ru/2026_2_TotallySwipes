@@ -106,6 +106,7 @@ function buildUrl(path: string, query: QueryParams = {}): string {
 
 let refreshPromise: Promise<null> | null = null;
 let handleUnauthorized: () => void = () => {};
+let handleFeatureDisabled: () => void = () => {};
 
 /**
  * Задаёт обработчик, который вызывается, когда сессию не удалось обновить.
@@ -114,6 +115,16 @@ let handleUnauthorized: () => void = () => {};
  */
 export function onUnauthorized(callback: () => void) {
     handleUnauthorized = callback;
+}
+
+/**
+ * Задаёт обработчик ответа 403 FEATURE_DISABLED от любой ручки: функцию выключили
+ * в OnlineConf, а фронт об этом ещё не знает.
+ *
+ * @param {Function} callback
+ */
+export function onFeatureDisabled(callback: () => void) {
+    handleFeatureDisabled = callback;
 }
 
 /**
@@ -173,6 +184,7 @@ function isUnauthorized(error: unknown): boolean {
 
 /**
  * Отправляет запрос к API. При 401 один раз обновляет сессию и повторяет запрос.
+ * На 403 FEATURE_DISABLED вызывает обработчик из onFeatureDisabled и пробрасывает ошибку дальше.
  *
  * @param {string} path - Путь относительно API_URL.
  * @param {Object} [options] - Параметры запроса, как у send.
@@ -183,6 +195,10 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     try {
         return await send<T>(path, options);
     } catch (error) {
+        if (error instanceof ApiError && error.code === 'FEATURE_DISABLED') {
+            handleFeatureDisabled();
+        }
+
         if (!isUnauthorized(error) || path.startsWith('/auth/')) {
             throw error;
         }

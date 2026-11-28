@@ -983,6 +983,12 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
             return { status: 200, body: placeSearchState(matchId, current) };
         }
 
+        // Как на бэке: флаг проверяется, только когда активного подбора нет.
+        const flags = clientConfigBody(mockProfile.user_id).flags;
+        if (flags['matching.timepad_enabled'] === false) {
+            return error(403, 'FEATURE_DISABLED', 'Подбор мест сейчас недоступен');
+        }
+
         const search: MockPlaceSearch = {
             city,
             created_at: Date.now(),

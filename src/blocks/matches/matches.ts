@@ -6,6 +6,8 @@ import { MATCH_COLORS, PHOTO_PLACEHOLDER } from '../../icons';
 import { matchCardTemplate, type MatchCardData } from '../match-card/match-card';
 import { showModal } from '../modal/modal';
 import { isNetworkError, showOfflineToast } from '../../network';
+import { isPlaceSearchEnabled } from '../../feature-flags.js';
+import { subscribeToRuntimeConfig } from '../../runtime-config.js';
 import matchesHbs from './matches.hbs';
 
 //TODO: вынести в общий константы отсюда и из feed.ts
@@ -15,6 +17,18 @@ const LOAD_ERROR_MODAL = {
     text: 'Не удалось загрузить анкеты, похоже, что пропала связь. Попробуйте ещё раз.',
     buttonText: 'Повторить',
 };
+
+// При выключенном флаге новый подбор не создать, но подбор, который начал партнёр,
+// по той же ссылке откроется: бэк вернёт его, не проверяя флаг.
+const MEETUP_TEXT = 'Назначить встречу';
+const OPEN_SEARCH_TEXT = 'Открыть подбор';
+
+/**
+ * @returns Текст кнопки подбора мест по текущему флагу.
+ */
+function meetupText(): string {
+    return isPlaceSearchEnabled() ? MEETUP_TEXT : OPEN_SEARCH_TEXT;
+}
 
 const MORE_TEXT = 'Загрузить ещё';
 const RETRY_TEXT = 'Повторить загрузку';
@@ -41,6 +55,7 @@ function toMatchView(item: Match, offset: number): MatchCardData {
         matchColor: MATCH_COLORS[offset % MATCH_COLORS.length],
         isNew: item.is_new,
         canMeetup: item.can_meetup === true,
+        meetupText: meetupText(),
         partnerFinished: item.partner_finished === true,
         offset,
     };
@@ -83,6 +98,19 @@ export function renderMatchesPage(root: HTMLElement) {
     });
 
     moreButton.addEventListener('click', loadMore);
+
+    // Флаг переключили, пока страница открыта: меняем только текст кнопок, карточки остаются.
+    const unsubscribe = subscribeToRuntimeConfig(() => {
+        if (!page.isConnected) {
+            unsubscribe();
+            return;
+        }
+
+        const text = meetupText();
+        page.querySelectorAll('.match-card__meetup-text').forEach((label) => {
+            label.textContent = text;
+        });
+    });
 
     loadMore();
     function loadMore() {

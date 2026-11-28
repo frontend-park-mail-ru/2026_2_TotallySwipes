@@ -13,6 +13,8 @@ export interface MatchCardData {
     matchColor: string;
     isNew: boolean;
     canMeetup: boolean;
+    /** Текст кнопки подбора мест: "Назначить встречу" или "Открыть подбор". */
+    meetupText: string;
     partnerFinished: boolean;
     offset: number;
 }

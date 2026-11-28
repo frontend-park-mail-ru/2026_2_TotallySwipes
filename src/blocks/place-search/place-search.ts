@@ -25,6 +25,7 @@ import {
 import { roundButtonTemplate, type RoundButtonData } from '../round-button/round-button';
 import { pillTemplate } from '../pill/pill';
 import { isNetworkError, showOfflineToast } from '../../network';
+import { showToast } from '../toast/toast';
 
 interface SearchState {
     searchId: uuid;
@@ -99,6 +100,9 @@ const SEARCH_ALREADY_ACTIVE_MODAL = {
     title: 'Подбор уже идёт',
     buttonText: 'К симпатиям',
 };
+
+// Подбора у мэтча нет, а новый создать нельзя: флаг matching.timepad_enabled выключен.
+const FEATURE_DISABLED_TEXT = 'Подбор мест сейчас недоступен';
 
 const NO_EVENTS_MODAL = {
     image: '/icons/mascot-error.svg',
@@ -285,6 +289,10 @@ export function renderPlaceSearchPage(root: HTMLElement, router: Router, params:
             const code = error instanceof ApiError ? error.code : null;
 
             switch (code) {
+                case 'FEATURE_DISABLED':
+                    showToast(FEATURE_DISABLED_TEXT);
+                    router.go('/matches', { replace: true });
+                    break;
                 case 'NO_EVENTS':
                     showModal({
                         ...NO_EVENTS_MODAL,
