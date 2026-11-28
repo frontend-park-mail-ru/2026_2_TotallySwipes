@@ -26,16 +26,24 @@ import {
     markMockChatSeen,
     summarizeMockChats,
 } from './chat-mocks.js';
+import { ADMIN_MOCK_ROUTES } from '../admin/api/admin-mocks.js';
 
-interface MockResponse {
+/** Ответ мока. mockFetch превращает его в настоящий Response. */
+export interface MockResponse {
+    /** HTTP-статус ответа. */
     status: number;
+    /** Тело ответа, уйдёт как JSON. При статусе 204 не нужно. */
     body?: unknown;
 }
 
-// Тело уже разобрано из JSON или FormData и не проверяется: обработчики приводят его к типу из API.
+/**
+ * Обработчик запроса, который строит ответ по URL и телу.
+ * Тело уже разобрано из JSON или FormData и не проверяется: обработчики приводят его к типу из API.
+ */
 type MockHandler = (url: URL, request: { body: unknown }) => MockResponse;
 
-type MockRoute = MockResponse | MockHandler;
+/** Маршрут мока: готовый ответ или обработчик, который его строит. */
+export type MockRoute = MockResponse | MockHandler;
 
 interface MockProfile {
     user_id: number;
@@ -1171,4 +1179,5 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
 
         return { status: 204 };
     },
+    ...ADMIN_MOCK_ROUTES,
 };

@@ -1,0 +1,76 @@
+import { ApiError, request } from '../../api/api.js';
+import type {
+    Config,
+    ConfigDetails,
+    ConfigsFilter,
+    ItemsResponse,
+    ScopeInfo,
+    UserRef,
+} from './admin-api.types.js';
+
+const ADMIN = '/admin';
+
+/**
+ * Проверяет, что запрос отклонён из-за отсутствия прав администратора.
+ * Ошибку CSRF_INVALID с тем же статусом 403 не считает отказом в доступе.
+ *
+ * @param {*} error - Ошибка из запроса к админскому API.
+ * @returns {boolean} true, если бэкенд ответил 403 FORBIDDEN.
+ */
+export function isForbidden(error: unknown): boolean {
+    return error instanceof ApiError && error.status === 403 && error.code === 'FORBIDDEN';
+}
+
+/**
+ * Возвращает текущего администратора. Админка вызывает этот запрос первым при запуске:
+ * 401 означает, что нужен вход, 403 -- что у пользователя нет прав.
+ *
+ * @returns {Promise<UserRef>} ID и email администратора.
+ * @throws {ApiError}
+ */
+export function getAdminMe(): Promise<UserRef> {
+    return request<UserRef>(`${ADMIN}/me`);
+}
+
+/**
+ * Возвращает список scope для фильтра в списке и выпадающего списка в форме.
+ *
+ * @returns {Promise<ScopeInfo[]>}
+ * @throws {ApiError}
+ */
+export async function listScopes(): Promise<ScopeInfo[]> {
+    const { items } = await request<ItemsResponse<ScopeInfo>>(`${ADMIN}/scopes`);
+    return items;
+}
+
+/**
+ * Возвращает конфиги и флаги, отсортированные по ключу. Пустые фильтры не отправляются.
+ *
+ * @param {ConfigsFilter} [filter]
+ * @param {Scope} [filter.scope] - Только записи этого scope.
+ * @param {ConfigKind} [filter.kind] - Только флаги или только конфиги.
+ * @param {string} [filter.q] - Подстрока в ключе `scope.name`, регистр не учитывается.
+ * @returns {Promise<Config[]>}
+ * @throws {ApiError}
+ */
+export async function listConfigs(filter: ConfigsFilter = {}): Promise<Config[]> {
+    // buildUrl пропускает только undefined и null, поэтому пустую строку тоже превращаем в undefined.
+    const search = filter.q?.trim();
+    const q = search ? search : undefined;
+
+    const { items } = await request<ItemsResponse<Config>>(`${ADMIN}/configs`, {
+        query: { scope: filter.scope, kind: filter.kind, q },
+    });
+    return items;
+}
+
+/**
+ * Возвращает карточку конфига или флага с персональными исключениями.
+ *
+ * @param {number} configId
+ * @returns {Promise<ConfigDetails>}
+ * @throws {ApiError} 404 NOT_FOUND, если настройки нет или она удалена.
+ */
+export function getConfig(configId: number): Promise<ConfigDetails> {
+    return request<ConfigDetails>(`${ADMIN}/configs/${configId}`);
+}

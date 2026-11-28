@@ -176,7 +176,7 @@ function isUnauthorized(error: unknown): boolean {
  * @returns {Promise<*>} Тело ответа.
  * @throws {ApiError}
  */
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     try {
         return await send<T>(path, options);
     } catch (error) {
