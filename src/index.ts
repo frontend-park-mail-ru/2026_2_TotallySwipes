@@ -23,6 +23,7 @@ import {
 import { createChatSocket } from './api/chat-socket.js';
 import { createChatSummary } from './chat-summary.js';
 import { updateSidebarUnreadCount } from './blocks/sidebar/sidebar.js';
+import { startRuntimeConfig, stopRuntimeConfig } from './runtime-config.js';
 
 const GUEST_PATHS = ['/login', '/register'];
 const ONBOARDING_PATH = '/register';
@@ -114,6 +115,7 @@ function startApp() {
         }
 
         endChatSession();
+        stopRuntimeConfig();
 
         setAuthenticated(false);
         router.go('/login', { replace: true });
@@ -128,6 +130,7 @@ function startApp() {
         setAuthenticated(true, response.missing);
         router.go('/');
         startChatSession();
+        startRuntimeConfig();
     }
 
     /**
@@ -149,8 +152,10 @@ function startApp() {
             await restoreSession();
             if (isAuthenticated()) {
                 startChatSession();
+                startRuntimeConfig();
             } else {
                 endChatSession();
+                stopRuntimeConfig();
             }
         } catch (error) {
             console.error('Не удалось проверить сессию после регистрации:', error);
@@ -185,6 +190,7 @@ function startApp() {
         try {
             await logout();
             endChatSession();
+            stopRuntimeConfig();
         } catch (error) {
             console.error('Не удалось завершить сессию на сервере:', error);
             if (isNetworkError(error)) {
@@ -266,6 +272,9 @@ function startApp() {
 
     router.start();
     startChatSession();
+    if (isAuthenticated()) {
+        startRuntimeConfig();
+    }
 }
 
 /**

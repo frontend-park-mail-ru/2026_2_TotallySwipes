@@ -5,6 +5,7 @@ import type {
     ChatMessagesParams,
     ChatsResponse,
     ChatSummary,
+    ClientConfig,
     CompatibilityTest,
     Coordinates,
     CsrfResponse,
@@ -44,6 +45,8 @@ interface RequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     query?: QueryParams;
     body?: object | FormData;
+    /** Позволяет прервать запрос, например по таймауту. Прерванный запрос даёт NetworkError. */
+    signal?: AbortSignal;
 }
 
 export class NetworkError extends Error {
@@ -234,11 +237,11 @@ async function send<T>(path: string, options: RequestOptions = {}): Promise<T> {
  */
 async function sendOnce<T>(
     path: string,
-    { method = 'GET', query, body }: RequestOptions = {},
+    { method = 'GET', query, body, signal }: RequestOptions = {},
 ): Promise<T> {
     const url = buildUrl(path, query);
     const headers: Record<string, string> = {};
-    const init: RequestInit = { method, credentials: 'include', headers };
+    const init: RequestInit = { method, credentials: 'include', headers, signal };
 
     if (method !== 'GET') {
         headers['X-CSRF-Token'] = await getCsrfToken();
@@ -472,6 +475,17 @@ export function logout(): Promise<null> {
  */
 export function getCurrentUser(): Promise<ProfileShort> {
     return request<ProfileShort>('/profile/me/short');
+}
+
+/**
+ * Загружает настройки OnlineConf для текущего пользователя. Работает и без входа:
+ * тогда все флаги false, конфиги приходят как обычно.
+ *
+ * @param {AbortSignal} [signal] - Чтобы прервать запрос по таймауту.
+ * @returns {Promise<ClientConfig>}
+ */
+export function getClientConfig(signal?: AbortSignal): Promise<ClientConfig> {
+    return request<ClientConfig>('/config', { signal });
 }
 
 /**

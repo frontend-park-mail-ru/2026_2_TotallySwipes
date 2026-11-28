@@ -1,4 +1,5 @@
 import type { MockHandler, MockResponse, MockRoute } from '../../api/mocks.js';
+import type { ClientConfig } from '../../api/api.types.js';
 import type {
     Config,
     ConfigCreate,
@@ -21,7 +22,8 @@ import type {
 const FORBIDDEN_KEY = 'mock-admin-forbidden';
 const STORE_KEY = 'mock-admin-store';
 
-const ADMIN: UserRef = { user_id: 5, email: 'admin@swipes.ru' };
+// user_id совпадает с мок-аккаунтом продукта, чтобы исключение для себя было видно в продукте.
+const ADMIN: UserRef = { user_id: 1, email: 'admin@swipes.ru' };
 
 const SCOPES: ScopeInfo[] = [
     { scope: 'frontend', title: 'Продуктовый фронт' },
@@ -52,6 +54,8 @@ const USERS: UserRef[] = [
 
 /** Всё, что моки хранят в localStorage. */
 interface MockStore {
+    /** Номер версии данных. Растёт при каждой записи, его отдаёт GET /config. */
+    revision: number;
     /** Настройки без исключений, как строки списка. */
     configs: Config[];
     /** Исключения по id настройки, как отдельная таблица на бэкенде. */
@@ -59,6 +63,7 @@ interface MockStore {
 }
 
 const INITIAL_STORE: MockStore = {
+    revision: 1,
     configs: [
         {
             id: 12,
@@ -137,7 +142,13 @@ function loadStore(): MockStore {
 
 const store = loadStore();
 
-const saveStore = () => localStorage.setItem(STORE_KEY, JSON.stringify(store));
+/**
+ * Сохраняет данные моков и повышает revision, как бэкенд при любой правке.
+ */
+function saveStore() {
+    store.revision = (store.revision ?? 0) + 1;
+    localStorage.setItem(STORE_KEY, JSON.stringify(store));
+}
 
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
 
@@ -727,3 +738,69 @@ export const ADMIN_MOCK_ROUTES: Record<string, MockRoute> = {
     'POST /api/v1/admin/configs/{id}/overrides': adminOnly(upsertOverride),
     'DELETE /api/v1/admin/configs/{id}/overrides/{id}': adminOnly(deleteOverride),
 };
+
+/**
+ * Бакет пользователя 0--9999 для процента раскатки. Бэкенд считает его через SHA-256,
+ * а в моке достаточно любого стабильного хеша: один и тот же пользователь
+ * всегда попадает в один бакет. Поэтому результаты мока и бэкенда для 10% могут различаться.
+ *
+ * @param {Config} flag
+ * @param {number} userId
+ * @returns {number}
+ */
+function mockBucket(flag: Config, userId: number): number {
+    let hash = 2166136261;
+    for (const char of `${flag.key}:${userId}`) {
+        hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
+    }
+    return (hash >>> 0) % 10_000;
+}
+
+/**
+ * Считает флаг для пользователя в том же порядке, что бэкенд: глобальное выключение,
+ * гость, персональное исключение, процент.
+ *
+ * @param {Config} flag
+ * @param {Override[]} overrides - Исключения этого флага.
+ * @param {number|null} userId - null для гостя.
+ * @returns {boolean}
+ */
+function evaluateFlag(flag: Config, overrides: Override[], userId: number | null): boolean {
+    if (flag.value === false || userId === null) {
+        return false;
+    }
+
+    const override = overrides.find((item) => item.user_id === userId);
+    if (override) {
+        return override.enabled;
+    }
+
+    return mockBucket(flag, userId) < (flag.rollout_percent ?? 0) * 100;
+}
+
+/**
+ * Тело ответа продуктового GET /api/v1/config. Читает хранилище заново, чтобы правка
+ * из админки в другой вкладке попала в продукт без перезагрузки.
+ *
+ * @param {number|null} userId - Пользователь из сессии, null для гостя.
+ * @returns {ClientConfig}
+ */
+export function clientConfigBody(userId: number | null): ClientConfig {
+    const current = loadStore();
+    const body: ClientConfig = { revision: current.revision ?? 0, flags: {}, config: {} };
+
+    for (const item of current.configs) {
+        if (!item.client_visible) {
+            continue;
+        }
+
+        if (item.kind === 'flag') {
+            const overrides = current.overrides[item.id] ?? [];
+            body.flags[item.key] = evaluateFlag(item, overrides, userId);
+        } else {
+            body.config[item.key] = item.value;
+        }
+    }
+
+    return body;
+}

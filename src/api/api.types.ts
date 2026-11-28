@@ -65,6 +65,16 @@ export interface ReorderPhotosRequest {
     photo_ids: Photo['id'][];
 }
 
+/** Ответ GET /config: настройки OnlineConf для текущего пользователя. */
+export interface ClientConfig {
+    /** Номер версии настроек. Растёт при любом изменении в админке. */
+    revision: number;
+    /** Флаги, уже рассчитанные для пользователя из cookie: ключ scope.name -> true или false. */
+    flags: Record<string, boolean>;
+    /** Значения конфигов как есть: ключ scope.name -> число, строка, массив или объект. */
+    config: Record<string, unknown>;
+}
+
 export interface ProfileShort {
     user_id: number;
     name: string | null;

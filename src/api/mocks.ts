@@ -26,7 +26,7 @@ import {
     markMockChatSeen,
     summarizeMockChats,
 } from './chat-mocks.js';
-import { ADMIN_MOCK_ROUTES } from '../admin/api/admin-mocks.js';
+import { ADMIN_MOCK_ROUTES, clientConfigBody } from '../admin/api/admin-mocks.js';
 
 /** Ответ мока. mockFetch превращает его в настоящий Response. */
 export interface MockResponse {
@@ -92,13 +92,14 @@ const error = (status: number, code: string, message: string): MockResponse => (
 const unauthorized = () => error(401, 'UNAUTHORIZED', 'Необходимо войти заново.');
 
 /**
- * Имитирует проверку access-токена: без мок-сессии всё, кроме /auth/*, получает 401.
+ * Имитирует проверку access-токена: без мок-сессии всё, кроме /auth/* и /config, получает 401.
  *
  * @param {string} pathname
  * @returns {{status: number, body: Object}|null} Ответ-ошибка или null, если доступ есть.
  */
 export function checkAccess(pathname: string): MockResponse | null {
-    if (pathname.startsWith('/api/v1/auth/') || hasCookie(ACCESS_COOKIE)) {
+    const isPublic = pathname.startsWith('/api/v1/auth/') || pathname === '/api/v1/config';
+    if (isPublic || hasCookie(ACCESS_COOKIE)) {
         return null;
     }
 
@@ -1179,5 +1180,9 @@ export const MOCK_ROUTES: Record<string, MockRoute> = {
 
         return { status: 204 };
     },
+    'GET /api/v1/config': () => ({
+        status: 200,
+        body: clientConfigBody(hasCookie(ACCESS_COOKIE) ? mockProfile.user_id : null),
+    }),
     ...ADMIN_MOCK_ROUTES,
 };
